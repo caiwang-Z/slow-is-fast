@@ -1,4 +1,4 @@
-#pragma onece
+#pragma once
 
 namespace TestReturnMultipleValues {
 	// 1. std::pair pa; pa.first, pa.second
