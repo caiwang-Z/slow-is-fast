@@ -1,5 +1,6 @@
 #include <iostream>
-#include "headerTest.h"
+//#include "headerTest.h"
+#include "testConstructor.h"
 
 int main() {
 	test();
