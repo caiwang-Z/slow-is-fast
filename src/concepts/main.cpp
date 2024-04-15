@@ -1,6 +1,7 @@
 #include <iostream>
 //#include "headerTest.h"
-#include "testConstructor.h"
+#include "testReturnValues.h"
+//#include "testMacro.h"
 
 int main() {
 	test();
