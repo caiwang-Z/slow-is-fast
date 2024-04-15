@@ -10,6 +10,27 @@ namespace TestStaticArray {
 	}
 }
 
+// test for static array
+namespace TestStaticArrayData {
+	struct imageInfo {
+		int width;
+		int height;
+		int linePitch;
+	};
+
+	void test() {
+		std::array<imageInfo, 3> infos{ {
+			{100, 200, 300},
+			{99, 299, 399},
+			{188, 288, 388}
+		} };
+		imageInfo** info = new imageInfo*;
+		*info = infos.data();
+		std::cout << ((*info) + 1)->linePitch << " " << ((*info) + 2)->height << std::endl;
+
+	}
+}
+
 void test() {
 
 }
