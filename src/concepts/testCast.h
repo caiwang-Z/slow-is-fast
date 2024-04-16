@@ -68,4 +68,5 @@ namespace TestDynamicCast {
 
 void test() {
 	TestDynamicCast::test();
+
 }
