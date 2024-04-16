@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-
+#include <iostream>
 namespace TestStaticArray {
 	void test() {
 		std::array<int, 5> data{ 1,2,3,4,5 };

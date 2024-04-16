@@ -3,7 +3,9 @@
 //#include "testReturnValues.h"
 //#include "testMacro.h"
 //#include "testStatic.h"
-#include "testFunctionPointers.h"
+//#include "testFunctionPointers.h"
+//#include "testTiming.h"
+#include "testDestructor.h"
 
 int main() {
 	test();
