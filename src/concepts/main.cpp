@@ -5,7 +5,8 @@
 //#include "testStatic.h"
 //#include "testFunctionPointers.h"
 //#include "testTiming.h"
-#include "testDestructor.h"
+//#include "testDestructor.h"
+#include "testCast.h"
 
 int main() {
 	test();
