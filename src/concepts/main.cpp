@@ -6,7 +6,8 @@
 //#include "testFunctionPointers.h"
 //#include "testTiming.h"
 //#include "testDestructor.h"
-#include "testCast.h"
+//#include "testCast.h"
+#include "testCPPKeyWords.h"
 
 int main() {
 	test();
