@@ -7,10 +7,11 @@
 //#include "testTiming.h"
 //#include "testDestructor.h"
 //#include "testCast.h"
-#include "testCPPKeyWords.h"
+//#include "testCPPKeyWords.h"
+#include "testPrimitivDataType.h"
 
 int main() {
 	test();
-	std::system("pause");
+	std::cin.get();
 	return 0;
 }
