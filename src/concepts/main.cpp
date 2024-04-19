@@ -8,7 +8,8 @@
 //#include "testDestructor.h"
 //#include "testCast.h"
 //#include "testCPPKeyWords.h"
-#include "testPrimitivDataType.h"
+//#include "testPrimitivDataType.h"
+#include "testTrackMemory.h"
 
 int main() {
 	test();

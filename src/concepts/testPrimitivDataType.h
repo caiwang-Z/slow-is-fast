@@ -1,17 +1,15 @@
 #include <iostream>
 #include <string_view>
-static uint32_t s_AllocCount = 0;
-
-void* operator new(size_t size) {
-	s_AllocCount++;
-	std::cout << "Allocating " << size << " bytes\n";
-	return malloc(size);
-}
 
 
 namespace MakeStringFaster {
+	static uint32_t s_AllocCount = 0;
 
-
+	void* operator new(size_t size) {
+		s_AllocCount++;
+		std::cout << "Allocating " << size << " bytes\n";
+		return malloc(size);
+	}
 
 	void printName(std::string_view name) {
 		std::cout << name << std::endl;
