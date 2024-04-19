@@ -41,6 +41,74 @@ namespace TestLValueRvalueBasic {
 	}
 }
 
-void test() {
+namespace TestMoveBasic {
+	class String {
+	public:
+		String() = default;
+		String(const char* string) {
+			std::cout << "Constructed!" << "\n";
+			_size = strlen(string);
+			_data = new char[_size + 1];
+			memcpy(_data, string, _size);
+			_data[_size] = '\0';
+		}
 
+		String(const String& other) {
+			std::cout << "Copied!" << "\n";
+			_size = other._size;
+			_data = new char[_size + 1];
+			memcpy(_data, other._data, _size);
+			_data[_size] = '\0';
+		}
+
+		String(String&& other) noexcept {
+			std::cout << "Moved!" << "\n";
+			_size = other._size;
+			_data = other._data;
+
+			other._size = 0;
+			other._data = nullptr;
+		}
+
+		~String() {
+			std::cout << "Destructed!" << "\n";
+			delete[] _data;
+		}
+
+
+	private:
+		char* _data;
+		int _size;
+
+	};
+
+	class Entity {
+	public:
+		Entity(const String& string): _name(string) {
+		}
+
+		Entity(String&& string) : _name(std::move(string)) {
+		}
+		/*
+		!No Entity(const String&& string) : _name(std::move(string)) {
+		}
+		This is because the purpose of the move constructor is to modify the original object in order to 
+		transfer its resources to the new object. Using const prevents this modification
+		*/
+
+	private:
+		String _name;
+
+	};
+
+	void test() {
+		Entity en{ "cherno" };
+	
+	}
+
+}
+
+
+void test() {
+	TestMoveBasic::test();
 }

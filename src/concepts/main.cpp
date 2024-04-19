@@ -9,7 +9,8 @@
 //#include "testCast.h"
 //#include "testCPPKeyWords.h"
 //#include "testPrimitivDataType.h"
-#include "testTrackMemory.h"
+//#include "testTrackMemory.h"
+#include "testLValueRvalue.h"
 
 int main() {
 	test();
