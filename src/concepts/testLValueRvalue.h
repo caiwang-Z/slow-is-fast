@@ -75,6 +75,29 @@ namespace TestMoveBasic {
 			delete[] _data;
 		}
 
+		void print() {
+			if (_data) {
+				std::cout << _data << "\n";
+
+			}
+		}
+
+		String& operator=(String&& other) {
+			// prevent assign variale to itself
+			if (this != &other) {
+				// handle old resources
+				delete[] _data;
+				
+				std::cout << "Moved!" << "\n";
+				_size = other._size;
+				_data = other._data;
+
+				other._size = 0;
+				other._data = nullptr;
+			}
+			return *this;
+		};
+
 
 	private:
 		char* _data;
@@ -106,9 +129,27 @@ namespace TestMoveBasic {
 	
 	}
 
+	void testMoveAssignmentOperator() {
+		std::cout << "Before move***************************\n";
+		String apple = "Apple";
+		std::cout << "apple: ";
+		apple.print();
+
+		String dest{""};
+		std::cout << "dest: ";
+		dest.print();
+		dest = std::move(apple);
+
+		std::cout << "After move***************************\n";
+		std::cout << "apple: ";
+		apple.print();
+		std::cout << "dest: ";
+		dest.print();
+	}
+
 }
 
 
 void test() {
-	TestMoveBasic::test();
+	TestMoveBasic::testMoveAssignmentOperator();
 }
