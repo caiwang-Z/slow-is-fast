@@ -1,0 +1,13 @@
+## 1. usage of ::
+	avoiding namespace conflicts; If you have a function or a variable defined in the global namespace and another with the same name in a current namespace (or due to using using namespace directive), you can use :: to explicitly refer to the one in the 
+	global namespace.
+	int count = 5;  // Global variable
+
+    namespace example {
+        int count = 10;  // Namespace scoped variable
+
+        void func() {
+            std::cout << "Local count: " << count << std::endl;  // Refers to example::count
+            std::cout << "Global count: " << ::count << std::endl;  // Refers to the global count
+        }
+    }

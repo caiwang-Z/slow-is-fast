@@ -82,7 +82,7 @@ namespace TestMoveBasic {
 			}
 		}
 
-		String& operator=(String&& other) {
+		String& operator=(String&& other) noexcept{
 			// prevent assign variale to itself
 			if (this != &other) {
 				// handle old resources
