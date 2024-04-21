@@ -11,7 +11,8 @@
 //#include "testPrimitivDataType.h"
 //#include "testTrackMemory.h"
 //#include "testLValueRvalue.h"
-#include "testStdContainer.h"
+//#include "testStdContainer.h"
+#include "testMap.h"
 
 int main() {
 	test();

@@ -11,3 +11,11 @@
             std::cout << "Global count: " << ::count << std::endl;  // Refers to the global count
         }
     }
+
+## 2. endians means only the order of bytes, not refer to the actual order of bits within the byte, just the order of bytes themselfs.
+    int a = 5; 
+    little endian: 0000 0101 0000 0000 0000 0000 0000 0000 (never 1010 0000 ... kind of weird mirror thing)
+    big endian:    0000 0000 0000 0000 0000 0000 0000 0101
+
+## 3. use unordered map wherever possible unless you need an actual sorted data structure.
+    Because unordered map usually ends up being faster map, at least the same speed.

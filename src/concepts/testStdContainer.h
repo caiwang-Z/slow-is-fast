@@ -1,6 +1,9 @@
 #pragma once
 #include <array>
 #include <iostream>
+#include <map>
+
+#include <string>
 
 namespace TestStaticArray {
 	void test() {
@@ -335,5 +338,5 @@ void test() {
 	//TestMyVector::test();
 	//TestMyVector::testAssignmentAndCopyConstructor();
 	//TestMyVector::testMyIteratorString();
-	TestMyArray::test();
+	//TestMyArray::test();
 }
