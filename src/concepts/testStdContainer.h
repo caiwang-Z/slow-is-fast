@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <iostream>
+
 namespace TestStaticArray {
 	void test() {
 		std::array<int, 5> data{ 1,2,3,4,5 };
@@ -43,11 +44,90 @@ namespace TestStaticAndDynamicArrayBasic {
 
 }
 
+namespace TestMyIterator {
+	template<typename VectorT>
+	class VectorIterator {
+	public:
+		/*
+		When accessing a type member (like a typedef or a type alias) from a dependent template type (VectorT in this case), you must prefix it with typename to inform the compiler that valueType is a type defined within VectorT. This is necessary because VectorT is a dependent name (its exact type depends on the template instantiation),
+		and C++ compilers need typename to parse the template correctly.*/
+		using valueType = typename VectorT::valueType;
+		using pointerType = valueType*;
+		using referenceType = valueType&;
+
+	public:
+		VectorIterator(pointerType ptr) : _ptr(ptr) {};
+
+		VectorIterator& operator++() { // pre increment
+			/*
+			This version is generally more efficient because it doesn't need to create a temporary object
+			before performing the increment.
+			*/
+			_ptr++;
+			// Returning *this allows the increment operation to be used directly within other expressions. 
+			// For example, using iterators in a loop condition:
+			return *this;
+		}
+
+		VectorIterator& operator--() {
+			_ptr--;
+			return *this;
+		}
+
+		VectorIterator operator--(int) {
+			VectorIterator iterator = *this;
+			--(*this);
+			return iterator;
+		}
+
+		referenceType operator[](int index) {
+			return *(_ptr + index);
+		}
+
+		referenceType operator*() {
+			return *_ptr;
+		}
+
+		pointerType operator->() {
+			return _ptr;
+		}
+
+		bool operator==(const VectorIterator& other) const {
+			return _ptr == other._ptr;
+		}
+
+		bool operator!=(const VectorIterator& other) const {
+			return _ptr != other._ptr;
+		}
+
+		VectorIterator operator++(int) { // post increment
+			/*
+			It is defined in the class as operator++(int), where int is a dummy parameter used to
+			differentiate it from the prefix version. This operator is less efficient than the prefix version because it involves creating a temporary object that holds the state of
+			the iterator prior to the increment.
+			*/
+			VectorIterator iterator = *this;
+			++(*this);
+			return iterator;
+		}
+
+	private:
+		pointerType _ptr;
+
+	};
+}
+
 namespace TestMyArray {
+	using TestMyIterator::VectorIterator;
 
 	template<typename T, size_t S>
 	class Array {
 	public:
+		using valueType = T;
+		using Iterator = VectorIterator<Array<T, S>>;
+
+	public:
+
 		size_t size() const { return S; };
 
 		T& operator[](int index) {
@@ -58,6 +138,9 @@ namespace TestMyArray {
 		}
 
 		T* data() { return _data; }
+
+		Iterator begin() { return Iterator(_data); }
+		Iterator end() { return Iterator(_data + S); }
 
 	private:
 		T _data[S];
@@ -73,18 +156,33 @@ namespace TestMyArray {
 		for (size_t i{ 0 }; i < arrayReference.size(); ++i) {
 			arr[i] = 2;
 		}
+
+		std::cout << "Iterator based traver of myArray: \n";
+
+		for (Array<int, 5>::Iterator it = arr.begin(); it != arr.end(); ++it) {
+			std::cout << *it << " ";
+		}
+
 	}
 
 }
 
 namespace TestMyVector{
+	using TestMyIterator::VectorIterator;
 
 	template<typename T>	
 	class Vector {
 	public:
+		using valueType = T;
+		using Iterator = VectorIterator<Vector<T>>;
+
+	public:
 		Vector() {
 			realloc(2);
 		}
+
+		Iterator begin() { return Iterator(_data); };
+		Iterator end() { return Iterator(_data + _capacity); };
 
 		void realloc(const size_t newCapacity) {
 
@@ -129,9 +227,9 @@ namespace TestMyVector{
 		}
 
 	private:
-		size_t _capacity{0};
+		size_t _capacity{2}; // initialization before calling constructor
 		size_t _fillSize{ 0 };
-		T* _data = nullptr;
+		T* _data = new T[_capacity];
 	};
 
 	template<typename T>
@@ -147,13 +245,45 @@ namespace TestMyVector{
 	void test() {
 		Vector<int> vec;
 		vec.pushBack(2);
+		print(vec);
 		vec.pushBack(10);
+		print(vec);
 		vec.pushBack(99);
 		vec.pushBack(100);
 		vec.pushBack(7);
 		vec.pushBack(87);
 		print(vec);
 		
+	}
+
+	void testMyIteratorInt() {
+		Vector<int> vec;
+		vec.pushBack(2);
+		vec.pushBack(10);
+		vec.pushBack(99);
+		vec.pushBack(100);
+		vec.pushBack(7);
+		vec.pushBack(87);
+
+		for(Vector<int>::Iterator it = vec.begin(); it != vec.end(); ++it) {
+			std::cout << *it << " ";
+		}
+
+	}
+
+	void testMyIteratorString() {
+		Vector<std::string> vec;
+		vec.pushBack("2");
+		vec.pushBack("10");
+		vec.pushBack("99");
+		vec.pushBack("cherno");
+		vec.pushBack("7");
+		vec.pushBack("87");
+
+		for (Vector<std::string>::Iterator it = vec.begin(); it != vec.end(); ++it) {
+			std::cout << *it << " ";
+		}
+
 	}
 
 	class Vector3 {
@@ -203,5 +333,7 @@ namespace TestMyVector{
 
 void test() {
 	//TestMyVector::test();
-	TestMyVector::testAssignmentAndCopyConstructor();
+	//TestMyVector::testAssignmentAndCopyConstructor();
+	//TestMyVector::testMyIteratorString();
+	TestMyArray::test();
 }
