@@ -15,6 +15,7 @@
 #include <future>
 #include <chrono>
 #include <mutex>
+#include <format>
 
 namespace TestCreatingThreadsBasic {
 	using TestScopeTiming::Timer;
@@ -302,10 +303,164 @@ namespace TestUniqueLock {
 	void taskWithAdoptLock(const char* threadNumber, int loopFor) {};
 }
 
+namespace TestConditionVariableBasic{
+	/*
+	// TOPIC: Condition Variable In C++ Threading
+	//IMPORTANT POINT: CV are used for two purpose
+	// A. Notify other threads
+	// B. Waiting for some conditions
+
+	// 1. Condition Variable allows running threads to wait on some conditions and once those conditions are met the waiting thread
+	//	  is notified using :
+			a. notify_one();
+			b. notify_all();
+	// 2. You need mutex to use condition variable.
+	// 3. If some thread want to wait on some condition then it has to do these things:
+			a. Acquire the mutex lock using std::unique_lock<std::mutex> lock(m);.
+			b. Execute wait, wait_for, or wait until. The wait operations atomically release the mutex
+			   and suspend the execution of the thread.
+			c. When the condition variable is notified, the thread is awakened, and the mutex is atomically reacquired.
+			   The thread should then check the condition and resume waiting if the wake up was spurious.
+
+	// NOTE:
+	// 1. Condition variables are used to synchronize two or more threads.
+	// 2. Best use case of condition variable is Producer/Consumer problem.
+	*/
+
+	std::condition_variable cv_money;
+	size_t balance = 0;
+	std::mutex mtx_balance;
+
+	void addMoney(int numMoney) {
+		std::unique_lock<std::mutex> lk(mtx_balance);
+		balance += numMoney;
+		std::cout << "Added money: " << numMoney << ", balance: " << balance << "\n";
+		cv_money.notify_one();
+	}
+
+	void withdrawMoneyWithWait(int numMoney) {
+		std::unique_lock<std::mutex> lk(mtx_balance);
+		cv_money.wait(lk, [numMoney]() {  // return value: void
+			bool res = (balance > numMoney);
+			if (!res) {
+				std::cout << "Money withdraw failed. Balance: " << balance << ", withdraw: " << numMoney << std::endl;
+			}
+			return res;
+			});
+		balance -= numMoney;
+		std::cout << "You withdrew " << numMoney << " , current balance: " << balance << std::endl;
+	}
+
+	void test() {
+		std::cout << "Main starts." << std::endl;
+		std::thread t1(withdrawMoneyWithWait, 400);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::thread t2(addMoney, 500);
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+
+		if (t2.joinable()) {
+			t2.join();
+		}
+
+		std::cout << "Main ends." << std::endl;
+	}
+
+	void fakeAddMoney(int numMoney) {
+		std::unique_lock<std::mutex> lk(mtx_balance);
+		//balance += numMoney;
+		std::cout << "Tried to add money: " << numMoney << ", but somehow failed. Balance: " << balance << "\n";
+		cv_money.notify_one();
+	}
+
+	void withdrawMoneyWithWaitFor(int numMoney) {
+		std::unique_lock<std::mutex> lk(mtx_balance);
+		if (cv_money.wait_for(lk, std::chrono::seconds(8), [numMoney]() {
+			// In the case of a wait_for timeout, the condition is indeed checked one last time. This is to confirm that the condition is satisfied at the moment of timeout, 
+			// and to correctly reflect the state of the condition even if it is woken up at exactly the moment of timeout.
+			bool res = (balance > numMoney);
+			if (!res) {
+				std::cout << "Money withdraw failed. Balance: " << balance << ", withdraw: " << numMoney << std::endl;
+			}
+			return res;
+			})) {
+			// condition is met before timeout
+			balance -= numMoney;
+			std::cout << "You withdrew " << numMoney << " , current balance: " << balance << std::endl;
+		}
+		else {
+			// timeout, condition has not been met yet.
+			std::cout << "Timeout, Withdraw money: " << numMoney << " failed!\n";
+
+		}
+	
+
+	}
+
+	void testWaitFor() {
+		std::cout << "Main starts." << std::endl;
+		std::thread t1(withdrawMoneyWithWaitFor, 400);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::thread t2(fakeAddMoney, 500);
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+
+		if (t2.joinable()) {
+			t2.join();
+		}
+
+		std::cout << "Main ends." << std::endl;
+	}
+
+	void withdrawMoneyWithWaitUntil(int numMoney) {
+		std::unique_lock<std::mutex> lk(mtx_balance);
+		const auto deadline = std::chrono::system_clock::now() + std::chrono::microseconds(4000);
+		if (cv_money.wait_until(lk, deadline, [numMoney]() {
+			bool res = (balance > numMoney);
+			if (!res) {
+				std::cout << "Money withdraw failed. Balance: " << balance << ", withdraw: " << numMoney << std::endl;
+			}
+			return res;
+			})) {
+			// Condition met by deadline
+			balance -= numMoney;
+			std::cout << "You withdrew " << numMoney << " , current balance: " << balance << std::endl;
+		}
+		else {
+			// Deadline reached, conditions still not met
+			std::cout << "Timeout, Reached the deadline!" << " Withdraw money : " << numMoney << " failed!\n";
+		}
+	}
+
+	void testWitUntil() {
+		std::cout << "Main starts." << std::endl;
+		std::thread t1(withdrawMoneyWithWaitUntil, 400);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::thread t2(fakeAddMoney, 500);
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+
+		if (t2.joinable()) {
+			t2.join();
+		}
+
+		std::cout << "Main ends." << std::endl;
+	}
+}
+
 void test() {
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
 	//TestMutexBasic::test();
 	//TestMutexBasic::testWithMutex();
-	TestLockGuard::test();
+	//TestLockGuard::test();
+	//TestConditionVariableBasic::test();
+	//TestConditionVariableBasic::testWaitFor();
+	TestConditionVariableBasic::testWitUntil();
 }
