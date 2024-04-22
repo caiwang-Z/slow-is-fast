@@ -454,6 +454,44 @@ namespace TestConditionVariableBasic{
 	}
 }
 
+namespace TestDeadLockBasic {
+	std::mutex mtx_drink;
+	std::mutex mtx_food;
+
+	void processThread1() {
+		std::unique_lock<std::mutex> lk_drink(mtx_drink);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::unique_lock<std::mutex> lk_food(mtx_food);
+
+		std::cout << "Start processing in thread: " << std::this_thread::get_id() << std::endl;
+	}
+
+	void processThread2() {
+		std::unique_lock<std::mutex> lk_food(mtx_food);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::unique_lock<std::mutex> lk_drink(mtx_drink);
+
+		std::cout << "Start processing in thread: " << std::this_thread::get_id() << std::endl;
+	}
+
+	void test() {
+		std::cout << "Main starts." << std::endl;
+		std::thread t1(processThread1);
+		std::thread t2(processThread2);
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+
+		if (t2.joinable()) {
+			t2.join();
+		}
+
+		std::cout << "Main ends." << std::endl;
+	}
+
+}
+
 void test() {
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
@@ -462,5 +500,6 @@ void test() {
 	//TestLockGuard::test();
 	//TestConditionVariableBasic::test();
 	//TestConditionVariableBasic::testWaitFor();
-	TestConditionVariableBasic::testWitUntil();
+	//TestConditionVariableBasic::testWitUntil();
+	TestDeadLockBasic::test();
 }
