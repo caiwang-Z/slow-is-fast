@@ -50,13 +50,45 @@ namespace TestVariantKeyWord {
 
 		data = 2;
 		std::cout << std::get<int>(data) << "\n";
-		auto* value = std::get_if<int>(&data);
+		auto* value1 = std::get_if<int>(&data);
 
 	}
 
 }
 
-void test() {
+namespace TestNullKeyWord {
+	class Entity {
+	public:
+		Entity() = default;
 
+		const std::string& printName() {
+			return _name;
+		}
+
+		void printType() {
+			std::cout << "Entity\n" << std::endl;
+		}
+
+	public:
+		Entity* _parent;
+		std::string _name;
+
+	};
+
+	void test() {
+		Entity* en = nullptr;
+		std::cout << "Line 1 *****************************************\n";
+		en->printType();
+		std::cout << "Line 2 *****************************************\n";
+		uint64_t offset = offsetof(Entity, _name); // 8, the address of nullptr (NULL in c) is 0x00000000000
+		std::cout << "name of entity: " << en->printName(); // Exception thrown: read access violation.
+		// **this** was 0x8. (check offset of _name in class Entity)
+	}
+
+
+}
+
+void test() {
+	TestNullKeyWord::test();
 
 }

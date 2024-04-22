@@ -12,7 +12,8 @@
 //#include "testTrackMemory.h"
 //#include "testLValueRvalue.h"
 //#include "testStdContainer.h"
-#include "testMap.h"
+//#include "testMap.h"
+#include "testMultiThreading.h"
 
 int main() {
 	test();

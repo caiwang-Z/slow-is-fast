@@ -26,7 +26,7 @@ namespace TestScopeTiming {
 		~Timer() {
 			_end = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> duration = _end - _start;
-			std::cout << "Timer runs " << duration * 1000.0f << " ms" << std::endl;
+			std::cout << "Timer runs " << duration << " s, " << duration * 1000.0f << " ms" << std::endl;
 		}
 	};
 
@@ -46,9 +46,9 @@ namespace TestScopeTiming {
 	}
 }
 
-
-void test() {
-	//TestTimingBasic::test();
-	TestScopeTiming::test();
-
-}
+// Timer class are used in other files for timing
+//void test() {
+//	//TestTimingBasic::test();
+//	TestScopeTiming::test();
+//
+//}
