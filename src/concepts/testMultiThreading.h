@@ -206,10 +206,106 @@ namespace TestMutexBasic {
 
 }
 
+namespace TestLockGuard {
+	/*
+	// TOPIC: lock_guard In C++ (std::lock_guard<mutex> lock(m1))
+	// NOTES:
+	// 0. It is very light weight wrapper for owning mutex on scoped basis.
+	// 1. It aquires mutex lock the moment you create the object of lock_guard.
+	// 2. It automatically removes the lock while goes out of scope.
+	// 3. You can not explicitly unlock the lock_guard.
+	// 4. You can not copy lock_guard.
+	// 5. You can use this when you want to give a explict to the viewer of your code that after owning this mutex
+	//    I do not want to release this mutex until the scope is finished.
+	*/
+	size_t buffer = 0;
+	std::mutex mtx_buffer;
+
+	void task(const char* threadNumber, int loopFor) {
+		mtx_buffer.lock();
+		for (size_t i = 0; i < loopFor; ++i) {
+			++buffer;
+			std::cout << "Thread number: " << threadNumber << " , buffer: " << buffer << std::endl;
+		}
+
+		mtx_buffer.unlock();
+	}
+
+	void taskWithMutex(const char* threadNumber, int loopFor) {
+		std::lock_guard lg(mtx_buffer);  // acquire ownership of the mutex and lock
+		for (size_t i = 0; i < loopFor; ++i) {
+			++buffer;
+			std::cout << "Thread number: " << threadNumber << " , buffer: " << buffer << std::endl;
+		}
+	}
+
+	void test() {
+		std::thread t1(taskWithMutex, "T1", 10);
+		std::thread t2(taskWithMutex, "T2", 10);
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+
+		if (t2.joinable()) {
+			t2.join();
+		}
+	}
+}
+
+namespace TestUniqueLock {
+	/*
+	// TOPIC: unique_lock In C++ (std::unique_lock<mutex> lock(m1))
+	// NOTES:
+	// 1. The class unique_lock is a mutex ownership wrapper.
+	// 2. It Allows:
+			a. Can Have Different Locking Strategies
+			b. time-constrained attempts at locking (try_lock_for, try_lock_until)
+			c. recursive locking
+			d. transfer of lock ownership (move not copy)
+			e. condition variables. (See this in coming videos)
+	// Locking Strategies
+	// TYPE						EFFECTS (S)
+	// 1. defer lock			do not acquire ownership of the mutex.
+	// 2. try_to_lock			try to acquire ownership of the mutex without blocking.
+	// 3. adopt lock			assume the calling thread already has ownership of the mutex.
+	*/
+	size_t buffer = 0;
+	std::mutex mtx_buffer;
+
+	void task(const char* threadNumber, int loopFor) {
+		std::unique_lock<std::mutex> lock(mtx_buffer); // acquire ownership of the mutex and lock
+		for (size_t i = 0; i < loopFor; ++i) {
+			++buffer;
+			std::cout << "Thread number: " << threadNumber << " , buffer: " << buffer << std::endl;
+		}
+	}
+
+	void taskWithDeferLock(const char* threadNumber, int loopFor) {
+		std::unique_lock<std::mutex> lock(mtx_buffer, std::defer_lock); // do not acquire ownership of the mutex yet, because used defer_lock
+		
+		// here can have some code or business logic
+		lock.lock(); // here we will have to explicitly tell to lock when ever we want to lock mutex mtx_buffer
+		
+		for (size_t i = 0; i < loopFor; ++i) {
+			++buffer;
+			std::cout << "Thread number: " << threadNumber << " , buffer: " << buffer << std::endl;
+		}
+
+		// lock.unlock(); // is not needed as it will be unlocked in destructor of unique_lock
+	}
+
+	// TODO 
+	void taskWithTryToLock(const char* threadNumber, int loopFor) {};
+
+	// TODO
+	void taskWithAdoptLock(const char* threadNumber, int loopFor) {};
+}
 
 void test() {
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
 	//TestMutexBasic::test();
-	TestMutexBasic::testWithMutex();
+	//TestMutexBasic::testWithMutex();
+	TestLockGuard::test();
 }
