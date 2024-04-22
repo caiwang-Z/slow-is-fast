@@ -13,6 +13,7 @@
 #include <iostream>
 #include "testTiming.h"
 #include <future>
+#include <chrono>
 
 namespace TestCreatingThreadsBasic {
 	using TestScopeTiming::Timer;
@@ -97,7 +98,58 @@ namespace TestAsyncFutureBasic {
 	}
 }
 
+namespace TestJoinAndDetach {
+	/*
+	// TOPIC: Use of join(), detach() and joinable() In Thread In C++ (C++11)
+	// JOIN NOTES
+	// 0. Once a thread is started we wait for this thread to finish by calling join() function on thread object.
+	// 1. Double join will result into the whole program termination (always check if joinable before calling join).
+	// 2. If needed we should check thread is joinable before joining. ( using joinable() function)
+	
+	// DETACH NOTES
+	// 0. This is used to detach newly created thread from the parent thread. It means the parent thread or main thread would not wait for its finish. 
+	// 1. Always check before detaching a thread that it is joinable otherwise we may end up double detaching and
+	// double detach() will result into the wohle program termination.
+	// 2. If we have detached thread and main function is returning then the detached thread execution is suspended (Means it still runs background, not terminated). But in parent thread we would not care it anymore.
+	
+	// NOTES:
+	// Either join() or detach() should be called on thred object, otherwise during thread object's destructor it will
+	// terminate the program. Because inside destructor it checks if thread is still joinable? if yes then it terminates the program.
+	*/
+	void run(int count) {
+		while (count > 0) {
+			std::cout << "Wokring, count " << count << std::endl;
+			count--;
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+
+	}
+
+	void testDoubleJoin() {
+		std::thread t1(run, 30);
+		std::cout << "main...\n";
+		t1.join();
+		// t1.join();  // double join will cause in termination of whole program
+		if (t1.joinable()) {
+			t1.join(); // call join second time safely
+		}
+	}
+
+	void testDoubleDetach() {
+		std::thread worker(run, 10);
+		std::cout << "main....\n";
+		worker.detach();
+		std::cout << "Main after...\n";
+		// worker.detach();  // double detach will cause in termination of whole program
+		if (worker.joinable()) {
+			worker.join();
+		}
+	}
+
+}
+
 void test() {
-	TestAsyncFutureBasic::test();
+	//TestAsyncFutureBasic::test();
+	TestJoinAndDetach::testDoubleDetach();
 
 }
