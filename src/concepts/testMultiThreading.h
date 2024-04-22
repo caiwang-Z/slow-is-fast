@@ -492,6 +492,25 @@ namespace TestDeadLockBasic {
 
 }
 
+namespace TestThreadSynchronisation {
+	/*
+	// TOPIC: Thread OR Process Synchronization
+	// NOTE: we will use only thread examples to explain this topic,
+	// POINTS:
+	// 1.0 Thread Or Process synchronize to access critical section.
+	// 2.0 Critical section is one or collection of program statements which should be executed by only one thread or process 3 // at a time.
+	*/
+
+	/*
+	Thread synchronization is a fundamental concept in concurrent programming, 
+	where multiple threads need to access shared resources without leading to data corruption 
+	or inconsistencies. Synchronization mechanisms ensure that only one thread can access critical 
+	sections of code or resources at a time, or that certain operations are performed in a controlled sequence.
+	Common synchronization techniques: mutex, condition_variable, read/write locks
+	*/
+
+}
+
 void test() {
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
