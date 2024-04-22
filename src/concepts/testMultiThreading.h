@@ -14,6 +14,7 @@
 #include "testTiming.h"
 #include <future>
 #include <chrono>
+#include <mutex>
 
 namespace TestCreatingThreadsBasic {
 	using TestScopeTiming::Timer;
@@ -144,12 +145,71 @@ namespace TestJoinAndDetach {
 		if (worker.joinable()) {
 			worker.join();
 		}
+
 	}
 
 }
 
+namespace TestMutexBasic {
+	/*
+	// TOPIC: Mutex In C++ Threading | Why Use Mutex | What Is Race Condition And How To Solve It? | What Is Critical Section
+	// Mutex: Mutual Exclusion
+	// RACE CONDITION:
+	// 0. Race condition is a situation where two or more threads/process happend to change a common data at the same time.
+	// 1. If there is a race condition then we have to protect it and the protected setion is
+	it and the protected setion is called critical section/region.
+	// MUTEX:
+	// 0. Mutex is used to avoid race condition.
+	// 1. We use lock(), unlock() on mutex to avoid race condition.
+	*/
+	size_t amount = 0;
+	void addAmount() {
+		++amount;
+	}
+
+	void test() {
+		std::cout << "amout: " << amount << std::endl;  // 0
+
+		std::thread worker1(addAmount);
+		std::thread worker2(addAmount);
+		if (worker1.joinable()) {
+			worker1.join();
+		}
+
+		if (worker2.joinable()) {
+			worker2.join();
+		}
+		std::cout << "amout: " << amount << std::endl;  // sometimes 2, sometimes 1
+	}
+
+	std::mutex mtx_amount;
+	void addAmountWithMutex() {
+		mtx_amount.lock();
+		++amount;
+		mtx_amount.unlock();
+	}
+
+	void testWithMutex() {
+		std::cout << "amout: " << amount << std::endl;  // 0
+
+		std::thread worker1(addAmountWithMutex);
+		std::thread worker2(addAmountWithMutex);
+		if (worker1.joinable()) {
+			worker1.join();
+		}
+
+		if (worker2.joinable()) {
+			worker2.join();
+		}
+		std::cout << "amout: " << amount << std::endl;  // sometimes 2, sometimes 1
+	}
+
+}
+
+
 void test() {
 	//TestAsyncFutureBasic::test();
-	TestJoinAndDetach::testDoubleDetach();
-
+	//TestJoinAndDetach::testDoubleDetach();
+	//TestMutexBasic::test();
+	TestMutexBasic::testWithMutex();
 }
