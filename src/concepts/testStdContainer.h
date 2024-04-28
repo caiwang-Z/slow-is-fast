@@ -2,6 +2,7 @@
 #include <array>
 #include <iostream>
 #include <map>
+#include <deque>
 
 #include <string>
 
@@ -338,9 +339,35 @@ namespace TestStdVecotrBasicUsage {
 // TODO std::vector::assign usage
 }
 
+namespace TestStdDequeUsage {
+
+	void test() {
+		std::deque<int> dq{ 1,2,8,9 };
+		dq.push_front(89);
+		dq.push_back(99);
+
+		for (const auto i : dq) {
+			std::cout << i << " ";
+		}
+		std::cout << "\n";
+
+		std::cout << "Last element is: " << dq.back();
+		for (const auto i : dq) {
+			std::cout << i << " ";
+		}
+		std::cout << "\n";
+		dq.pop_back();
+		for (const auto i : dq) {
+			std::cout << i << " ";
+		}
+		std::cout << "\n";
+	}
+}
+
 void test() {
 	//TestMyVector::test();
 	//TestMyVector::testAssignmentAndCopyConstructor();
 	//TestMyVector::testMyIteratorString();
 	//TestMyArray::test();
+	TestStdDequeUsage::test();
 }
