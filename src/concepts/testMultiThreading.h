@@ -511,6 +511,160 @@ namespace TestThreadSynchronisation {
 
 }
 
+namespace TestStdLock {
+	/*
+	// TOPIC: std::lock() In C++11
+
+	// It is used to lock multiple mutex at the same time.
+
+	// IMPORTANT:
+	// syntax---> std::lock(m1, m2, m3, m4);
+	// 1. All arguments are locked via a sequence of calls to lock(),  try_lock(), or unlock() on each argument.
+	// 2. Order of locking is not defined (it will try to lock provided mutex in any order and ensure that
+	//     there is no dead lock).
+	// 3. It is a blocking call.
+
+
+	// [Example:0] --> No deadlock.
+	//     Thread 1                    Thread 2
+	//     std::lock(m1,m2);           std::lock(m1,m2);
+
+	// [Example:1] --> No deadlock.
+
+	//     Thread 1                    Thread 2
+	//     std::lock(m1, m2);          std::lock(m2, m1);
+
+	// [Example:2] --> No deadlock.
+
+	//     Thread 1                    Thread 2
+	//     std::lock(m1, m2, m3, m4);  std::lock(m3, m4);
+	//                                 std::lock(m1, m2);
+
+	// [Example:3] --> Yes, the below can deadlock.
+
+	//     Thread 1                    Thread 2
+	//     std::lock(m1,m2);           std::lock(m3,m4);
+	//     std::lock(m3,m4);           std::lock(m1,m2);
+	*/
+
+	int goldAmount = 0, diamondAmount = 0;
+	std::mutex mtx_gold, mtx_diamond;
+
+	void process(const std::string& workerName) {
+		while (goldAmount < 100 || diamondAmount < 100) {
+			std::lock(mtx_gold, mtx_diamond);
+			std::cout << workerName << " digging and found a gold and diamond, Gold: " << ++goldAmount << ", Diamount: " << ++diamondAmount << std::endl;
+
+			mtx_gold.unlock();
+			mtx_diamond.unlock();
+		}
+	}
+	void test() {
+		std::thread t1(process, "Mike");
+		std::thread t2(process, "jerry");
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+		if (t2.joinable()) {
+			t2.join();
+		}
+	}
+
+	std::mutex mtx3, mtx4;
+	void processVerifyDeadlockMike() {
+		while (goldAmount < 100 || diamondAmount < 100) {
+			std::lock(mtx_gold, mtx_diamond);
+			std::lock(mtx3, mtx4);
+			std::cout << "Mike digging and found a gold and diamond, Gold: " << ++goldAmount << ", Diamount: " << ++diamondAmount << std::endl;
+
+			mtx_gold.unlock();
+			mtx_diamond.unlock();
+			mtx3.unlock();
+			mtx4.unlock();
+		}
+	}
+
+	void processVerifyDeadlockJerry() {
+		while (goldAmount < 100 || diamondAmount < 100) {
+			std::lock(mtx3, mtx4);
+			std::lock(mtx_gold, mtx_diamond);
+			std::cout << "Jerry digging and found a gold and diamond, Gold: " << ++goldAmount << ", Diamount: " << ++diamondAmount << std::endl;
+
+			mtx_gold.unlock();
+			mtx_diamond.unlock();
+			mtx3.unlock();
+			mtx4.unlock();
+		}
+	}
+
+	void testDeadlock() {
+		std::cout << "start mike digging...\n";
+		std::thread t1(processVerifyDeadlockMike);
+		std::cout << "Start jerry digging...\n";
+		std::thread t2(processVerifyDeadlockJerry);
+
+		if (t1.joinable()) {
+			t1.join();
+		}
+		if (t2.joinable()) {
+			t2.join();
+		}
+	}
+
+}
+
+namespace TestStdPromise {
+	/*
+	// TOPIC: std::future and std::promise in threading.
+
+	// NOTES:
+	// 1. std::promise
+	//      a. Used to set values or exceptions.
+	// 2. std::future
+	//      a. Used to get values from promise.
+	//      b. Ask promise if the value is available.
+	//      c. Wait for the promise.
+	*/
+
+	void findOdd(std::promise<size_t>&& promise, size_t start, size_t end) {
+		size_t oddSum{ 0 };
+		for (size_t i = 0; i < end; ++i) {
+			if (i & 1) {
+				oddSum += i;
+			}
+		}
+
+		promise.set_value(oddSum);
+	}
+
+	void test() {
+		size_t start = 0, end = 1900000000;
+		std::promise<size_t> promise;
+		std::future<size_t> future = promise.get_future();
+
+		std::cout << "Lanunch thread...\n";
+		// Specifically, std::promise cannot be copied, only moved, and attempting to copy it (as the current code effectively does when passing it to the thread) 
+		// will lead to a compilation error. 
+		// std::thread t1(findOdd, promise, start, end);
+		std::thread t1(findOdd, std::move(promise), start, end);
+		std::cout << "Waitting for result...\n";
+		std::cout << "Finding odd complete!" << future.get() << std::endl;
+		if (t1.joinable()) {
+			t1.join();
+		}
+	}
+}
+
+namespace TestJthtreadBasic {
+	// TODO test JThread
+
+}
+
+namespace TestFutureBasic {
+	// TODO test std::future, std::async, std::packaged_task, or std::promise.
+}
+
 void test() {
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
@@ -520,5 +674,8 @@ void test() {
 	//TestConditionVariableBasic::test();
 	//TestConditionVariableBasic::testWaitFor();
 	//TestConditionVariableBasic::testWitUntil();
-	TestDeadLockBasic::test();
+	//TestDeadLockBasic::test();
+	//TestStdLock::test();
+	//TestStdLock::testDeadlock();
+	TestStdPromise::test();
 }

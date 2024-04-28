@@ -42,6 +42,10 @@ namespace TestLocalStaticInSingleton {
 	}
 }
 
+namespace TestStaticScopeAccessAndLifeTimeInClassFunction {
+// TODO static visiblity in function and class, static declaration in class, not in definition
+}
+
 void test() {
 	TestStaticArrayData::test();
 }

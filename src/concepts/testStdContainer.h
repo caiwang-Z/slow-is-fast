@@ -334,6 +334,10 @@ namespace TestMyVector{
 	}
 }
 
+namespace TestStdVecotrBasicUsage {
+// TODO std::vector::assign usage
+}
+
 void test() {
 	//TestMyVector::test();
 	//TestMyVector::testAssignmentAndCopyConstructor();
