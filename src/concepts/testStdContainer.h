@@ -153,7 +153,7 @@ namespace TestMyArray {
 
 	void test() {
 		int size = 5;
-		Array<int, 5> arr;
+		Array<int, 5> arr{};
 		arr.size();
 		memset(arr.data(), 0, arr.size());
 		const auto& arrayReference = arr;

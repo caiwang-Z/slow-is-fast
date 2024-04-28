@@ -1,14 +1,3 @@
-// TODO learn std::condition_variale in real project, wait for
-
-// TODO learn std::future
-
-// TODO learn std::mutex
-
-// TODO learn std::lock_guard
-
-// TODO learn std::async
-
-// TODO learn timeout
 #include <thread>
 #include <iostream>
 #include "testTiming.h"
@@ -16,6 +5,7 @@
 #include <chrono>
 #include <mutex>
 #include <format>
+#include <deque>
 
 namespace TestCreatingThreadsBasic {
 	using TestScopeTiming::Timer;
@@ -656,8 +646,103 @@ namespace TestStdPromise {
 	}
 }
 
+namespace TestProducerConsumerProblem {
+	std::deque<int> dq;
+	std::mutex mtx_dq;
+	std::condition_variable cv;
+	constexpr auto g_buffersize{ 50 };
+
+	void consumer() {
+		while (true) {
+			std::unique_lock lk(mtx_dq);
+			cv.wait(lk, []() {
+				return dq.size() > 0;
+				});
+
+			std::cout << "Consume element: " << dq.back() << std::endl;
+			dq.pop_back();
+
+			cv.notify_one();
+		}
+	
+	}
+
+	void producer(int amount) {
+		while (amount > 0) {
+			std::unique_lock lk(mtx_dq);
+			cv.wait(lk, []() {
+				return dq.size() < g_buffersize;
+				});
+
+			dq.push_back(amount);
+			std::cout << "Generate element: " << amount-- << std::endl;
+			cv.notify_one();
+		}
+	}
+
+	void test() {
+		std::thread t_consumer(consumer);
+		std::thread t_producer(producer, 100);
+
+		if (t_consumer.joinable()) {
+			t_consumer.join();
+		}
+		if (t_producer.joinable()) {
+			t_producer.join();
+		}
+	
+	}
+
+}
+
 namespace TestJthtreadBasic {
-	// TODO test JThread
+	/*
+	1. Automatic Joining:
+	In the case of std::jthread, the thread is automatically joined when its destructor is called.
+	For std::thread, if the thread is still joinable upon destruction, it leads to a call to std::terminate, potentially causing errors in applications (not terminating all threads).
+	Using std::jthread eliminates the need to explicitly join threads and helps in avoiding issues related to incomplete thread termination.
+	*/
+	void process(int id) {
+		std::cout << "This is thread id: " << id << std::endl;
+	}
+
+	void test() {
+		std::vector<std::jthread> vec;
+		constexpr auto threadNum{ 10 };
+		for (size_t i = 0; i < threadNum; ++i) {
+			std::jthread t(process, i);
+			vec.push_back(std::move(t));
+		}
+
+		vec.clear();
+		std::cout << "All threads should be finished before!\n";
+	}
+
+	/*
+	2. Enhanced Control with std::stop_token:
+	std::jthread provides more control over thread execution through the use of std::stop_token.
+	The std::stop_token is a mechanism to send a stop request to the thread's execution. 
+	It operates as a request, allowing for controlled termination if properly handled within the thread's execution.
+	*/
+	void processWithStopToken(std::stop_token token) {
+		while (true) {
+			std::cout << "Thread is still running!\n";
+			if (token.stop_requested()) {
+				std::cout << "Stop requestd!\n";
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+
+	}
+
+
+	void testJthreadStopToken() {
+		std::jthread jt(processWithStopToken);
+		std::this_thread::sleep_for(std::chrono::seconds(6));
+		// If *this has an associated thread (joinable() == true), calls request_stop() and then join().
+		jt.request_stop();  // without line also works, cuzz request_stop will be called before jt gets destructed.
+	}
 
 }
 
@@ -666,6 +751,8 @@ namespace TestFutureBasic {
 }
 
 void test() {
+	TestJthtreadBasic::testJthreadStopToken();
+	//TestJthtreadBasic::test();
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
 	//TestMutexBasic::test();
@@ -677,5 +764,6 @@ void test() {
 	//TestDeadLockBasic::test();
 	//TestStdLock::test();
 	//TestStdLock::testDeadlock();
-	TestStdPromise::test();
+	//TestStdPromise::test();
+	//TestProducerConsumerProblem::test();
 }
