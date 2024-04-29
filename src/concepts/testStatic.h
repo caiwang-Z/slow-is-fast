@@ -19,6 +19,25 @@ namespace TestLocalStaticInFunction {
 		
 	}
 
+
+}
+
+namespace TestLegitInNamespace {
+	/*
+	Allowed in Namespace Scope:
+	Declaration and initialization of variables
+	Definition of functions and methods
+	Declaration of new types (like structs, classes, enums)
+	Declaration of other namespaces
+
+	Not Allowed in Namespace Scope:
+	Executing operations on variables (like assignment, addition, modification)
+	Calling functions that are not mere declarations
+	*/
+	int b = 100;
+	static std::string str = "like you";
+	//str = str + "some";  // not allowed
+
 }
 
 namespace TestLocalStaticInSingleton {

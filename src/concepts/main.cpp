@@ -2,7 +2,7 @@
 //#include "headerTest.h"
 //#include "testReturnValues.h"
 //#include "testMacro.h"
-//#include "testStatic.h"
+#include "testStatic.h"
 //#include "testFunctionPointers.h"
 //#include "testTiming.h"
 //#include "testDestructor.h"
@@ -13,7 +13,7 @@
 //#include "testLValueRvalue.h"
 //#include "testStdContainer.h"
 //#include "testMap.h"
-#include "testMultiThreading.h"
+//#include "testMultiThreading.h"
 
 int main() {
 	test();
