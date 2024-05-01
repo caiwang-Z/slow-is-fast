@@ -13,7 +13,8 @@
 //#include "testLValueRvalue.h"
 //#include "testStdContainer.h"
 //#include "testMap.h"
-#include "testMultiThreading.h"
+//#include "testMultiThreading.h"
+#include "testStdFunctions.h"
 
 int main() {
 	test();
