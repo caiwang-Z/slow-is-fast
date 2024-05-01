@@ -6,6 +6,9 @@
 #include <mutex>
 #include <format>
 #include <deque>
+#include <semaphore>
+#include <random>
+
 
 namespace TestCreatingThreadsBasic {
 	using TestScopeTiming::Timer;
@@ -746,12 +749,130 @@ namespace TestJthtreadBasic {
 
 }
 
+namespace TestSemaphoreBasic {
+	// global binary semaphore instances
+	// object counts are set to zero
+	// objects are in non-signaled state
+	std::binary_semaphore smphSignalMainToThread{ 0 }, smphSignalThreadToMain{ 0 };
+
+	void ThreadProc()
+	{
+		// wait for a signal from the main proc
+		// by attempting to decrement the semaphore
+		smphSignalMainToThread.acquire();
+
+		// this call blocks until the semaphore's count
+		// is increased from the main proc
+
+		std::cout << "[thread] Got the signal\n"; // response message
+
+		// wait for 3 seconds to imitate some work
+		// being done by the thread
+		using namespace std::literals;
+		std::this_thread::sleep_for(3s);
+
+		std::cout << "[thread] Send the signal\n"; // message
+
+		// signal the main proc back
+		smphSignalThreadToMain.release();
+	}
+
+	void test()
+	{
+		// create some worker thread
+		std::thread thrWorker(ThreadProc);
+
+		std::cout << "[main] Send the signal\n"; // message
+
+		// signal the worker thread to start working
+		// by increasing the semaphore's count
+		smphSignalMainToThread.release();
+
+		// wait until the worker thread is done doing the work
+		// by attempting to decrement the semaphore's count
+		smphSignalThreadToMain.acquire();
+
+		std::cout << "[main] Got the signal\n"; // response message
+		thrWorker.join();
+	}
+
+}
+
+namespace TestProducerConsumerProblemWithSemaphore {
+	std::binary_semaphore signalToProducer{ 0 }, signalToConsumer{ 0 };
+	constexpr auto dequeSize{ 5 };
+	std::deque<int> dq;
+
+	void producer(std::stop_token token) {
+		// Setup the random number generation
+		std::random_device rd; // Non-deterministic generator to seed the Mersenne Twister generator
+		std::mt19937 gen(rd()); // Mersenne Twister generator
+		constexpr size_t randomMin{ 1 };
+		constexpr size_t randomMax{ 100 };
+		std::uniform_int_distribution<> distrib(randomMin, randomMax); // Uniform distribution between 1 and 100
+
+		while (!token.stop_requested()) {
+			signalToProducer.acquire();
+			std::cout << "Producing: ";
+			for (size_t i = 0; i < dequeSize; ++i) {
+				const auto num = distrib(gen);
+				std::cout << num << " ";
+				dq.push_back(num);
+			}
+			std::cout << "\n";
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+			signalToConsumer.release();
+
+		}
+
+	
+	}
+
+	void consumer(std::stop_token token) {
+
+		while (!token.stop_requested()) {
+			signalToConsumer.acquire();
+			std::cout << "Consuming: ";
+			for (size_t i = 0; i < dequeSize; ++i) {
+				std::cout << dq.back() << " ";
+				dq.pop_back();
+			}
+			std::cout << "\n";
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+			signalToProducer.release();
+
+
+		}
+	
+	}
+
+	void test() {
+		std::cout << "Main start!\n";
+
+		std::jthread t_producer(producer);
+		std::jthread t_consumer(consumer);
+		signalToProducer.release();
+		
+		std::this_thread::sleep_for(std::chrono::seconds(10));
+		t_producer.request_stop();
+		t_consumer.request_stop();
+
+		std::cout << "Main finished!\n";
+
+	}
+
+}
+
 namespace TestFutureBasic {
 	// TODO test std::future, std::async, std::packaged_task, or std::promise.
 }
 
 void test() {
-	TestJthtreadBasic::testJthreadStopToken();
+	TestProducerConsumerProblemWithSemaphore::test();
+	//TestSemaphoreBasic::test();
+	//TestJthtreadBasic::testJthreadStopToken();
 	//TestJthtreadBasic::test();
 	//TestAsyncFutureBasic::test();
 	//TestJoinAndDetach::testDoubleDetach();
