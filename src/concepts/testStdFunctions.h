@@ -145,8 +145,8 @@ namespace TestSTDForward {
 				std::cout << "param is rvalue reference\n";
 			}
 			else std::cout << "param is lvalue reference\n";
-			A y = A(param);  // copy constructor
-			A z = A(std::forward<T>(param));  // move constructor, perfect forwarding
+			A y = A(param);  // copy constructor, rvalue refererence -> lvalue reference. T&& & -> T& not efficient.
+			A z = A(std::forward<T>(param));  // move constructor, perfect forwarding, efficient
 		}
 
 		void test() {
@@ -216,12 +216,12 @@ namespace TestSTDBindBasic {
 		// The std::bind_front function creates callable wrappers from callable objects. 
 		// A call to std::bind_front(func, arg...) will bind all arguments arg to the front of func and return a callable wrapper
 		auto f6 = std::bind_front(myDivide, 98);
-		myLog(f6(2));
+		myLog(f6(2));  // 98 / 2
 
 		// The std::bind_back function creates callable wrappers from callable objects. 
 		// A call to std::bind_back(func, arg...) will bind all arguments arg to the back of func and return a callable wrapper.
-		//auto f7 = std::bind_(myDivide, 3);  // since c++23
-		//myLog(f7(99));
+		//auto f7 = std::bind_back(myDivide, 3);  // since c++23
+		//myLog(f7(99));  // 99 / 3
 	}
 }
 
