@@ -8,6 +8,8 @@
 #include <deque>
 #include <semaphore>
 #include <random>
+#include <queue>
+#include <sstream>
 
 
 namespace TestCreatingThreadsBasic {
@@ -865,12 +867,98 @@ namespace TestProducerConsumerProblemWithSemaphore {
 
 }
 
+namespace TestThreadPool {
+	std::string getThreadID() {
+		auto id = std::this_thread::get_id();
+		std::stringstream ss;
+		ss << id;
+
+		return ss.str();
+	
+	}
+
+
+	class ThreadPool {
+	public:
+		ThreadPool(int numThreads) : _stop{false} {
+			for (int i = 0; i < numThreads; ++i) {
+				_workers.emplace_back([this]() {
+					while (true) {
+						std::unique_lock<std::mutex> lk(_tasksMtx);
+						_cv.wait(lk, [this]() {
+							return _stop || !_tasks.empty();
+							
+							});
+						if (_stop && _tasks.empty()) {
+							std::cout << getThreadID() << " exits. No task. \n";
+							return;
+						}
+
+						auto task = std::move(_tasks.front());
+						_tasks.pop();
+						lk.unlock();
+						// starts executing task after unlock mutex, may take 5 minutes, 5 days, 5 weeks. 
+						task();
+					}
+					}
+				);
+			}
+		};
+
+		~ThreadPool() {
+			std::unique_lock<std::mutex> lk(_tasksMtx);
+			_stop = true;
+			_cv.notify_all();
+			lk.unlock();
+			for (auto& worker : _workers) {
+				if (worker.joinable()) {
+					worker.join();
+				}
+			}
+		}
+		
+		template<typename T>
+		void enqueue(T&& task) {
+			std::unique_lock<std::mutex> lk(_tasksMtx);
+			_tasks.emplace(std::forward<T>(task));
+			lk.unlock();
+			_cv.notify_one();
+		}
+
+	private:
+		std::mutex _tasksMtx;
+		std::vector<std::jthread> _workers;
+		std::queue<std::function<void()>> _tasks;
+		std::condition_variable _cv;
+		std::atomic_bool _stop;
+
+	};
+
+	void test() {
+		ThreadPool tp(4);
+		std::cout << "Thread pool created\n";
+		std::cout << "Enqueue (assign) some tasks\n";
+
+		constexpr auto numTasks{ 18 };
+		for (int i = 0; i < numTasks; ++i) {
+			tp.enqueue([i]() {
+				std::cout << "Task " << i + 1 << " executed by thread: " << getThreadID() << "\n";
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				});
+		
+		}
+	
+	}
+
+}
+
 namespace TestFutureBasic {
 	// TODO test std::future, std::async, std::packaged_task, or std::promise.
 }
 
 void test() {
-	TestProducerConsumerProblemWithSemaphore::test();
+	TestThreadPool::test();
+	//TestProducerConsumerProblemWithSemaphore::test();
 	//TestSemaphoreBasic::test();
 	//TestJthtreadBasic::testJthreadStopToken();
 	//TestJthtreadBasic::test();
