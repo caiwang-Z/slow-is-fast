@@ -952,12 +952,45 @@ namespace TestThreadPool {
 
 }
 
+namespace TestScopedLock {
+	/*
+		When a scoped_lock object is created, it attempts to take ownership of the mutexes it is given. When control leaves the scope in which the scoped_lock object was created, 
+		the scoped_lock is destructed and the mutexes are released. If several mutexes are given, deadlock avoidance algorithm is used as if by std::lock.
+	
+	*/
+	std::mutex g_mtx_wine;
+	std::mutex g_mtx_bread;
+
+	void process(int i) {
+		std::scoped_lock lock(g_mtx_bread, g_mtx_wine);
+		std::cout << "Task " << i << " is running.\n";
+	}
+
+	void test() {
+		constexpr auto numThreads{50};
+		std::jthread threads[numThreads];
+		for (size_t i = 0; i < numThreads; ++i) {
+			threads[i] = std::jthread(process, i);
+		}
+
+		for (size_t i = 0; i < numThreads; ++i) {
+			if (threads[i].joinable()) {
+				threads[i].join();
+			}
+		
+		}
+	
+	}
+
+}
+
 namespace TestFutureBasic {
 	// TODO test std::future, std::async, std::packaged_task, or std::promise.
 }
 
 void test() {
-	TestThreadPool::test();
+	TestScopedLock::test();
+	//TestThreadPool::test();
 	//TestProducerConsumerProblemWithSemaphore::test();
 	//TestSemaphoreBasic::test();
 	//TestJthtreadBasic::testJthreadStopToken();
