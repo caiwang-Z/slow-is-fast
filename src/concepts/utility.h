@@ -5,7 +5,11 @@
 //	std::cout << message << "\n";
 //}
 
-template<typename T>
-void myLog(T t) {
-	std::cout << t << "\n";
+namespace LogNameSpace {
+	template<typename T>
+	void myLog(T t) {
+		std::cout << t << "\n";
+	}
+
 }
+
