@@ -9,6 +9,10 @@ namespace TestConditionalAndActionBreakpoints {
 	}
 }
 
-void test() {
-
+namespace MyLog {
+	
+	template<typename T>
+	void myLog(const T& message ) {
+		std::cout << message << std::endl;
+	}
 }
