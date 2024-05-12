@@ -1,0 +1,21 @@
+## 1. usage of ::
+	avoiding namespace conflicts; If you have a function or a variable defined in the global namespace and another with the same name in a current namespace (or due to using using namespace directive), you can use :: to explicitly refer to the one in the 
+	global namespace.
+	int count = 5;  // Global variable
+
+    namespace example {
+        int count = 10;  // Namespace scoped variable
+
+        void func() {
+            std::cout << "Local count: " << count << std::endl;  // Refers to example::count
+            std::cout << "Global count: " << ::count << std::endl;  // Refers to the global count
+        }
+    }
+
+## 2. endians means only the order of bytes, not refer to the actual order of bits within the byte, just the order of bytes themselfs.
+    int a = 5; 
+    little endian: 0000 0101 0000 0000 0000 0000 0000 0000 (never 1010 0000 ... kind of weird mirror thing)
+    big endian:    0000 0000 0000 0000 0000 0000 0000 0101
+
+## 3. use unordered map wherever possible unless you need an actual sorted data structure.
+    Because unordered map usually ends up being faster map, at least the same speed.
