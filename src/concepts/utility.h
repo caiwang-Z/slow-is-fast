@@ -5,7 +5,15 @@
 //	std::cout << message << "\n";
 //}
 
-template<typename T>
-void myLog(T t) {
-	std::cout << t << "\n";
+namespace UtilityNameSpace {
+	template<typename T>
+	void myLog(T t) {
+		std::cout << t << "\n";
+	}
+
+	void splitLine() {
+		std::cout << "******************************* split line ********************\n";
+	}
+
 }
+
