@@ -11,4 +11,10 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
+include(config)
+include(options)
+include(compilerflags)
+
+
+add_subdirectory(3rdParty)
 add_subdirectory(src)
