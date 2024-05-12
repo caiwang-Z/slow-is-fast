@@ -1,6 +1,6 @@
+set(TARGET myApp)
+
 set(sources main.cpp)
 set(headers headerTest.h)
 
-set(PROJECT_TARGET slow-is-fast)
-
-add_executable(${PROJECT_TARGET} ${sources} ${headers})
+add_executable(${TARGET} ${sources} ${headers})

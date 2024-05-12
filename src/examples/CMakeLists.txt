@@ -11,7 +11,7 @@ set_target_properties(${TARGET} PROPERTIES FOLDER "examples" VS_DEBUGGER_WORKING
 )
 
 install(
-  TARGETS demo-app
+  TARGETS ${TARGET}
   RUNTIME COMPONENT Runtime DESTINATION bin_tools
   )
 
