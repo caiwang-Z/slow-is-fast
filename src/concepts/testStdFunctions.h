@@ -276,10 +276,43 @@ namespace TestSTDDistance {
 
 }
 
+namespace TestSTDFindIf {
+	void testSTDFind() {
+		std::vector<int> vec{ 3, 1, 9, 8 };
+		if (std::find(vec.cbegin(), vec.cend(), 9) != vec.cend()) {
+			myLog("Found value.\n");
+		}
+		else {
+			myLog("Vec does not contain 9");
+		}
+	
+	}
+
+	void testSTDFindIf() {
+		std::vector<int> vec{ 3, 1, 9, 8 };
+		if (std::find_if(vec.cbegin(), vec.cend(), [](auto& val) {
+			return val == 9;
+			}) != vec.cend()) {
+			myLog("Found value.\n");
+		}
+		else {
+			myLog("Vec does not contain 9");
+		}
+	
+	}
+
+	void test() {
+		testSTDFind();
+		splitLine();
+		testSTDFindIf();
+	}
+
+}
+
 
 void test() {
-	TestSTDDistance::test();
-
+	//TestSTDDistance::test();
+	TestSTDFindIf::test();
 	//TestSTDForEach::test();
 	//TestSTDTransform::test();
 	//TestSTDForward::TestSTDForwardWithinClass::test();
