@@ -88,7 +88,34 @@ namespace TestNullKeyWord {
 
 }
 
+namespace TestNodiscard {
+	[[nodiscard]]
+	int sum(int a, int b) {
+		return a + b;
+	}
+	
+	[[nodiscard]]
+	char* getNewMessage() {
+		char* ms = new char[100];
+		strcpy(ms, "Hello World.");
+		return ms;
+	}
+
+	
+	void test() {
+		// sum(10, 20);  // warning C4834: discarding return value of function with 'nodiscard' attribute
+		auto res = sum(10, 20); // now warning
+		// There is a memory leak produced because the returned value was not stored anywhere and 
+		// there is no way to deallocate its memory.
+		// getNewMessage();  // warning C4834: discarding return value of function with 'nodiscard' attribute
+		auto res = getNewMessage(); // no warning
+	}
+
+}
+
 void test() {
-	TestNullKeyWord::test();
+	TestNodiscard::test();
+
+	//TestNullKeyWord::test();
 
 }
