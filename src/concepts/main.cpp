@@ -14,7 +14,7 @@
 //#include "testStdContainer.h"
 //#include "testMap.h"
 //#include "testMultiThreading.h"
-//#include "testStdFunctions.h"
+#include "testStdFunctions.h"
 //#include "testSTDException.h"
 //#include "testSmartPointer.h"
 

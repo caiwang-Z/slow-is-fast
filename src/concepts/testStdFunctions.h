@@ -3,7 +3,10 @@
 #include <functional>
 #include <cassert>
 #include <vector>
+#include <algorithm>
 
+using UtilityNameSpace::myLog;
+using UtilityNameSpace::splitLine;
 
 namespace TestStaticAssert {
 
@@ -159,6 +162,7 @@ namespace TestSTDForward {
 }
 
 namespace TestSTDFunctionBasic {
+	
 	void printNum(int i) {
 		myLog(i);
 	}
@@ -225,9 +229,46 @@ namespace TestSTDBindBasic {
 	}
 }
 
+namespace TestSTDTransform {
+	// std::transform applies the given function to the elements of the given input range(s), 
+	// and stores the result in an output range starting from d_first.
+
+	void test() {
+		std::vector<int> vec{ 1,2,3, 4, 5, 6 };
+		std::vector<int> dst(vec.size() );
+
+		std::transform(vec.cbegin(), vec.cend(), dst.begin(), [](int x) {return x * x; });
+		for (int i = 0; i < vec.size(); ++i) {
+			myLog(vec[i]);
+		}
+ 	}
+
+}
+
+namespace TestSTDForEach {
+	// Applies the given function object f to the result of dereferencing every iterator in the range [first, last). 
+	// If f returns a result, the result is ignored.
+	void test() {
+		std::vector<int> vec{ 1,2,3, 4, 5, 6 };
+		std::for_each(vec.begin(), vec.end(), [](int& x) {x = x * 2; });
+		for (int i = 0; i < vec.size(); ++i) {
+			myLog(vec[i]);
+		}
+		splitLine();
+		std::vector<int> vec1{ 10,20,30, 40, 50, 60 };
+		std::for_each(vec1.begin(), vec1.end(), [](int x) {x = x * 2; });
+		for (int i = 0; i < vec1.size(); ++i) {
+			myLog(vec1[i]);
+		}
+	}
+
+}
+
 
 void test() {
-	TestSTDForward::TestSTDForwardWithinClass::test();
+	TestSTDForEach::test();
+	//TestSTDTransform::test();
+	//TestSTDForward::TestSTDForwardWithinClass::test();
 	//TestSTDForward::TestLRValueWithinClass::test();
 	//TestSTDForward::testLRvalueBasic();
 	//TestSTDFunctionBasic::test();
