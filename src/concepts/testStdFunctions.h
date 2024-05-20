@@ -48,7 +48,7 @@ namespace TestSTDForward {
 			std::vector<std::string> vec;
 			std::string x = "abcd";
 			vec.push_back(std::move(x));
-			std::cout << "x: " << x << "\n";
+			// std::cout << "x: " << x << "\n";  // compiler complain, cause the underlying value has been moved
 			std::cout << "vector: " << vec[0] << "\n";
 		}
 	}

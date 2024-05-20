@@ -108,7 +108,7 @@ namespace TestNodiscard {
 		// There is a memory leak produced because the returned value was not stored anywhere and 
 		// there is no way to deallocate its memory.
 		// getNewMessage();  // warning C4834: discarding return value of function with 'nodiscard' attribute
-		auto res = getNewMessage(); // no warning
+		auto res1 = getNewMessage(); // no warning
 	}
 
 }

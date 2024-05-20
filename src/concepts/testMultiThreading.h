@@ -80,7 +80,7 @@ namespace TestAsyncFutureBasic {
 
 		//  Deferred execution. When using this strategy, tasks are delayed until the caller accesses the get() or wait() method of the std::future object associated with std::async. 
 		// If these methods are never called, the task may never be executed.
-		std::future<size_t> oddSumFuture = std::async(std::launch::async, findOdd, start, end);
+		std::future<size_t> oddSumFuture = std::async(std::launch::deferred, findOdd, start, end);
 
 		// Start asynchronous tasks and let the system decide whether to delay or execute them immediately
 		//auto f = std::async(std::launch::async | std::launch::deferred, task);
@@ -92,6 +92,35 @@ namespace TestAsyncFutureBasic {
 		
 		std::cout << "Sume of even: " << evenSum << "\n";
 		std::cout << "Sume of odd: " << oddSum << "\n";
+	}
+
+	void exampleTask() {
+		std::this_thread::sleep_for(std::chrono::seconds(2));
+		std::cout << "Task completed." << std::endl;
+	}
+
+
+	void testValid() {
+		std::future<void> defaultFuture;
+		if (!defaultFuture.valid()) {  // false, No shared state is associated with it. Calling valid returns false.
+			std::cout << "Default future is not valid \n";
+		}
+
+		std::future<void> asyncFuture = std::async(std::launch::async, exampleTask);
+		if (asyncFuture.valid()) {  // true, shared state is associated with the future
+			std::cout << "asyncFuture is valid \n";
+		}
+		
+		asyncFuture.wait();
+		if (asyncFuture.valid()) {  // This will still be true, wait() doesn't consume the state
+			std::cout << "asyncFuture is still valid after wait \n";
+		}
+
+		asyncFuture.get(); 
+		if (!asyncFuture.valid()) {  // true, After get() the shared state is consumed
+			std::cout << "asyncFuture is not valid after get \n";
+		}
+	
 	}
 }
 
@@ -989,13 +1018,13 @@ namespace TestFutureBasic {
 }
 
 void test() {
-	TestScopedLock::test();
+	//TestScopedLock::test();
 	//TestThreadPool::test();
 	//TestProducerConsumerProblemWithSemaphore::test();
 	//TestSemaphoreBasic::test();
 	//TestJthtreadBasic::testJthreadStopToken();
 	//TestJthtreadBasic::test();
-	//TestAsyncFutureBasic::test();
+	TestAsyncFutureBasic::testValid();
 	//TestJoinAndDetach::testDoubleDetach();
 	//TestMutexBasic::test();
 	//TestMutexBasic::testWithMutex();
