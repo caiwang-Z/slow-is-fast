@@ -264,9 +264,23 @@ namespace TestSTDForEach {
 
 }
 
+namespace TestSTDDistance {
+	void test() {
+		std::vector<int> vec{ 3, 1, 9, 8 };
+		myLog(std::distance(vec.cbegin(), vec.cend())); // 4
+		myLog(std::distance(vec.cend(), vec.cbegin())); // -4
+
+
+	
+	}
+
+}
+
 
 void test() {
-	TestSTDForEach::test();
+	TestSTDDistance::test();
+
+	//TestSTDForEach::test();
 	//TestSTDTransform::test();
 	//TestSTDForward::TestSTDForwardWithinClass::test();
 	//TestSTDForward::TestLRValueWithinClass::test();
