@@ -309,10 +309,24 @@ namespace TestSTDFindIf {
 
 }
 
+namespace TestStdStringView {
+
+	void testStringViewBasic() {
+		const char* str = "this is a string";
+		std::string_view sv1(str);
+		myLog(sv1);
+		splitLine();
+		std::string_view sv2(str, 6);
+		myLog(sv2);
+	
+	}
+}
+
 
 void test() {
+	TestStdStringView::testStringViewBasic();
 	//TestSTDDistance::test();
-	TestSTDFindIf::test();
+	//TestSTDFindIf::test();
 	//TestSTDForEach::test();
 	//TestSTDTransform::test();
 	//TestSTDForward::TestSTDForwardWithinClass::test();
