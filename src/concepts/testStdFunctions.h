@@ -228,6 +228,31 @@ namespace TestSTDBindBasic {
 		//auto f7 = std::bind_back(myDivide, 3);  // since c++23
 		//myLog(f7(99));  // 99 / 3
 	}
+
+	namespace TestBindFrontInMemberFunction {
+		class Printer {
+		public:
+			Printer() = default;
+
+			void print(const std::string& message) {
+				std::cout << message << std::endl;
+			}
+
+		};
+
+		void test() {
+			Printer pr;
+			// bind an object pointer (or reference) to a member function.
+			auto newProcess = std::bind_front(&Printer::print, pr);
+
+			newProcess("Hello World\n");
+		}
+	
+	}
+
+	void test() {
+		TestBindFrontInMemberFunction::test();
+	}
 }
 
 namespace TestSTDTransform {
@@ -445,11 +470,12 @@ namespace TestStdStringView {
 
 
 void test() {
-	TestStdStringView::testStringViewBasic();
+	TestSTDBindBasic::test();
+	//TestStdStringView::testStringViewBasic();
 	//TestSTDDistance::test();
 	//TestSTDFindIf::test();
 	//TestSTDForEach::test();
-	TestStdRanges::test();
+	//TestStdRanges::test();
 	//TestSTDForEach::test();
 	//TestSTDTransform::test();
 	//TestSTDForward::TestSTDForwardWithinClass::test();
