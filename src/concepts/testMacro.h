@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 namespace TestMacro {
 	// 1. defining func with macro
@@ -20,11 +21,26 @@ std::cin.get();\
 #endif
 }
 
+namespace TestCPPPredefinedMacros {
+#if __cplusplus == 202002L
+	std::cout << "C++20" << std::endl;
+
+#endif
+	void test() {
+		std::cout << "Current file: " << __FILE__ << std::endl;
+		std::cout << "Current line: " << __LINE__ << std::endl;
+		std::cout << "Current func: " << __func__ << std::endl;
+	}
+}
+
+
 void test() {
 #if LEVEL == 1
 	int a = 1;
 #elif LEVEL == 2
 	int a = 2;
 #endif
+	TestCPPPredefinedMacros::test();
 
 }
+

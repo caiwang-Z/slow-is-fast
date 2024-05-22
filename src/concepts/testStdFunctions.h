@@ -4,6 +4,7 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <ranges>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -264,6 +265,126 @@ namespace TestSTDForEach {
 
 }
 
+namespace TestStdRanges {
+	void testStdViewsFilter() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		auto even_numbers = numbers | std::views::filter([](int n) {return n % 2 == 0; });
+		for (int n : even_numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 2 4 6 8 10
+
+		auto even_numbers2 = std::views::filter(numbers, [](int n) {return n % 2 == 0; });
+		for (int n : even_numbers2) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 2 4 6 8 10
+
+		for (int n : numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 2 3 4 5 6 7 8 9 10
+	}
+
+	void testStdViewsFilterByReference() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		auto even_numbers = numbers | std::views::filter([](int& n) {return n % 2 == 0; });
+		for (int n : even_numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 2 4 6 8 10
+
+		for (int n : numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 2 3 4 5 6 7 8 9 10
+	}
+
+	void testStdViewsTransform() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		auto square_numbers = numbers | std::views::transform([](int n) {return n * n; });
+		auto square_numbers2 = std::views::transform(numbers, [](int n) {return n * n; });
+
+		for (int n : square_numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 4 9 16 25 36 49 64 81 100
+
+		for (int n : square_numbers2) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 4 9 16 25 36 49 64 81 100
+
+		for (int n : numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 2 3 4 5 6 7 8 9 10
+	}
+
+	void testStdRangeAdapter() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		auto res = numbers | std::views::filter([](int n) {return n % 2 == 1; }) | std::views::transform([](int n) {return n * n; });
+		for (int n : res) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 9 25 49 81
+
+		for (int n : numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 2 3 4 5 6 7 8 9 10
+	
+	}
+
+	void testStdRangesForEach() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		std::ranges::for_each(numbers, [](int n) {n *= n; });
+
+		for (int n : numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 2 3 4 5 6 7 8 9 10
+
+		std::ranges::for_each(numbers, [](int& n) {n *= n; });
+
+		for (int n : numbers) {
+			std::cout << n << " ";
+		}
+		std::cout << "\n";  // 1 4 9 16 25 36 49 64 81 100
+	}
+
+	void testStdRangesCount() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 3, 7, 8, 3, 10 };
+		const auto res = std::ranges::count(numbers, 3); 
+		std::cout << res << std::endl; // 3
+	}
+
+	void testStdRangesCountIf() {
+		std::vector<int> numbers{ 1, 2, 3, 4, 5, 3, 7, 8, 3, 10 };
+		const auto res = std::ranges::count_if(numbers, [](int n) {return n >= 4; });
+		std::cout << res << std::endl; // 5
+	
+	}
+	
+	
+	void test() {
+		testStdViewsFilter();
+		splitLine();
+		testStdViewsFilterByReference();
+		splitLine();
+		testStdViewsTransform();
+		splitLine();
+		testStdRangeAdapter();
+		splitLine();
+		testStdRangesForEach();
+		splitLine();
+		testStdRangesCount();
+		splitLine();
+		testStdRangesCountIf();
+	}
+
+}
+
 namespace TestSTDDistance {
 	void test() {
 		std::vector<int> vec{ 3, 1, 9, 8 };
@@ -327,6 +448,8 @@ void test() {
 	TestStdStringView::testStringViewBasic();
 	//TestSTDDistance::test();
 	//TestSTDFindIf::test();
+	//TestSTDForEach::test();
+	TestStdRanges::test();
 	//TestSTDForEach::test();
 	//TestSTDTransform::test();
 	//TestSTDForward::TestSTDForwardWithinClass::test();
