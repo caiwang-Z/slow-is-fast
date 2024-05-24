@@ -1,4 +1,4 @@
-set(TARGET ImageProcessing)
+set(TARGET ImageProcess)
 
 set(SOURCES DummyImageOperation.cpp)
 

@@ -8,5 +8,7 @@ add_library(${TARGET} STATIC ${SOURCES} ${HEADERS})
 
 set_property(TARGET Core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-add_dependencies(${TARGET} ImageStream ImageProcessing)
+target_link_libraries(${TARGET} ImageStream ImageProcess)
+
+add_dependencies(${TARGET} ImageStream ImageProcess)
 
