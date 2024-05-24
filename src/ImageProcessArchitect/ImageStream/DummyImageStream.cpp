@@ -1,6 +1,7 @@
 #include "DummyImageStream.h"
 #include "SIFLog.h"
 #include <thread>
+#include <format>
 
 void SIF::DummyImageStream::setBuffer(const FrameBufferPtr& buffer) {
 	_frameBuffer = buffer;

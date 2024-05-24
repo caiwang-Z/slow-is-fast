@@ -1,3 +1,5 @@
 add_subdirectory(concepts)
 add_subdirectory(examples)
-add_subdirectory(ImageProcessArchitect)
+if(BUILD_ImageProcessSolution)
+	add_subdirectory(ImageProcessArchitect)
+endif()

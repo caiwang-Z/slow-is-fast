@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "src/ImageProcessArchitect/Core",
+		"source" : "src/ImageProcessArchitect/Core"
+	}
+}

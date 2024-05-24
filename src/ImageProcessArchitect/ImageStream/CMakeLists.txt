@@ -6,7 +6,7 @@ set(HEADERS DummyImageStream.h FrameBuffer.h IImageStream.h)
 
 add_library(${TARGET} STATIC ${SOURCES} ${HEADERS})
 
-set_property(TARGET Core PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET ${TARGET} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(${TARGET} PRIVATE Utils)
 
