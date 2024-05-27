@@ -8,7 +8,9 @@ add_library(${TARGET} STATIC ${SOURCES} ${HEADERS})
 
 set_property(TARGET Core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(${TARGET} ImageStream ImageProcess)
+target_link_libraries(${TARGET} ImageStream ImageProcess Utils)
 
-add_dependencies(${TARGET} ImageStream ImageProcess)
+target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../ImageStream/" PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../Utils/" PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../ImageProcess/")
+
+add_dependencies(${TARGET} ImageStream ImageProcess Utils)
 

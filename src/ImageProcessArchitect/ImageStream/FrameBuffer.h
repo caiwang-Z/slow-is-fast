@@ -10,11 +10,11 @@
 namespace SIF {
 
 	struct MinerData {
-		//std::string timestamp;
 		//std::string minerName;
 		size_t id;
 		size_t goldAmount;
 		size_t diamondAmount;
+		std::string timestamp;
 		//std::string location;
 
 
@@ -52,5 +52,6 @@ namespace SIF {
 
 
 	};
+
 
 }
