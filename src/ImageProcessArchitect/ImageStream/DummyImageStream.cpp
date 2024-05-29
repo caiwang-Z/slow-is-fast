@@ -11,8 +11,8 @@ void SIF::DummyImageStream::setBuffer(const FrameBufferPtr& buffer) {
 }
 
 void SIF::DummyImageStream::open() {
-	SIF::Logger::getInstance().info("Camera opening...");
-	SIF::Logger::getInstance().info("Camera opend.");
+	Log::info("Camera opening...");
+	Log::info("Camera opend.");
 }
 
 inline std::string SIF::getCurrentDateTime() {
@@ -37,7 +37,7 @@ void SIF::DummyImageStream::start() {
 	}
 
 	_imageStreamer = std::jthread([this](std::stop_token token) {
-		SIF::Logger::getInstance().info("Start image streaming / generating miner data\n");
+		Log::info("Start image streaming / generating miner data\n");
 		int i = 1;
 		while (!token.stop_requested()) {
 			MinerData* data = new MinerData();
@@ -47,10 +47,10 @@ void SIF::DummyImageStream::start() {
 			data->timestamp = getCurrentDateTime();
 			if (_frameBuffer) {
 				while (!_frameBuffer->writeBuffer(*data)) {
-					SIF::Logger::getInstance().debug("No buffer free.");
+					Log::debug("No buffer free.");
 					std::this_thread::sleep_for(std::chrono::seconds(1));
 				}
-				SIF::Logger::getInstance().info(std::format("Generating miner data finished. ID: {}, Diamond amount: {}, gold amount: {}, timestamp: {}", data->id, data->diamondAmount, data->goldAmount, data->timestamp));
+				Log::info(std::format("Generating miner data finished. ID: {}, Diamond amount: {}, gold amount: {}, timestamp: {}", data->id, data->diamondAmount, data->goldAmount, data->timestamp));
 			}
 
 			++i;
@@ -74,7 +74,7 @@ bool SIF::DummyImageStream::endOfStream() {
 }
 
 void SIF::DummyImageStream::close() {
-	SIF::Logger::getInstance().info("Camera resources closing...");
-	SIF::Logger::getInstance().info("Camera resources closing");
+	Log::info("Camera resources closing...");
+	Log::info("Camera resources closing");
 
 }

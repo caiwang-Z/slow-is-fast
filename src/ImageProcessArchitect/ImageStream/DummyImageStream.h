@@ -2,7 +2,7 @@
 #include "IImageStream.h"
 
 namespace SIF {
-	constexpr auto timeSleepInMilliseconds{ 500 };
+	constexpr auto timeSleepInMilliseconds{ 2500 };
 	inline std::string getCurrentDateTime();
 	class DummyImageStream : public ImageStream {
 		friend class ImageStreamManager;

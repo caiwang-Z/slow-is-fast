@@ -16,7 +16,7 @@ void SIF::ImageProcessingPipeline::process(MinerData& image) {
 	// assert() if image is empty
 
 	// process image
-	SIF::Logger::getInstance().info(std::format("Processing image generated on {} starts...", image.timestamp));
+	Log::info(std::format("Processing image generated on {} starts...", image.timestamp));
 	
 
 	SIF::DeinterlacedImages deinterImages;
@@ -36,7 +36,7 @@ void SIF::ImageProcessingPipeline::process(MinerData& image) {
 	pb.description = res[0].description + " " + res[1].description;
 	_onProcessFinished(std::move(ResultSet{pb, image.timestamp}));
 
-	SIF::Logger::getInstance().info(std::format("Processing image generated on {} finished! After datamining id {} bought {} cars, {} houses, still has {} golds and {} diamonds.", image.timestamp, image.id, pb.autoNum, pb.houseNum, pb.goldSaldo, pb.diamondSaldo));
+	Log::info(std::format("Processing image generated on {} finished! After datamining id {} bought {} cars, {} houses, still has {} golds and {} diamonds.", image.timestamp, image.id, pb.autoNum, pb.houseNum, pb.goldSaldo, pb.diamondSaldo));
 
 
 }

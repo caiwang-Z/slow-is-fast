@@ -14,13 +14,13 @@ bool SIF::FrameBuffer::writeBuffer(MinerData& data) {
 		});
 		const auto index{ static_cast<int>(std::distance(_frameBuffer.begin(), nextFreeIt)) };
 		
-		SIF::Logger::getInstance().debug(std::string("Wrote to frame buffer ") + std::to_string(index));
+		Log::debug(std::string("Wrote to frame buffer ") + std::to_string(index));
 		return true;
 		
 
 	}
 	else {
-		SIF::Logger::getInstance().debug("All frame buffer are in use.");
+		Log::debug("All frame buffer are in use.");
 		return false;
 	}
 
@@ -34,10 +34,10 @@ void SIF::FrameBuffer::setProcessingPipeline(const onCapturedFrame& ocf) {
 void SIF::FrameBuffer::printBufferStatus() {
 	for (int i = 0; i < _frameBuffer.size(); ++i) {
 		if (_frameBuffer[i].isFree()) {
-			SIF::Logger::getInstance().info(std::format("Buffer {} free", std::to_string(i)));
+			Log::info(std::format("Buffer {} free", std::to_string(i)));
 		}
 		else {
-			SIF::Logger::getInstance().info(std::format("Buffer {} not free", std::to_string(i)));
+			Log::info(std::format("Buffer {} not free", std::to_string(i)));
 
 		}
 	

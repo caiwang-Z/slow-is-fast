@@ -12,26 +12,26 @@ namespace SIF {
 	}
 
 	void ImageStreamManager::start() {
-		Logger::getInstance().info("Image streaming starting");
+		Log::info("Image streaming starting");
 		_imageStream->setBuffer(_frameBuffer);
 		_imageStream->start();
-		Logger::getInstance().info("Image streaming stared.");
+		Log::info("Image streaming stared.");
 	}
 
 	void ImageStreamManager::stop() {
-		Logger::getInstance().info("Image streaming stopping");
+		Log::info("Image streaming stopping");
 		_imageStream->stop();
 		_frameBuffer->stop();
 		_imageStream->setBuffer(nullptr);
-		Logger::getInstance().info("Image streaming stopped");
+		Log::info("Image streaming stopped");
 	}
 
 	void ImageStreamManager::close() {
-		Logger::getInstance().info("Image streaming resources closing");
+		Log::info("Image streaming resources closing");
 		if (_imageStream) {
 			_imageStream->close();
 		}
-		Logger::getInstance().info("Image streaming resources closed");
+		Log::info("Image streaming resources closed");
 	}
 
 }
