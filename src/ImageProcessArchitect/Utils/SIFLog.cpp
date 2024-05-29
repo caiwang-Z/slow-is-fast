@@ -26,4 +26,26 @@ void SIF::Logger::log(const Level level, const std::string& message) {
 	}
 }
 
-static SIF::Logger& logger = SIF::Logger::getInstance();
+//static SIF::Logger& logger = SIF::Logger::getInstance();
+
+namespace Log {
+	void info(const std::string& message) {
+		Logger::getInstance().info(message);
+
+	}
+
+	void warn(const std::string& message) {
+		Logger::getInstance().warn(message);
+
+	}
+
+	void error(const std::string& message) {
+		Logger::getInstance().error(message);
+	}
+
+	void debug(const std::string& message) {
+		Logger::getInstance().debug(message);
+	}
+
+
+}
