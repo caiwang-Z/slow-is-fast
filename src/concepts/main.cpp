@@ -1,7 +1,7 @@
 #include <iostream>
 //#include "headerTest.h"
 //#include "testReturnValues.h"
-#include "testMacro.h"
+//#include "testMacro.h"
 //#include "testStatic.h"
 //#include "testFunctionPointers.h"
 //#include "testTiming.h"
@@ -14,7 +14,7 @@
 //#include "testStdContainer.h"
 //#include "testMap.h"
 //#include "testMultiThreading.h"
-//#include "testStdFunctions.h"
+#include "testStdFunctions.h"
 //#include "testSTDException.h"
 //#include "testSmartPointer.h"
 

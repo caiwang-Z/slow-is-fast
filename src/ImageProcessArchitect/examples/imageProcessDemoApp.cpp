@@ -62,6 +62,8 @@ void commandListenerThread(std::jthread& t) {
 int main() {
 	
 	std::jthread acquisitionTask(acquisition);
+	// By default, arguments passed to threaded functions are passed by value, which means that a copy of the argument is made. However, in some cases, we want to pass arguments by reference to avoid unnecessary copying, 
+	// or because we need to share and modify the same object in a thread
 	std::jthread commandThread(commandListenerThread, std::ref(acquisitionTask));
 
 	if (acquisitionTask.joinable()) {

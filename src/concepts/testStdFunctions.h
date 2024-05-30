@@ -468,9 +468,35 @@ namespace TestStdStringView {
 	}
 }
 
+namespace TestStdRefBasic {
+
+	void foo(int& n1, int& n2, const int& n3) {
+		//std::cout << "In foo: n1: " << n1 << ", n2: " << n2 << ", n3: " << n3 << "\n";
+		++n1;
+		++n2;
+		// ++n3  // compile error
+	
+	}
+
+	void test() {
+		int a1 = 1, a2 = 2, a3 = 3;
+		std::function<void()> new_foo = std::bind(foo, a1, std::ref(a2), std::cref(a3));
+		a1 = 10;
+		a2 = 20;
+		a3 = 30;
+		std::cout << "Before calling: a1: " << a1 << ", a2: " << a2 << ", a3: " << a3 << "\n";  // 10 20 30
+		new_foo();
+		std::cout << "After calling: a1: " << a1 << ", a2: " << a2 << ", a3: " << a3 << "\n";  // 10 21 30
+
+	
+	}
+
+}
+
 
 void test() {
-	TestSTDBindBasic::test();
+	TestStdRefBasic::test();
+	//TestSTDBindBasic::test();
 	//TestStdStringView::testStringViewBasic();
 	//TestSTDDistance::test();
 	//TestSTDFindIf::test();
