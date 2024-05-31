@@ -22,7 +22,7 @@ inline std::string SIF::getCurrentDateTime() {
 	std::tm now_tm = *std::localtime(&now_tt);
 
 	std::ostringstream oss;
-	oss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S");
+	oss << std::put_time(&now_tm, "%Y-%m-%d_%H-%M-%S");
 
 	return oss.str();
 

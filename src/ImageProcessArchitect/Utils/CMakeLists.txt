@@ -1,8 +1,8 @@
 set(TARGET Utils)
 
-set(SOURCES SIFLog.cpp)
+set(SOURCES SIFLog.cpp debugdata.cpp)
 
-set(HEADERS SIFLog.h)
+set(HEADERS SIFLog.h debugdata.h)
 
 add_library(${TARGET} STATIC ${SOURCES} ${HEADERS})
 

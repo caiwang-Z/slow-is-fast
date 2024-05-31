@@ -1,6 +1,6 @@
 #include "Core.h"
 #include "SIFLog.h"
-
+#include "debugdata.h"
 
 namespace SIF {
 
@@ -8,7 +8,7 @@ namespace SIF {
 		_imageProcessingPipeline = std::make_unique<SIF::ImageProcessingPipeline>();
 		_imageProcessingPipeline->setOnProcessFinished({ [this](SIF::ResultSet&& featureImage) {
 			std::lock_guard<std::mutex> lk(_mtxResult);
-			if (_resultQueue.size() >= g_maxQueueSize) {
+			if (_resultQueue.size() >= g_maxResultQueueSize) {
 				Log::info("Result image queue is full!!!");
 			}
 			else {
@@ -16,8 +16,33 @@ namespace SIF {
 			}
 			_cvResult.notify_all();
 			} });
+
+		_debugCallback = [this](const DebugSet& debugData) {
+			std::lock_guard<std::mutex> lk(_mtxDebug);
+			if (_debugQueue.size() >= g_maxDebugQueueSize) {
+				Log::warn("Debug queue is full!!!");
+			}
+			else {
+				_debugQueue.push(debugData);
+			}
+			_cvDebug.notify_all();
+		};
+
 		_imageStreamManager = std::make_unique<ImageStreamManager>(std::bind_front(&ImageProcessingPipeline::process, &(*_imageProcessingPipeline)));
 
+	}
+
+	void Core::enableDebug() {
+		_imageProcessingPipeline->setOnDebug(_debugCallback);
+		_debugEnabled = true;
+		Log::info("Saving debug data enabled.");
+		
+	}
+
+	void Core::disableDebug() {
+		_imageProcessingPipeline->setOnDebug(nullptr);
+		_debugEnabled = false;
+		Log::info("Saving debug data disabled.");
 	}
 
 	void Core::start() {
@@ -45,7 +70,7 @@ namespace SIF {
 		};
 		
 		if (_killSwitch) {
-			Log::info("Waiting for result is stopped");
+			Log::info("Waiting for result stopped");
 			return;
 		}
 
@@ -59,13 +84,41 @@ namespace SIF {
 			Log::info(std::format("Result {} done!", resultNum++));
 		}
 
-
-
 	}
+
+	void Core::waitForDebug(const std::filesystem::path& path, std::chrono::milliseconds timeout) {
+		if (!_debugEnabled) {
+			Log::info("Saving debug data disabled");
+		}
+
+		static int debugNum{ 1 };
+		Log::info(std::format("Waiting for debug data {}...", debugNum));
+		std::unique_lock<std::mutex> lk(_mtxDebug);
+		if (!_cvDebug.wait_for(lk, timeout, [this]() {
+			return _killSwitch || !_debugQueue.empty();
+			})) {
+			Log::info("Waiting for debug data timeout");
+		
+		}
+
+		if (_killSwitch) {
+			Log::info("Waiting for debug data stopped");
+			return;
+		}
+
+		const auto debugData{ std::move(_debugQueue.front()) };
+		_debugQueue.pop();
+		// If the debug data is complex, should check if it is empty. 
+
+		Log::info(std::format("Saving debug data {} done!", debugNum++));
+		SIF::saveDebugData(path, debugData.first, debugData.second);
+	}
+
 
 	void Core::stopWaiting() {
 		_killSwitch = true;
 		_cvResult.notify_all();
+		_cvDebug.notify_all();
 	
 	}
 }

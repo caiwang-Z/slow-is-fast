@@ -10,7 +10,10 @@ bool SIF::FrameBuffer::writeBuffer(MinerData& data) {
 	const auto nextFreeIt{ std::find_if(_frameBuffer.begin(), _frameBuffer.end(), [](auto& frame) {return frame.isFree(); }) };
 	if (nextFreeIt != _frameBuffer.end()) {
 		nextFreeIt->data = data;
-		nextFreeIt->future = std::async(std::launch::async, [this, &data]() {_onCapturedFrame(data);
+		nextFreeIt->future = std::async(std::launch::async, [this, &data]() {
+			_onCapturedFrame(data);
+			// TODO complex data should be free after processing
+			// TODO free data
 		});
 		const auto index{ static_cast<int>(std::distance(_frameBuffer.begin(), nextFreeIt)) };
 		

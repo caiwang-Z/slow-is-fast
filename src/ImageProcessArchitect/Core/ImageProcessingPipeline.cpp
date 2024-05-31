@@ -12,13 +12,26 @@ void SIF::ImageProcessingPipeline::setOnProcessFinished(const OnProcessFinished&
 	_onProcessFinished = callback;
 }
 
+void SIF::ImageProcessingPipeline::setOnDebug(const OnDebug& callback) {
+	_onDebug = callback;
+}
+
 void SIF::ImageProcessingPipeline::process(MinerData& image) {
 	// assert() if image is empty
 
-	// process image
 	Log::info(std::format("Processing image generated on {} starts...", image.timestamp));
 	
+	// saving debug data if it is enabled
+	if (_onDebug) {
+		const std::unordered_map<std::string, int> data = {
+			{"ID", image.id},
+			{"Gold Amount", image.goldAmount},
+			{"Diamond Amount", image.diamondAmount}
+		};
+		_onDebug(std::make_pair(data, image.timestamp));
+	}
 
+	// process image
 	SIF::DeinterlacedImages deinterImages;
 	deinterImages = std::make_tuple(image.id, image.goldAmount, image.diamondAmount, image.timestamp);
 	// one car equals 2 golds, one house equals 2 diamonds
