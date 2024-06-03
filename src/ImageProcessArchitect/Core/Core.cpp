@@ -32,32 +32,35 @@ namespace SIF {
 
 	}
 
-	void Core::enableDebug() {
+	maErr Core::enableDebug() {
 		_imageProcessingPipeline->setOnDebug(_debugCallback);
 		_debugEnabled = true;
 		Log::info("Saving debug data enabled.");
-		
+		return maErrOK;
 	}
 
-	void Core::disableDebug() {
+	maErr Core::disableDebug() {
 		_imageProcessingPipeline->setOnDebug(nullptr);
 		_debugEnabled = false;
 		Log::info("Saving debug data disabled.");
+		return maErrOK;
 	}
 
-	void Core::start() {
+	maErr Core::start() {
 		_imageStreamManager->start();
 		Log::info("Core started");
+		return maErrOK;
 	}
 
-	void Core::stop() {
+	maErr Core::stop() {
 		Log::info("Core stopping...");
 		_imageStreamManager->stop();
 		Log::info("Core stopped");
+		return maErrOK;
 	
 	}
 
-	void Core::waitForResult(ResultSet& res, std::chrono::milliseconds timeout) {
+	maErr Core::waitForResult(ResultSet& res, std::chrono::milliseconds timeout) {
 		static int resultNum{ 1 };
 		Log::info(std::format("Waiting for result {}...", resultNum));
 		std::unique_lock<std::mutex> lk(_mtxResult);
@@ -65,13 +68,13 @@ namespace SIF {
 			return _killSwitch || !_resultQueue.empty();
 			})) {
 			Log::info("Waiting for result timeout");
-			return;
+			return maErrTimeout;
 		
 		};
 		
 		if (_killSwitch) {
 			Log::info("Waiting for result stopped");
-			return;
+			return maErrAbort;
 		}
 
 		res = std::move(_resultQueue.front());
@@ -83,12 +86,14 @@ namespace SIF {
 		else {
 			Log::info(std::format("Result {} done!", resultNum++));
 		}
-
+		return maErrOK;
 	}
 
-	void Core::waitForDebug(const std::filesystem::path& path, std::chrono::milliseconds timeout) {
+	maErr Core::waitForDebug(const std::filesystem::path& path, std::chrono::milliseconds timeout) {
 		if (!_debugEnabled) {
 			Log::info("Saving debug data disabled");
+			return maErrFunctionDeactivated;
+
 		}
 
 		static int debugNum{ 1 };
@@ -98,12 +103,12 @@ namespace SIF {
 			return _killSwitch || !_debugQueue.empty();
 			})) {
 			Log::info("Waiting for debug data timeout");
-		
+			return maErrTimeout;
 		}
 
 		if (_killSwitch) {
 			Log::info("Waiting for debug data stopped");
-			return;
+			return maErrAbort;
 		}
 
 		const auto debugData{ std::move(_debugQueue.front()) };
@@ -112,13 +117,14 @@ namespace SIF {
 
 		Log::info(std::format("Saving debug data {} done!", debugNum++));
 		SIF::saveDebugData(path, debugData.first, debugData.second);
+		return maErrOK;
 	}
 
 
-	void Core::stopWaiting() {
+	maErr Core::stopWaiting() {
 		_killSwitch = true;
 		_cvResult.notify_all();
 		_cvDebug.notify_all();
-	
+		return maErrOK;
 	}
 }

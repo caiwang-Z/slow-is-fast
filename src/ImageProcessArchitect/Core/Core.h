@@ -5,6 +5,7 @@
 #include "ImageStreamManager.h"
 #include <queue>
 #include <filesystem>
+#include "commondefinitions.h"
 
 namespace SIF {
 
@@ -15,14 +16,14 @@ namespace SIF {
 	class Core {
 	public:
 		Core();
-		void start();
-		void stop();
-		void waitForResult(ResultSet& res, std::chrono::milliseconds timeout);
-		void waitForDebug(const std::filesystem::path& path, std::chrono::milliseconds timeout);
+		maErr start();
+		maErr stop();
+		maErr waitForResult(ResultSet& res, std::chrono::milliseconds timeout);
+		maErr waitForDebug(const std::filesystem::path& path, std::chrono::milliseconds timeout);
 		
-		void stopWaiting();
-		void enableDebug();
-		void disableDebug();
+		maErr stopWaiting();
+		maErr enableDebug();
+		maErr disableDebug();
 
 	private:
 		std::unique_ptr<SIF::ImageProcessingPipeline> _imageProcessingPipeline;
