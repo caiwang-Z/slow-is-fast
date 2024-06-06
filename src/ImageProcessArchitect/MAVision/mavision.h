@@ -1,5 +1,7 @@
-#ifndef MAVISION_H
-#define MAVISION_H
+#pragma once
+
+//#ifndef MAVISION_H
+//#define MAVISION_H
 
 #ifdef _WIN32
 	#ifdef MAVISION_BUILD_DLL
@@ -16,6 +18,7 @@
 #endif
 
 #include "commondefinitions.h"
+#include "Core.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +29,7 @@ extern "C" {
 
 	MAVISION_DLL_EXPORT maErr maStop();
 
-	MAVISION_DLL_EXPORT maErr maShutdown();
+	//MAVISION_DLL_EXPORT maErr maShutdown();
 
 	MAVISION_DLL_EXPORT maErr maEnableDebug();
 
@@ -39,6 +42,4 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -51,7 +51,7 @@ namespace SIF {
 		OnProcessFinished _onProcessFinished;
 		OnDebug _onDebug;
 		
-		SIF::FeatureImageExtract _extractor;
+		FeatureImageExtract _extractor;
 	};
 
 }
