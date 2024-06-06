@@ -5,6 +5,9 @@
 #include <vector>
 #include <algorithm>
 #include <ranges>
+#include <numeric>
+#include <format>
+#include <execution>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -493,9 +496,46 @@ namespace TestStdRefBasic {
 
 }
 
+namespace TestStdIota {
+	// include <numberic>
+// Fills the range [first, last) with sequentially increasing values, 
+// starting with value and repetitively evaluating ++value.
+	void test() {
+
+		std::vector<int> vec(10);
+		std::iota(vec.begin(), vec.end(), 10);
+		std::for_each(vec.cbegin(), vec.cend(), [](int x) {myLog(std::format(" {}", x)); }); // 10 11 12 13 14 15 16 ... 19
+	
+	}
+
+}
+
+namespace TestStdExecution {
+	// include <execution>
+	void testStdExecution() {
+		std::vector<int> vec = { 5, 2, 8, 1, 3 };
+
+		std::sort(std::execution::unseq, vec.begin(), vec.end());
+
+		for (int v : vec) {
+			std::cout << v << " ";
+		}
+		std::cout << std::endl;
+	
+	}
+
+	void test() {
+		std::cout << "__func__: " << __func__ << std::endl;
+		testStdExecution();
+	
+	}
+
+}
 
 void test() {
-	TestStdRefBasic::test();
+	TestStdExecution::test();
+	//TestStdIota::test();
+	//TestStdRefBasic::test();
 	//TestSTDBindBasic::test();
 	//TestStdStringView::testStringViewBasic();
 	//TestSTDDistance::test();

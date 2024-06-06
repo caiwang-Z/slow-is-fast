@@ -15,5 +15,22 @@ namespace UtilityNameSpace {
 		std::cout << "******************************* split line ********************\n";
 	}
 
+	class Splitter {
+
+	public:
+		Splitter(const std::string& func) : _func(func) {
+			std::cout << "******************************* " << func << " starts ********************************\n";
+		};
+		~Splitter() {
+			std::cout << "******************************* " << _func << " ends ********************************\n";
+
+		}
+	private:
+		std::string _func;
+
+	};
+
+#define SIFSplit Splitter splitter(__func__)
+
 }
 
