@@ -449,17 +449,107 @@ Defines a one to many dependency between objects so that when one object changes
 		}
 
 		void detach(Observer* observer) {
-			
+			_observers.erase(std::remove(_observers.begin(), _observers.end(), observer), _observers.end());
 		}
 		
-		void notify() {};
+		void notify();
 	
 	};
+
+	class Observer {
+	private:
+		Car* _car;
+	public:
+		Observer(Car* car) :_car(car) { _car->attach(this); };
+		virtual void update() = 0;
+		Car* getCar() {
+			return _car;
+		}
+
+	};
+
+	void Car::notify() {
+		std::for_each(_observers.begin(), _observers.end(), [](Observer* ob) {ob->update(); });
+
+	};
+
+	// -1 left lane, 0 middle lane, 1 right lane
+	class LeftLaneObserver : public Observer {
+	public:
+		LeftLaneObserver(Car* car) : Observer(car) {}
+		void update() override {
+			if (getCar()->getPosition() == -1) {
+				std::cout << "[Info - left lance observer] Runing in left lane\n";
+			}
+		}
+	};
+
+	class MiddleLaneObserver : public Observer {
+	public:
+		MiddleLaneObserver(Car* car) : Observer(car) {}
+
+		void update() override {
+			if (getCar()->getPosition() == 0) {
+				std::cout << "[Info - middle lane observer] Runing in middle lane \n";
+			}
+		}
+
+	};
+
+	class RightLaneObserver : public Observer {
+	public: 
+		RightLaneObserver(Car* car) : Observer(car) {}
+
+		void update() override {
+			if (getCar()->getPosition() == 1) {
+				std::cout << "[Info - right lane observer] Runing in right lane \n";
+			}
+		}
+
+	};
+
+	void test() {
+		Car* car = new Car();
+		LeftLaneObserver* leftOb = new LeftLaneObserver(car);
+		MiddleLaneObserver* middleOb = new MiddleLaneObserver(car);
+		RightLaneObserver* rightOb = new RightLaneObserver(car);
+
+		std::cout << "[Command] l: left, m: middle, r: right, b: program exit\n";
+		char button;
+		bool programmExit = false;
+		while (!programmExit) {
+			std::cin >> button;
+			switch (button) {
+			case 'l':
+				car->setPosition(-1);
+				break;
+			case 'm':
+				car->setPosition(0);
+				break;
+			case 'r':
+				car->setPosition(1);
+				break;
+			case 'b':
+				programmExit = true;
+				break;
+			default:
+				std::cout << "Invalid parameter\n";
+				break;
+			}
+		
+		}
+		delete car;
+		delete leftOb;
+		delete middleOb;
+		delete rightOb;
+		
+	}
 
 }
 
 void test() {
 	//TestFactoryDesignPattern::FDPClient::test();
 	//TestAbstractFactoryDesignPattern::AFDPClient::test();
-	TestSingletonDesignPattern::test();
+	//TestSingletonDesignPattern::test();
+	TestObserverDesignPattern::test();
 }
