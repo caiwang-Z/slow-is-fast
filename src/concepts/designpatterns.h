@@ -25,23 +25,23 @@ namespace TestFactoryDesignPattern {
 
 		class Car : public Toy {
 		public:
-			void prepareParts() {
+			void prepareParts() override {
 				std::cout << "Preparing car parts\n";
 			}
 
-			void combineParts() {
+			void combineParts() override {
 				std::cout << "Combining car parts\n";
 			}
 
-			void assembleParts() {
+			void assembleParts() override {
 				std::cout << "Assembling car parts\n";
 			}
 
-			void applyLabel() {
+			void applyLabel() override {
 				std::cout << "Applying car label\n";
 			}
 
-			void showProduct() {
+			void showProduct() override {
 				std::cout << "Showing car product\n";
 			}
 
@@ -153,8 +153,157 @@ namespace TestFactoryDesignPattern {
 	}
 }
 
+namespace TestAbstractFactoryDesignPattern {
+	/*
+	@AFDP Definition
+	AFDP defines an abstract class for creating families of related objects but 
+	without specifying their concrete sub-class
+
+
+	@Why/When to use AFDP
+	1. You need system to be independent of how objects are created, composed and represented
+	2. Show interface not implementation
+	3. System need to be configured with one of the multiple family of objects
+
+	*/
+	namespace CarNS{
+		class Tire {
+		private:
+			std::string _name;
+			int _size; // zoll
+			std::string _mark;
+		public:
+			std::string getName() { return _name; };
+			int getSize() { return _size; };
+			std::string getMark() { return _mark; };
+			Tire(const std::string& name, const int size, const std::string& mark) : _name(name), _size(size), _mark(mark) {};
+
+		};
+
+		class CheapTire : public Tire {
+		public:
+			CheapTire(): Tire("Cheap Tire", 18, "good year"){}
+
+		};
+
+		class LuxuryTire : public Tire{
+		public:
+			LuxuryTire(): Tire("Luxury Tire", 20, "michelin"){}
+
+		};
+
+		class Body {
+		private:
+			std::string _name;
+			std::string _material;
+		public:
+			std::string getName() { return _name; };
+			std::string getMaterial() { return _material; };
+			Body(const std::string& name, const std::string& material) : _name(name), _material(material) {};
+		};
+		class CheapBody : public Body {
+		public:
+			CheapBody(): Body("Cheap body", "steel") {}
+
+		};
+
+		class LuxuryBody : public Body {
+		public:
+			// LuxuryBody() { Body("Luxury body", "carbon"); } // Compile error: In C++, the base class constructors must be explicitly called in the member 
+			// initializer list of the derived class constructors. 
+			
+			LuxuryBody(): Body("Luxury body", "carbon"){}
+
+		};
+
+		class Car {
+		private:
+			std::string _name;
+			Tire* _tire;
+			Body* _body;
+
+		public:
+			Car(const std::string& name) : _name(name) {}
+			~Car() {
+				delete _tire;
+				delete _body;
+			}
+			void setTire(Tire* tire) { _tire = tire; }
+			void setBody(Body* body) { _body = body; }
+			void printInfo() {
+				std::cout << "Car name: " << _name << ", " << _body->getName() << ", " << _body->getMaterial() << ", " << _tire->getName() << ", brand: " << _tire->getMark() << ", " << _tire->getSize() << " zoll\n";
+
+			}
+
+		};
+		
+	
+	}
+
+	namespace CarFactoryNS {
+		using namespace CarNS;
+		class CarFactory {
+		public:
+			virtual Car* buildWholeCar() = 0;
+		protected:
+			virtual Tire* buildTire() = 0;
+			virtual Body* buildBody() = 0;
+
+		};
+
+		class CompactCarFactory : public CarFactory {
+		public:
+			Car* buildWholeCar() override {
+				Car* newCar = new Car("Compact car");
+				newCar->setTire(buildTire());
+				newCar->setBody(buildBody());
+				return newCar;
+			};
+		private:
+			Tire* buildTire() override { return new CheapTire(); };
+			Body* buildBody() override { return new CheapBody(); };
+
+		};
+
+		class LuxuryCarFactory : public CarFactory {
+		public:
+			Car* buildWholeCar() override {
+				Car* newCar = new Car("Luxury car");
+				newCar->setBody(buildBody());
+				newCar->setTire(buildTire());
+				return newCar;
+			}
+		private:
+			Tire* buildTire() override { return new LuxuryTire(); }
+			Body* buildBody() override { return new LuxuryBody(); }
+
+		};
+	
+	}
+
+	namespace AFDPClient {
+		using CarNS::Car;
+		using namespace CarFactoryNS;
+		void test() {
+//#define CREATE_LUXURY_CAR
+#ifdef CREATE_LUXURY_CAR
+			CarFactory* factory = new LuxuryCarFactory();
+#else
+			CarFactory* factory = new CompactCarFactory();
+#endif
+			Car* car = factory->buildWholeCar();
+			car->printInfo();
+
+			delete car;
+			delete factory;
+		}
+	
+	}
+
+}
+
 
 void test() {
-	TestFactoryDesignPattern::FDPClient::test();
-
+	//TestFactoryDesignPattern::FDPClient::test();
+	TestAbstractFactoryDesignPattern::AFDPClient::test();
 }
