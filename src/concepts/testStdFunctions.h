@@ -551,8 +551,40 @@ namespace TestStdExecution {
 	}
 }
 
+namespace TestStdErase {
+	void test() {
+		std::vector<int> list{ 1, 2, 3, 2, 4 };
+		std::erase(list, 2);  // 1, 3, 4
+		[[maybe_unused]] int a = 1;
+	}
+
+}
+
+namespace TestStdRemove {
+	/*
+	std::remove doesn't actually remove the elements, it moves forward all elements not equal to the given value and returns a new end iterator that points to the new end after the "remove operation".
+	It doesn't change the size of the container, it just rearranges the elements.
+	
+	erase will actually remove the element and resize the container.
+	erase takes two arguments indicating the range to be removed: from a start iterator to an end iterator (excluding the end iterator).
+
+	*/
+	void test() {
+		std::vector<int> list{ 1, 2, 3, 2, 4 };
+		list.erase(
+			std::remove(list.begin(), list.end(), 3), list.end()
+		); // 1, 2, 2, 4
+
+		[[maybe_unused]] int a = 1;
+	}
+
+}
+
 void test() {
-	TestStdExecution::testExecution();
+	TestStdErase::test();
+	TestStdRemove::test();
+
+	//TestStdExecution::testExecution();
 	//TestStdIota::test();
 	//TestStdRefBasic::test();
 	//TestSTDBindBasic::test();

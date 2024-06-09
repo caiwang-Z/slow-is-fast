@@ -5,6 +5,7 @@
 #include <deque>
 
 #include <string>
+#include <vector>
 
 namespace TestStaticArray {
 	void test() {
@@ -390,10 +391,22 @@ namespace TestStdTupleBaic {
 
 }
 
+namespace TestStdVector {
+	void testErase() {
+		std::vector<int> list{ 1, 2, 3, 4 };
+		list.erase(list.begin(), list.end());
+		std::cout << list.size() << std::endl;
+	
+	}
+
+
+}
+
 void test() {
 	//TestMyVector::test();
 	//TestMyVector::testAssignmentAndCopyConstructor();
 	//TestMyVector::testMyIteratorString();
 	//TestMyArray::test();
-	TestStdDequeUsage::test();
+	//TestStdDequeUsage::test();
+	TestStdVector::testErase();
 }

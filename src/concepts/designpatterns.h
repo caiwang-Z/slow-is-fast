@@ -1,6 +1,9 @@
 #pragma once 
 #include <string>
 #include <iostream>
+#include <mutex>
+#include <vector>
+
 
 namespace TestFactoryDesignPattern {
 	// Note
@@ -383,6 +386,77 @@ To create a singleton class we must have:
 
 }
 
+namespace TestSingletonThreadSafety {
+	class GameSettingTS{
+
+	public:
+		static GameSettingTS* getInstance() {
+			std::unique_lock<std::mutex> lk(_mutex);
+			if (!_instance) {
+				_instance = new GameSettingTS(1080, 912, 43);
+			}
+			lk.unlock();
+			return _instance;
+		}
+
+		void printGameSetting() {
+			std::cout << "Width: " << _width << "\n"
+				<< "Height: " << _height << "\n"
+				<< "Brightness: " << _brightness << "\n";
+		}
+
+		void setWidth(int width) { _width = width; }
+		void setHeight(int height) { _height = height; }
+		void setBrightness(int brightness) { _brightness = brightness; }
+		GameSettingTS(const GameSettingTS& setting) = delete;
+		GameSettingTS& operator=(const GameSettingTS& settting) = delete;
+
+
+	private:
+		int _width;
+		int _height;
+		int _brightness;
+		GameSettingTS(int width, int height, int brightness) : _width(width), _height(height), _brightness(brightness) {};
+		static GameSettingTS* _instance;
+		static std::mutex _mutex;
+
+
+
+	};
+
+}
+
+namespace TestObserverDesignPattern {
+/*
+@Definition
+Defines a one to many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.
+*/
+	class Observer;
+	class Car {
+	private:
+		int _position;
+		std::vector<Observer*> _observers;
+	public:
+		Car() {};
+		int getPosition() { return _position; }
+		void setPosition(const int position) { 
+			_position = position; 
+			notify();
+		}
+
+		void attach(Observer* observer) {
+			_observers.push_back(observer);
+		}
+
+		void detach(Observer* observer) {
+			
+		}
+		
+		void notify() {};
+	
+	};
+
+}
 
 void test() {
 	//TestFactoryDesignPattern::FDPClient::test();
