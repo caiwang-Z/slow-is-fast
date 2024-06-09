@@ -3,6 +3,7 @@
 #include <iostream>
 #include <mutex>
 #include <vector>
+#include <unordered_map>
 
 
 namespace TestFactoryDesignPattern {
@@ -547,9 +548,102 @@ Defines a one to many dependency between objects so that when one object changes
 
 }
 
+namespace TestPrototypeDesignPattern {
+/*
+@Intent
+1. Creating an object is expensive operation than copy an object.
+2. All objects Initial State is common and takes time to build.
+3. Composition, creation and representation of objects should be decoupled from the system.
+4. Hide the complexity of creating new instance from the user
+5. Which classes to create are specified at runtime.
+
+@Downsides
+1. Copy!!! [shallow/deep]
+2. Copying an object can be complicated.
+3. Circular references class can not be cloned.
+4. Over use of this might affect the performance.
+*/
+	class Bullet {
+	public:
+		Bullet() {};
+		Bullet(const std::string& bulletName, double speed, double firePower, double damagePower):\
+			_bulletName(bulletName), _speed(speed), _firePower(firePower), _damagePower(damagePower) {}
+
+		~Bullet() {};
+		virtual std::unique_ptr<Bullet> clone() = 0;
+		void fire(double direction) {
+			_direction = direction;
+			std::cout << "Name:	" << _bulletName << "\n"
+				<< "Speed: " << _speed << "\n"
+				<< "Fire power: " << _firePower << "\n"
+				<< "Damage power: " << _damagePower << "\n"
+				<< "direction: " << _direction << "\n";
+		
+		}
+
+
+	private:
+		std::string _bulletName;
+		double _speed;
+		double _firePower;
+		double _damagePower;
+		double _direction;
+
+	};
+
+	class SimpleBullet : public Bullet {
+	public:
+		SimpleBullet(const std::string& bulletName, double speed, double firePower, double damagePower) :
+			Bullet(bulletName, speed, firePower, damagePower) {};
+		std::unique_ptr<Bullet> clone() {
+			return std::make_unique<SimpleBullet>(*this);
+		
+		}
+
+	};
+
+	class GoodBullet : public Bullet {
+	public:
+		GoodBullet(const std::string& bulletName, double speed, double firePower, double damagePower) :
+			Bullet(bulletName, speed, firePower, damagePower) {};
+		std::unique_ptr<Bullet> clone() {
+			return std::make_unique<GoodBullet>(*this);
+		}
+	};
+
+	enum class BulletType {SIMPLE, GOOD};
+	class BulletFactory {
+	public:
+		BulletFactory() { 
+			_bullets[BulletType::SIMPLE] = std::make_unique<SimpleBullet>("Simple bullet", 50, 60, 70);
+			_bullets[BulletType::GOOD] = std::make_unique<SimpleBullet>("Good bullet", 100, 100, 100);
+
+		}
+
+		std::unique_ptr<Bullet> createBullet(BulletType type) { return _bullets[type]->clone(); }
+
+	private:
+		std::unordered_map<BulletType, std::unique_ptr<Bullet>> _bullets;
+
+
+	};
+
+	void test() {
+		BulletFactory factory;
+		auto bullet = factory.createBullet(BulletType::SIMPLE);
+		bullet->fire(45);
+
+		bullet = factory.createBullet(BulletType::GOOD);
+		bullet->fire(90);
+	
+	}
+
+}
+
 void test() {
 	//TestFactoryDesignPattern::FDPClient::test();
 	//TestAbstractFactoryDesignPattern::AFDPClient::test();
 	//TestSingletonDesignPattern::test();
-	TestObserverDesignPattern::test();
+	//TestObserverDesignPattern::test();
+	TestPrototypeDesignPattern::test();
 }
