@@ -303,7 +303,89 @@ namespace TestAbstractFactoryDesignPattern {
 }
 
 
+namespace TestSingletonDesignPattern {
+/*
+@Definition
+Define a class that has only one instance and provides a global point of access that instance
+
+@Requirements
+1. One and only one instance
+2. Global access 
+3. No ownership
+4. Lazy initialization
+
+@Advantage
+1. save memory: only one is required so why to create so many
+2. single access point: logger, database connection
+3. Flexibility: change anytime you want to
+
+@Usage
+1. Multithreaded: threadpool
+2. Database application: logging
+3. Configuration Settings: game setting, application setting, etc.
+
+@how to create
+To create a singleton class we must have:
+	-- static member
+	-- private constructor
+	-- static function
+
+*/
+
+	class GameSetting {
+	public:
+		static GameSetting* getInstance() {
+			if (!_instance) {
+				_instance = new GameSetting(1080, 912, 43);
+			}
+			return _instance;
+		}
+
+		void printGameSetting() {
+			std::cout << "Width: " << _width << "\n"
+				<< "Height: " << _height << "\n"
+				<< "Brightness: " << _brightness << "\n";
+		}
+
+		void setWidth(int width) { _width = width; }
+		void setHeight(int height) { _height = height; }
+		void setBrightness(int brightness) { _brightness = brightness; }
+		GameSetting(const GameSetting& setting) = delete;
+		GameSetting& operator=(const GameSetting& settting) = delete;
+		
+
+	private:
+		int _width;
+		int _height;
+		int _brightness;
+		GameSetting(int width, int height, int brightness) : _width(width), _height(height), _brightness(brightness) {};
+		static GameSetting* _instance;
+
+
+	};
+
+	// If we are declaring any member as a static then we need to define it outside that class
+	GameSetting* GameSetting::_instance = nullptr;
+
+	void test() {
+		GameSetting* setting = GameSetting::getInstance();
+		setting->printGameSetting();
+		setting->setBrightness(100);
+		setting->setWidth(999);
+		setting->printGameSetting();
+
+		//GameSetting set1(*setting); // compile error, a deleted function
+		// GameSetting set2 = *setting;  // compile error, a deleted funciton
+
+		delete setting;
+	
+	}
+
+}
+
+
 void test() {
 	//TestFactoryDesignPattern::FDPClient::test();
-	TestAbstractFactoryDesignPattern::AFDPClient::test();
+	//TestAbstractFactoryDesignPattern::AFDPClient::test();
+	TestSingletonDesignPattern::test();
 }
