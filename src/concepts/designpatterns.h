@@ -640,10 +640,108 @@ namespace TestPrototypeDesignPattern {
 
 }
 
+namespace TestBuilderDesignPattern {
+/*
+@Why build design pattern
+The builder pattern is a design pattern designed to provide a flexible solution to various object creation problems in object-oriented programming. The intent of the builder design pattern is 
+to separate the construction of a complex object from its representation.
+
+@overview
+The Builder design pattern describes how to solve such problems:
+
+Encapsulate creating and assembling the parts of a complex object in a separate Builder object.
+A class delegates object creation to a Builder object instead of creating the objects directly.
+A class (the same construction process) can delegate to different Builder objects to create different representations of a complex object.
+*/
+	// end product
+	class Plane {
+	public:
+		Plane(const std::string& type) : _type(type) {}
+		void setEngine(const std::string& engine) { _engine = engine; }
+		void setBody(const std::string& body) { _body = body; }
+		void show() {
+			std::cout << "Plane type: " << _type \
+				<< "\n Engine: " << _engine \
+				<< "\n Body: " << _body << "\n";
+		}
+
+	private:
+		std::string _type;
+		std::string _engine;
+		std::string _body;
+	};
+
+	// PlaneBuilder Abstract Class
+	// Means all builders should have atleast these methods
+	class PlaneBuilder {
+
+	public:
+		virtual void getPartsDone() = 0;
+		virtual void buildEngine() = 0;
+		virtual void buildBody() = 0;
+		Plane* getPlane() { return _plane; }
+
+	protected:
+		Plane* _plane;
+
+	};
+
+	// PlaneBuilder concrete class
+	// knows only how to build Propeller Plane
+	class PropellerBuilder : public PlaneBuilder {
+	public:
+		void getPartsDone() override { _plane = new Plane("Propeller plane"); }
+		void buildEngine() override { _plane->setEngine("Propeller engine"); }
+		void buildBody() override { _plane->setBody("Propeller body"); }
+
+	};
+
+	// PlaneBuilder concrete class
+	// Knows only how to build Jet Plane
+	class JetBuilder : public PlaneBuilder {
+	public:
+		void getPartsDone() override { _plane = new Plane("Jet plane"); }
+		void buildEngine() override { _plane->setEngine("Jet engine"); }
+		void buildBody() override { _plane->setBody("Jet body"); }
+
+	};
+
+	// Defines steps and tells to the builder that build in given order.
+	class Director {
+	public:
+		Plane* createPlane(PlaneBuilder* builder) {
+			builder->getPartsDone();
+			builder->buildBody();
+			builder->buildEngine();
+			return builder->getPlane();
+		}
+
+
+	};
+
+	void test() {
+		Director dir;
+		PropellerBuilder pBuilder;
+		JetBuilder jBuilder;
+
+		Plane* pPlane = dir.createPlane(&pBuilder);
+		Plane* jPlane = dir.createPlane(&jBuilder);
+
+		pPlane->show();
+		std::cout << "****************split line********\n";
+		jPlane->show();
+
+		delete pPlane;
+		delete jPlane;
+	}
+
+}
+
 void test() {
 	//TestFactoryDesignPattern::FDPClient::test();
 	//TestAbstractFactoryDesignPattern::AFDPClient::test();
 	//TestSingletonDesignPattern::test();
 	//TestObserverDesignPattern::test();
-	TestPrototypeDesignPattern::test();
+	//TestPrototypeDesignPattern::test();
+	TestBuilderDesignPattern::test();
 }
