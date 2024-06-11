@@ -1,8 +1,11 @@
+#pragma once
 #include <iostream>
 #include <optional>
 #include <fstream>
 #include <variant>
+#include "utility.h"
 
+using namespace UtilityNameSpace;
 
 namespace TestOptionalKeyWord {
 	// std::optional to store data which may or may not be present
@@ -113,8 +116,147 @@ namespace TestNodiscard {
 
 }
 
+namespace TestVirtualInClass{
+	class Entity {
+	public:
+		std::string getName() { return "Entity";
+		}
+
+	};
+
+	class Player : public Entity {
+	public:
+		Player(const std::string& name) : _name(name){}
+		std::string getName() {
+			return _name;
+		}
+	private:
+		std::string _name;
+	};
+
+
+	void testPlayer(){
+		Entity* en = new Entity();
+		Entity* pl = new Player("Player");
+		Player* pl2 = new Player("Player2");
+		std::cout << en->getName() << "\n";  // Entity
+		std::cout << pl->getName() << "\n"; // Entity
+		std::cout << pl2->getName() << "\n"; // Player2
+		delete en;
+		delete pl;
+		delete pl2;
+	}
+
+	namespace NSwithOverride{
+		class EntityNew {
+		public:
+			virtual std::string getName() {
+				return "Entity";
+			}
+
+		};
+
+		class PlayerNew : public EntityNew {
+		public:
+			PlayerNew(const std::string& name) : _name(name) {}
+			std::string getName() override {
+				return _name;
+			}
+		private:
+			std::string _name;
+		};
+
+
+		void testPlayer() {
+			EntityNew* en = new EntityNew();
+			EntityNew* pl = new PlayerNew("Player");
+			PlayerNew* pl2 = new PlayerNew("Player2");
+			std::cout << en->getName() << "\n";  // Entity
+			std::cout << pl->getName() << "\n"; // Player
+			std::cout << pl2->getName() << "\n"; // Player2
+			delete en;
+			delete pl;
+			delete pl2;
+		}
+	
+	}
+
+	void test(){
+		testPlayer();
+		splitLine();
+		NSwithOverride::testPlayer();
+	}
+
+}
+
+namespace VirtualInClassDestructor{
+	class Entity {
+	public:
+		Entity(){
+			std::cout << "Entity construcor called\n";
+		}
+
+		~Entity(){std::cout << "Entity destructor called\n"; }
+	};
+
+	class Player : public Entity {
+	public:
+		Player(const std::string& name) : _name(name) {
+			std::cout << _name << " constructor called\n";
+		}
+		~Player(){
+			std::cout << _name << " destructor called\n";
+		}
+	private:
+		std::string _name;
+	};
+
+	void test(){
+		Entity* en = new Player("Player");
+		delete en; // Entity construcor called // Player constructor called // Entity destructor called
+	
+	}
+
+	class Entity1 {
+	public:
+		Entity1() {
+			std::cout << "Entity1 construcor called\n";
+		}
+
+		virtual ~Entity1() { std::cout << "Entity1 destructor called\n"; }
+	};
+
+	class Player1 : public Entity1 {
+	public:
+		Player1(const std::string& name) : _name(name) {
+			std::cout << _name << " constructor called\n";
+		}
+		~Player1() {
+			std::cout << _name << " destructor called\n";
+		}
+	private:
+		std::string _name;
+	};
+
+	void test1() {
+		Entity1* en = new Player1("Player1");
+		delete en; // Entity1 construcor called // Player1 constructor called //Player1 destructor called  // Entity1 destructor called
+
+	}
+
+	void testAll(){
+		test();
+		splitLine();
+		test1();
+	
+	}
+
+}
+
 void test() {
-	TestNodiscard::test();
+	//TestVirtualInClass::test();
+	VirtualInClassDestructor::testAll();
+	//TestNodiscard::test();
 
 	//TestNullKeyWord::test();
 
