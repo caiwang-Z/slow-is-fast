@@ -254,9 +254,6 @@ namespace TestCplusPlusAttribute {
 	}
 
 void test() {
-	TestNodiscard::test();
-
-void test() {
 	TestCplusPlusAttribute::test();
 	//TestNullKeyWord::test();
 
