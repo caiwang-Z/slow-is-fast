@@ -22,13 +22,43 @@ pattern to adapt an existing class to a new interface.
 
 	class AudioPlayer {
 	public:
-	virtual void play(const std::string& filename) = 0;
+		virtual void play(const std::string& audioType, const std::string& filename) = 0;
 
 	};
+
+	class AudioPlayerAdapter : public AudioPlayer{
+	public:
+		AudioPlayerAdapter(OldAudioPlayer* oldplayer) : _oldPlayer(oldplayer){}
+
+		void play(const std::string& audioType, const std::string& filename){
+			if (audioType == "mp3"){
+				_oldPlayer->play(filename);
+			}else{
+				std::cout << "Unsupported audio type: " << audioType << ", filename: " << filename << "\n";
+			}
+		
+		}
+
+	private:
+		OldAudioPlayer* _oldPlayer;
+
+	};
+
+	void test(){
+		OldAudioPlayer* oldPlayer = new OldAudioPlayer();
+		AudioPlayer* player = new AudioPlayerAdapter(oldPlayer);
+
+		player->play("mp3", "song.mp3");
+		player->play("wav", "song.wav");
+
+		delete player;
+		delete oldPlayer;
+	
+	}
 
 }
 
 void test(){
-
+	TestAdapterDesignPattern::test();
 
 }
