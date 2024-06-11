@@ -17,6 +17,7 @@
 //#include "testStdFunctions.h"
 //#include "testSTDException.h"
 //#include "testSmartPointer.h"
+#include "patterns.h"
 #include "designpatterns.h"
 
 int main() {

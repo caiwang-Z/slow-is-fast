@@ -5,6 +5,7 @@
 #include <variant>
 #include "utility.h"
 
+using namespace UtilityNameSpace;
 using UtilityNameSpace::Splitter;
 
 namespace TestOptionalKeyWord {
@@ -252,19 +253,8 @@ namespace TestCplusPlusAttribute {
 
 	}
 
-
-	void test() {
-		TestNodiscard::testAttributeNoDiscard();
-		TestDeprecated::testAttributeDeprecated();
-		TestFallThrough::testAttributeFallThrough();
-		TestLikelyAndUnlikely::testAttributeLikelyAndUnlikelyInIfElse();
-		TestLikelyAndUnlikely::testAttributeLikelyAndUnlikelyInSwitch();
-		TestNoReturn::testAttributeNoReturn();
-		TestMaybeUnused::testAttributeMaybeUnused();
-	}
-
-}
-
+void test() {
+	TestNodiscard::test();
 
 void test() {
 	TestCplusPlusAttribute::test();
