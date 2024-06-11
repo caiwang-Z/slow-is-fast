@@ -111,7 +111,7 @@ namespace TestCplusPlusAttribute {
 
 		void testAttributeNoDiscard() {
 			SIFSplit;
-			 // sum(10, 20);  // warning C4834: discarding return value of function with 'nodiscard' attribute
+			// sum(10, 20);  // warning C4834: discarding return value of function with 'nodiscard' attribute
 			[[maybe_unused]] auto res = sum(10, 20); // now warning
 			// There is a memory leak produced because the returned value was not stored anywhere and 
 			// there is no way to deallocate its memory.
@@ -127,7 +127,7 @@ namespace TestCplusPlusAttribute {
 
 		[[deprecated("This function will be removed in the future. Use newFunc instead")]]
 		void oldFunc() {};
-		
+
 		void newFunc() {};
 
 		void testAttributeDeprecated() {
@@ -135,7 +135,7 @@ namespace TestCplusPlusAttribute {
 			// oldFunc();  // warning C4996: 'TestCplusPlusAttribute::TestDeprecated::oldFunc': This function will be removed in the future. Use newFunc instead
 			newFunc();
 		}
-		
+
 	}
 
 	namespace TestFallThrough {
@@ -147,7 +147,7 @@ namespace TestCplusPlusAttribute {
 				[[fallthrough]];
 			case 1:
 				std::cout << "case 1 \n";
-				[[fallthrough]] ;
+				[[fallthrough]];
 			case 2:
 				std::cout << "case 2 \n";
 				break;
@@ -155,16 +155,16 @@ namespace TestCplusPlusAttribute {
 				std::cout << "Default case \n";
 				break;
 			}
-		
+
 		}
 
 
 		void testAttributeFallThrough() {
 			SIFSplit;
 			process(0);  // case 0; case 1; case 2
-		
+
 		}
-	
+
 	}
 
 	namespace TestLikelyAndUnlikely {
@@ -183,9 +183,9 @@ namespace TestCplusPlusAttribute {
 			}
 			else {
 				std::cout << "x is smaller that 1 \n";
-			
+
 			}
-		
+
 		}
 
 		void testAttributeLikelyAndUnlikelyInSwitch() {
@@ -208,14 +208,14 @@ namespace TestCplusPlusAttribute {
 				std::cout << "default case \n";
 				break;
 			}
-		
+
 		}
-	
+
 	}
 
 	namespace TestNoReturn {
-	// The [[noreturn]] attribute is used to mark functions that do not return. 
-	// This is typically used for functions that throw an exception or terminate the program.
+		// The [[noreturn]] attribute is used to mark functions that do not return. 
+		// This is typically used for functions that throw an exception or terminate the program.
 		[[noreturn]] void fatalError(const char* msg) {
 			throw "fatal error";
 		}
@@ -229,14 +229,14 @@ namespace TestCplusPlusAttribute {
 			}
 			catch (const char* msg) {
 				std::cout << "Exception caught: " << msg << "\n";
-			
+
 			}
-		
+
 		}
 	}
 
 	namespace TestMaybeUnused {
-		void foo([[maybe_unused]]int a, int b, int c, int d) {
+		void foo([[maybe_unused]] int a, int b, int c, int d) {
 #ifdef CONDITION
 			std::cout << "a: " << a << ",b: " << b << ", c: " << c << ", d: " << d << "\n";
 #else
@@ -249,12 +249,164 @@ namespace TestCplusPlusAttribute {
 			[[maybe_unused]] int a = 10;  // no warning
 			foo(1, 2, 3, 4);
 		}
-		
+
 
 	}
 
+	void test() {
+		TestNodiscard::testAttributeNoDiscard();
+		TestDeprecated::testAttributeDeprecated();
+		TestFallThrough::testAttributeFallThrough();
+		TestLikelyAndUnlikely::testAttributeLikelyAndUnlikelyInIfElse();
+		TestLikelyAndUnlikely::testAttributeLikelyAndUnlikelyInSwitch();
+		TestNoReturn::testAttributeNoReturn();
+		TestMaybeUnused::testAttributeMaybeUnused();
+	}
+}
+
+namespace TestVirtualInClass {
+	class Entity {
+	public:
+		std::string getName() {
+			return "Entity";
+		}
+
+	};
+
+	class Player : public Entity {
+	public:
+		Player(const std::string& name) : _name(name) {}
+		std::string getName() {
+			return _name;
+		}
+	private:
+		std::string _name;
+	};
+
+
+	void testPlayer() {
+		Entity* en = new Entity();
+		Entity* pl = new Player("Player");
+		Player* pl2 = new Player("Player2");
+		std::cout << en->getName() << "\n";  // Entity
+		std::cout << pl->getName() << "\n"; // Entity
+		std::cout << pl2->getName() << "\n"; // Player2
+		delete en;
+		delete pl;
+		delete pl2;
+	}
+
+	namespace NSwithOverride {
+		class EntityNew {
+		public:
+			virtual std::string getName() {
+				return "Entity";
+			}
+
+		};
+
+		class PlayerNew : public EntityNew {
+		public:
+			PlayerNew(const std::string& name) : _name(name) {}
+			std::string getName() override {
+				return _name;
+			}
+		private:
+			std::string _name;
+		};
+
+
+		void testPlayer() {
+			EntityNew* en = new EntityNew();
+			EntityNew* pl = new PlayerNew("Player");
+			PlayerNew* pl2 = new PlayerNew("Player2");
+			std::cout << en->getName() << "\n";  // Entity
+			std::cout << pl->getName() << "\n"; // Player
+			std::cout << pl2->getName() << "\n"; // Player2
+			delete en;
+			delete pl;
+			delete pl2;
+		}
+
+	}
+
+	void test() {
+		testPlayer();
+		splitLine();
+		NSwithOverride::testPlayer();
+	}
+
+}
+
+namespace VirtualInClassDestructor {
+	class Entity {
+	public:
+		Entity() {
+			std::cout << "Entity construcor called\n";
+		}
+
+		~Entity() { std::cout << "Entity destructor called\n"; }
+	};
+
+	class Player : public Entity {
+	public:
+		Player(const std::string& name) : _name(name) {
+			std::cout << _name << " constructor called\n";
+		}
+		~Player() {
+			std::cout << _name << " destructor called\n";
+		}
+	private:
+		std::string _name;
+	};
+
+	void test() {
+		Entity* en = new Player("Player");
+		delete en; // Entity construcor called // Player constructor called // Entity destructor called
+
+	}
+
+	class Entity1 {
+	public:
+		Entity1() {
+			std::cout << "Entity1 construcor called\n";
+		}
+
+		virtual ~Entity1() { std::cout << "Entity1 destructor called\n"; }
+	};
+
+	class Player1 : public Entity1 {
+	public:
+		Player1(const std::string& name) : _name(name) {
+			std::cout << _name << " constructor called\n";
+		}
+		~Player1() {
+			std::cout << _name << " destructor called\n";
+		}
+	private:
+		std::string _name;
+	};
+
+	void test1() {
+		Entity1* en = new Player1("Player1");
+		delete en; // Entity1 construcor called // Player1 constructor called //Player1 destructor called  // Entity1 destructor called
+
+	}
+
+	void testAll() {
+		test();
+		splitLine();
+		test1();
+
+	}
+
+}
+
+
 void test() {
-	TestCplusPlusAttribute::test();
+	VirtualInClassDestructor::testAll();
+	//TestVirtualInClass::test();
+	//TestCplusPlusAttribute::test();
 	//TestNullKeyWord::test();
 
 }
