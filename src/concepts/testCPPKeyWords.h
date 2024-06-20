@@ -402,6 +402,21 @@ namespace VirtualInClassDestructor {
 
 }
 
+namespace TestAlignasInStruct{
+/*
+* 
+The alignas(uint64_t) specifier ensures that the structure is properly 
+aligned for performance or hardware requirements.
+
+*/
+	struct alignas(uint64_t) transferParams {
+		const char* fileName;
+		const char* fileType;
+	};
+
+
+}
+
 
 void test() {
 	VirtualInClassDestructor::testAll();
