@@ -580,9 +580,42 @@ namespace TestStdRemove {
 
 }
 
+namespace TestStdMinElement {
+	/*
+		returns the smallest element in a range
+
+	*/
+	std::vector<int> v{ 3, 1, -4, 1, 5, 9 };
+
+	void test() {
+		const auto it = std::min_element(v.begin(), v.end());
+		std::cout << "Value of smallest element: " << *it << " , index: " << std::distance(it, v.begin()) << " , index in reverse order: " << std::distance(v.begin(), it);
+		// -4, -2, 2
+	
+	}
+
+}
+
+namespace TestStdMaxElement {
+/*
+	returns the largest element in a range
+*/
+	std::vector<int> v{ 3, 1, -4, 1, 5, 9 };
+
+	void test() {
+		const auto it = std::max_element(v.begin(), v.end());
+		std::cout << "Value of smallest element: " << *it << " , index: " << std::distance(it, v.begin()) << " , index in reverse order: " << std::distance(v.begin(), it);
+		// 9, -5, 5
+
+	}
+
+}
+
 void test() {
-	TestStdErase::test();
-	TestStdRemove::test();
+	TestStdMinElement::test();
+
+	//TestStdErase::test();
+	//TestStdRemove::test();
 
 	//TestStdExecution::testExecution();
 	//TestStdIota::test();
