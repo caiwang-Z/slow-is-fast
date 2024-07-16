@@ -417,11 +417,45 @@ aligned for performance or hardware requirements.
 
 }
 
+namespace TestDecltype {
+	// #include <type_traits>
+
+	/*
+	Note 1: std::is_same is a template class that has two template parameters.In this example, the template parameters are decltype(x) and int. 
+	std::is_same's main member is a static constant value
+
+	Note 2: static_assert is a compile-time assertion mechanism introduced by C++11 to check whether certain conditions are true during compilation.
+	If the condition is false, the compiler generates an error and displays the supplied error message.
+	*/
+	void test() {
+		int a = 42;
+		const int& b = a;
+		int& c = a;
+
+		decltype(a) x = a; // int
+		static_assert(std::is_same<decltype(x), int>::value, "x should be int");
+
+		decltype(b) y = b; // const int&
+		static_assert(std::is_same<decltype(y), const int&>::value, "y should be int&");
+
+		decltype(c) m = c; // int&
+		static_assert(std::is_same<decltype(m), int&>::value, "m should be int&");
+
+		decltype(a + b) z = a + b; // int
+		static_assert(std::is_same<decltype(z), int>::value, "z should be int");
+
+		std::cout << "All static assertions passed!\n";
+	}
+
+
+}
+
 
 void test() {
 	VirtualInClassDestructor::testAll();
 	//TestVirtualInClass::test();
 	//TestCplusPlusAttribute::test();
 	//TestNullKeyWord::test();
+	//TestDecltype::test();
 
 }

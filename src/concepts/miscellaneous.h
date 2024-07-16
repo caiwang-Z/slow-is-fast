@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <string>
 
 namespace TestNewFeatures {
 	void testStdClamp() {
@@ -36,6 +37,27 @@ namespace TestTypeTraits {
 	}
 
 	// std::true_type and std::false
+}
+
+namespace TestStdStringConst {
+
+	int32_t GetUrlInfoInt(const std::string& xmlFieldName, const std::string& xmlData) {
+		const std::string field = " " + xmlFieldName + "=";
+		std::size_t       pos = xmlData.find(field);
+		int32_t           res = 0;
+		if (pos != xmlData.npos) {
+			pos += field.size();
+			std::string verMajorStr;
+			while (isalnum(xmlData[++pos])) {
+				verMajorStr += xmlData[pos];
+			}
+			if (!verMajorStr.empty()) {
+				res = std::stoi(verMajorStr);
+			}
+		}
+		return res;
+	}
+
 }
 
 void test() {
