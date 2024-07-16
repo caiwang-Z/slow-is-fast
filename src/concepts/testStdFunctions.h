@@ -534,8 +534,7 @@ namespace TestStdExecution {
 		std::sort(v.begin(), v.end());
 #endif
 		const auto finish = std::chrono::steady_clock::now();
-		std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(finish - start)
-			<< '\n';
+		std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << '\n';
 	};
 	void testExecution() {
 		SIFSplit;
@@ -611,8 +610,148 @@ namespace TestStdMaxElement {
 
 }
 
+namespace TestStdExchange{
+/*
+	template< class T, class U = T >
+	T exchange( T& obj, U&& new_value );
+	Replaces the value of obj with new_value and returns the old value of obj.
+*/
+namespace UseCase1{
+	// Resetting the value of a variable
+	void resetValue(int& value){
+		const int oldValue = std::exchange(value, 0); 
+		std::cout << "Old value: " << oldValue << std::endl; // 42
+	
+	}
+
+	void test(){
+		int num = 42;
+		resetValue(num);
+		std::cout << "new value: " << num << std::endl; // 0
+	
+	}
+
+}
+
+namespace UseCase2{
+	// simplify swaping operation
+	void test(){
+		int x = 5, y = 10;
+		std::cout << "x: " << x << ", y: " << y << std::endl;  // 5 10
+		y = std::exchange(x, y);
+		std::cout << "x: " << x << ", y: " << y << std::endl;  // 10 5
+
+	}
+
+}
+
+namespace UseCase3{
+	// State transitions using std::exchange
+	enum class State {
+		Idle,
+		Running,
+		Stopped
+
+	};
+
+	class Machine {
+		public:
+			State changeState(State sta){
+				return std::exchange(_curState, sta);
+			}
+
+			State getState(){
+				return _curState;
+			}
+
+		private:
+			State _curState = State::Idle;
+
+
+	};
+
+	void test(){
+		Machine machine;
+		std::cout << "Old state: " << static_cast<int>(machine.changeState(State::Running)) << std::endl;  // 0 (Idle)
+		std::cout << "New state: " << static_cast<int>(machine.getState()) << std::endl;  // 1 (Running)
+	}
+}
+
+    namespace UseCase4{
+		// Resource management and movement operations
+		class Resource {
+			public:
+				Resource(int value) : _data(new int(value)){}
+
+				// copy constructor
+				Resource(const Resource& other): _data(new int(*other._data)){
+				}
+
+				// move constructor
+				Resource(Resource&& other) noexcept : _data(std::exchange(other._data, nullptr)){}
+
+				// move assignment operator
+				Resource& operator= (Resource&& other) noexcept {
+					if (this != &other){
+						delete _data;
+						_data = std::exchange(other._data, nullptr);
+					}
+					return  *this; 
+
+				}
+
+				// copy assignment operator
+				Resource& operator= (Resource& other) noexcept{
+					if (this != &other){
+						delete _data;
+						_data = new int(*other._data);
+					
+					}
+					return *this;
+				}
+
+				~Resource(){delete _data;}
+
+				int getValue(){
+					return _data ? *_data : 0;
+				}
+
+			private:
+
+				int* _data;
+
+
+		};
+
+		void test(){
+			Resource res1(42);
+			Resource res2(std::move(res1)); // call move constructor
+			//Resource res2 = std::move(res2); // call move constructor
+			std::cout << "res1 value: " << res1.getValue() << std::endl; // 0
+			std::cout << "res2 value: " << res2.getValue() << std::endl; // 42
+
+			Resource res3(100);
+			res3 = std::move(res2);  // call move assignment operator
+			std::cout << "res2 value: " << res2.getValue() << std::endl; // 0
+			std::cout << "res3 value: " << res3.getValue() << std::endl; // 42
+
+		}
+	
+	
+	}
+    void test(){
+		UseCase1::test();
+		UseCase2::test();
+		UseCase3::test();
+		UseCase4::test();
+	}
+
+}
+
 void test() {
-	TestStdMinElement::test();
+	TestStdExchange::test();
+
+	//TestStdMinElement::test();
 
 	//TestStdErase::test();
 	//TestStdRemove::test();
