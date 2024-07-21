@@ -121,8 +121,103 @@ namespace TestClangFormat {
 
 }
 
+namespace TestFoldExpression {
+namespace TestMonadicLeftFolding{
+// Monadic left folding
+// (... operation pack)
+
+template <typename... Args>
+auto sum(Args... args) {
+  return (... + args);  // Sum the argument packet args from left to right.
+}
+}
+
+namespace TestMondadicRightFolding {
+// Monadic right folding 
+// (pack operation ...)
+
+    template <typename... Args>
+auto sum(Args... args) {
+  return (args + ...); // sum the argument packet args from right to left.
+}
+
+}
+
+namespace TestBinaryLeftFolding {
+// Binary left folding 
+    // (initValue operation ... operation pack)
+    template<typename... Args>
+auto sum(Args... args) {
+  return (10 + ... + args);
+}
+
+}
+
+namespace TestBinaryRightFolding {
+// Binary right folding:
+    // (pack operation ... operation initValue)
+
+    template<typename... Args>
+auto sum(Args... args) {
+  return (args + ... + 20);
+}
+
+}
+
+void test() {
+  const auto res1 = TestMonadicLeftFolding::sum(1, 2, 3, 4, 5);
+  const auto res2 = TestMondadicRightFolding::sum(1, 2, 3, 4, 5);
+  const auto res3 = TestBinaryLeftFolding::sum(1, 2, 3, 4, 5);
+  const auto res4 = TestBinaryRightFolding::sum(1, 2, 3, 4, 5);
+  int        a    = 1;
+}
+
+
+}
+
+namespace TestVariadicExpansionWrapUp {
+/*
+In C++, variadic templates allow a function to take an arbitrary number of arguments.Varadic expansion is the process of
+expanding these parameters and processing them.Varadic Expansion Wrap-Up usually involves expanding the varadic template
+parameters and performing some kind of processing.
+*/
+template<typename T>
+void print(T t) {
+  std::cout << t << "\n";
+}
+
+template<typename T, typename ... Args>
+void print(T t, Args... args) {
+  std::cout << t << "\n";  // comment this line: try world; No comment: try 1 2.5 Hello world
+  print(args...);
+}
+
+
+/*
+In some cases, you may want to process all the variables in a single operation, rather than one by one.In this case, you
+can use the "wrapping" technique of variant expansion, such as initializing lists or collapsing expressions (a feature
+introduced in C++17) to handle all the arguments at once.
+
+*/
+template <typename... Args>
+void print_all(Args... args) {
+  //((std::cout << args << std::endl), ...);
+  //(..., (std::cout << args << "\n") );
+  ((std::cout << args << "\n"), ... );
+}
+
+void test() {
+  print("try");
+  print(1, 2.5, "Hello", "world");
+  print_all("new", "world", 4, 8, 90);
+}
+
+}
+
 
 
 void test() {
-  TestStopUsingSTDEndl::test();
+  //TestStopUsingSTDEndl::test();
+  TestVariadicExpansionWrapUp::test();
+  //TestFoldExpression::test();
 }
