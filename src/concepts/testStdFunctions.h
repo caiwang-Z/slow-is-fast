@@ -762,7 +762,49 @@ void test() {
 
 }  // namespace TestStdAny
 
+namespace TestStdInvoke {
+/*
+std::invoke is a function template introduced in C++17 for generic invocation of callable objects. std::invoke can call
+a variety of callable objects such as function pointers, member function pointers, function objects, and lambda
+expressions.It can call a variety of callable objects such as function pointers, member function pointers, function
+objects, and lambda expressions. std::invoke provides a unified way to work with these different types of callable
+objects, simplifying the writing and calling of code.
+*/
+void print(int i, const std::string& s) {
+  std::cout << "normal function called, i: " << i
+            << ", s: " << s << "\n";
+}
+
+class Printer {
+  public:
+  void print(int i, const std::string& s) {
+        std::cout << "class print function called, i: " << i << ", s: " << s << "\n";
+  }
+
+
+};
+
+auto lambdaFunc = [](int i, const std::string& s) {
+  std::cout << "lambda expression called, i: " << i << ", s: " << s << "\n";
+};
+
+void testInvokeBasic() {
+    // normal functions
+  std::invoke(print, 1, "hello");
+    // member function
+  Printer p;
+  std::invoke(&Printer::print, p, 2, "world");
+    // lambda expression
+  std::invoke(lambdaFunc, 3, "test");
+
+}
+
+
+}
+
 void test() {
+  TestStdInvoke::testInvokeBasic();
+
   //TestStdAny::test();
   // TestStdExchange::test();
 
@@ -774,7 +816,7 @@ void test() {
   // TestStdExecution::testExecution();
   // TestStdIota::test();
   // TestStdRefBasic::test();
-   TestSTDBindBasic::test();
+   //TestSTDBindBasic::test();
   // TestStdStringView::testStringViewBasic();
   // TestSTDDistance::test();
   // TestSTDFindIf::test();
