@@ -232,25 +232,25 @@ void test() {
 }  // namespace TestBindFrontInMemberFunction
 
 namespace TestBindCreateNewCallableObject {
-template<typename T>
+template <typename T>
 void print(T t, const std::string& s) {
   std::cout << "Input arguments are: " << t << ", " << s << "\n";
 }
 
 void test() {
-  int i = 5;
-  const auto f = std::bind(&print<int>, std::placeholders::_2, std::placeholders::_1); // input arguments type changed to (std::string, int)
-  f("hello", i); // 5 hello
+  int        i = 5;
+  const auto f = std::bind(&print<int>, std::placeholders::_2,
+                           std::placeholders::_1);  // input arguments type changed to (std::string, int)
+  f("hello", i);                                    // 5 hello
   i = 6;
-  f("world", i); // 6 world
+  f("world", i);  // 6 world
 
   i = 7;
-  std::function<void(const std::string&, int)> f2(f); // a new callable object
-  f2("test", i); // 7 test
+  std::function<void(const std::string&, int)> f2(f);  // a new callable object
+  f2("test", i);                                       // 7 test
 }
 
-
-}
+}  // namespace TestBindCreateNewCallableObject
 
 void test() {
   TestBindFrontInMemberFunction::test();
@@ -744,7 +744,7 @@ void testAnyBasic() {
 void testAnyInPointer() {
   std::any a = 10;
   if (auto aPtr = std::any_cast<int*>(&a)) {
-    std::cout << "value: " << *aPtr << "\n"; // no
+    std::cout << "value: " << *aPtr << "\n";  // no
   }
 
   if (auto aPtr = std::any_cast<int>(&a)) {
@@ -752,7 +752,6 @@ void testAnyInPointer() {
   }
 
   int ba = 1;
-
 }
 
 void test() {
@@ -771,17 +770,14 @@ objects, and lambda expressions. std::invoke provides a unified way to work with
 objects, simplifying the writing and calling of code.
 */
 void print(int i, const std::string& s) {
-  std::cout << "normal function called, i: " << i
-            << ", s: " << s << "\n";
+  std::cout << "normal function called, i: " << i << ", s: " << s << "\n";
 }
 
 class Printer {
   public:
   void print(int i, const std::string& s) {
-        std::cout << "class print function called, i: " << i << ", s: " << s << "\n";
+    std::cout << "class print function called, i: " << i << ", s: " << s << "\n";
   }
-
-
 };
 
 auto lambdaFunc = [](int i, const std::string& s) {
@@ -789,24 +785,54 @@ auto lambdaFunc = [](int i, const std::string& s) {
 };
 
 void testInvokeBasic() {
-    // normal functions
+  // normal functions
   std::invoke(print, 1, "hello");
-    // member function
+  // member function
   Printer p;
   std::invoke(&Printer::print, p, 2, "world");
-    // lambda expression
+  // lambda expression
   std::invoke(lambdaFunc, 3, "test");
-
 }
+}  // namespace TestStdInvoke
 
-
+namespace TestHandleDifferentContainersWithConstexprIf {
+template <typename T>
+void printContainer(const T& t) {
+  if constexpr (std::is_same<T, std::vector<typename T::value_type>>::value) {
+    std::cout << "T is a vector\n";
+  } else if constexpr (std::is_same<T, std::list<typename T::value_type>>::value) {
+    std::cout << "T is a list\n";
+  } else if constexpr (std::is_same<T, std::queue<typename T::value_type>>::value) {
+    std::cout << "T is a queue\n";
+  } 
+  
+  else {
+    std::cout << "Unknow type\n";
+  }
 }
 
 void test() {
-  TestStdInvoke::testInvokeBasic();
+  std::vector<int> vec{1, 2, 3};
+  std::list<double> list{1.0, 2.0, 3.0};
+  std::queue<float> queue;
+  queue.push(9.0f);
+  printContainer(vec);
+  printContainer(list);
+  printContainer(queue);
 
-  //TestStdAny::test();
-  // TestStdExchange::test();
+}
+
+}  // namespace TestHandleDifferentContainersWithConstexprIf
+
+
+
+void test() {
+  TestHandleDifferentContainersWithConstexprIf::test();
+
+  //TestStdInvoke::testInvokeBasic();
+
+  // TestStdAny::test();
+  //  TestStdExchange::test();
 
   // TestStdMinElement::test();
 
@@ -816,7 +842,7 @@ void test() {
   // TestStdExecution::testExecution();
   // TestStdIota::test();
   // TestStdRefBasic::test();
-   //TestSTDBindBasic::test();
+  // TestSTDBindBasic::test();
   // TestStdStringView::testStringViewBasic();
   // TestSTDDistance::test();
   // TestSTDFindIf::test();

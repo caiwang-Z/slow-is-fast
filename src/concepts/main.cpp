@@ -14,12 +14,12 @@
 //#include "testStdContainer.h"
 //#include "testMap.h"
 //#include "testMultiThreading.h"
-//#include "testStdFunctions.h"
+#include "testStdFunctions.h"
 //#include "testSTDException.h"
 //#include "testSmartPointer.h"
 //#include "designpatterns.h"
 //#include "testConceptsUnderstanding.h"
-#include "testPrimitivDataType.h"
+//#include "testPrimitivDataType.h"
 
 
 int main() {
