@@ -722,11 +722,11 @@ void testAnyBasic() {
 void testAnyInPointer() {
   std::any a = 10;
   if (auto aPtr = std::any_cast<int*>(&a)) {
-    std::cout << "value: " << *aPtr << "\n";
+    std::cout << "value: " << *aPtr << "\n"; // no
   }
 
   if (auto aPtr = std::any_cast<int>(&a)) {
-    std::cout << "value: " << *aPtr << "\n";
+    std::cout << "value: " << *aPtr << "\n";  // yes
   }
 
   int ba = 1;

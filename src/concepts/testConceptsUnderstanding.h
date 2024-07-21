@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include "utility.h"
+#include <map>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -212,6 +213,25 @@ void test() {
   print_all("new", "world", 4, 8, 90);
 }
 
+}
+
+namespace TestAssignmentInIfExpression {
+/*
+The assignment operation itself is an expression, and it results in the left operand of the assigned value.
+
+This behavior allows assignment operations to be used as part of conditional expressions.
+*/
+void test() {
+  const std::map<std::string, int> myMap{{"one", 1}, {"two", 2}};
+  if (auto it = myMap.find("two"); it != myMap.end()) {
+    std::cout << "Found element\n";
+  
+  } else {
+    std::cout << "Finding element failed\n";
+  
+  }
+
+}
 }
 
 
