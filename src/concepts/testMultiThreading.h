@@ -1014,7 +1014,7 @@ namespace TestScopedLock {
 }
 
 namespace TestFutureBasic {
-	// TODO test std::future, std::async, std::packaged_task, or std::promise.
+	// TODO test std::packaged_task, or std::promise.
 }
 
 void test() {

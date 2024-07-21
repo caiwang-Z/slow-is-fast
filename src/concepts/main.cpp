@@ -11,14 +11,14 @@
 //#include "testPrimitivDataType.h"
 //#include "testTrackMemory.h"
 //#include "testLValueRvalue.h"
-//#include "testStdContainer.h"
+#include "testStdContainer.h"
 //#include "testMap.h"
 //#include "testMultiThreading.h"
 //#include "testStdFunctions.h"
 //#include "testSTDException.h"
 //#include "testSmartPointer.h"
 //#include "designpatterns.h"
-#include "testConceptsUnderstanding.h"
+//#include "testConceptsUnderstanding.h"
 
 
 int main() {
