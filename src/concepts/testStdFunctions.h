@@ -231,8 +231,30 @@ void test() {
 
 }  // namespace TestBindFrontInMemberFunction
 
+namespace TestBindCreateNewCallableObject {
+template<typename T>
+void print(T t, const std::string& s) {
+  std::cout << "Input arguments are: " << t << ", " << s << "\n";
+}
+
+void test() {
+  int i = 5;
+  const auto f = std::bind(&print<int>, std::placeholders::_2, std::placeholders::_1); // input arguments type changed to (std::string, int)
+  f("hello", i); // 5 hello
+  i = 6;
+  f("world", i); // 6 world
+
+  i = 7;
+  std::function<void(const std::string&, int)> f2(f); // a new callable object
+  f2("test", i); // 7 test
+}
+
+
+}
+
 void test() {
   TestBindFrontInMemberFunction::test();
+  TestBindCreateNewCallableObject::test();
 }
 }  // namespace TestSTDBindBasic
 
@@ -741,7 +763,7 @@ void test() {
 }  // namespace TestStdAny
 
 void test() {
-  TestStdAny::test();
+  //TestStdAny::test();
   // TestStdExchange::test();
 
   // TestStdMinElement::test();
@@ -752,7 +774,7 @@ void test() {
   // TestStdExecution::testExecution();
   // TestStdIota::test();
   // TestStdRefBasic::test();
-  // TestSTDBindBasic::test();
+   TestSTDBindBasic::test();
   // TestStdStringView::testStringViewBasic();
   // TestSTDDistance::test();
   // TestSTDFindIf::test();

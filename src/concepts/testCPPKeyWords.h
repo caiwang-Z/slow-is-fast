@@ -419,7 +419,7 @@ void test() {
             << " " << vec[5] << "\n "; // 1 3 2 7 8 9 
 
   // Offset (default is 1).Can be positive (move forward) or negative (move backward)
-  std::cout << *std::next(vec.end(), -2) << "\n"; // 7
+  std::cout << *std::next(vec.end(), -2) << "\n"; // 8
 }
 
 }
