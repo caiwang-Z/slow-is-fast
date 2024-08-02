@@ -298,6 +298,48 @@ void test() {
 
 }  // namespace TestNestedNamespace
 
+namespace TestHasInclude {
+/*
+C++17 introduces a preprocessor directive, __has_include, which allows checking for the existence of a header file
+during compilation.This is useful for conditional compilation and cross-platform programming, where different code paths
+can be chosen depending on the availability of header files.
+
+Example 1:
+
+#if __has_include(<header>)
+    // Code if header is available
+#else
+    // Code if header is not available
+#endif
+
+Example 2:
+#include <iostream>
+
+#if __has_include(<filesystem>)
+    #include <filesystem>
+    namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+    #include <experimental/filesystem>
+    namespace fs = std::experimental::filesystem;
+#else
+    #error "No filesystem support"
+#endif
+
+int main() {
+    fs::path p = "/path/to/somewhere";
+    std::cout << "Path: " << p << std::endl;
+    return 0;
+}
+
+Summary:
+C++17's __has_include is a powerful tool that allows programmers to check the availability of header files
+during compilation, leading to conditional compilation and better cross-platform compatibility.By using __has_include
+flexibly, it is possible to write more robust and adaptable code.
+
+*/
+
+}
+
 void test() {
   TestIfAndSwitchInitStatements::test();
   // TestStopUsingSTDEndl::test();
