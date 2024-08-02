@@ -340,9 +340,72 @@ flexibly, it is possible to write more robust and adaptable code.
 
 }
 
+namespace TestStructuredBindings {
+/*
+Summary
+C++17's structured bindings provide a concise and intuitive way to deconstruct complex data structures, making
+code easier to read and maintain.By using structured bindings wisely, you can improve code readability and development
+efficiency in many scenarios.
+*/
+
+void testDeconstructingTuples() {
+  std::tuple<int, std::string, float> tp{10, "lee", 1.89f};
+  auto [age, name, height] = tp;
+  std::cout << "Name: " << name << ", age: " << age << ", height: " << height << "\n";
+}
+
+namespace testDeconstructingStruct {
+struct Person {
+  std::string name;
+  int         age;
+  float       height;
+};
 void test() {
-  TestIfAndSwitchInitStatements::test();
-  // TestStopUsingSTDEndl::test();
-  // TestVariadicExpansionWrapUp::test();
-  // TestFoldExpression::test();
+  Person ps{"Jack", 63, 1.90f};
+  auto [name, age, height] = ps;
+  std::cout << "Name: " << name << ", age: " << age << ", height: " << height << "\n";
+}
+
+}  // namespace testDeconstructingStruct
+
+void testDeconstructingArray() {
+  int arr[]{11, 22, 33};
+  auto [a, b, c] = arr;
+  std::cout << "a: " << a << ", b: " << b << ", c: " << c << "\n";
+}
+
+namespace TestDeconstructingFuncReturnValues {
+std::pair<int, std::string> foo() {
+  return {99, "david"};
+}
+
+void test() {
+  auto [age, name] = foo();
+  std::cout << "Name: " << name << ", age: " << age << "\n";
+}
+}  // namespace TestDeconstructingFuncReturnValues
+
+void testDeconstructingSTDMap() {
+  std::map<int, std::string> map{{1, "jack"}, {2, "manda"}, {45, "kk"}};
+  for (const auto& [id, name] : map) {
+    std::cout << "Key: " << id << ", name: " << name << "\n";
+  }
+}
+
+void test() {
+  testDeconstructingTuples();
+  testDeconstructingStruct::test();
+  testDeconstructingArray();
+  TestDeconstructingFuncReturnValues::test();
+  testDeconstructingSTDMap();
+}
+
+}  // namespace TestStructuredBindings
+
+void test() {
+  TestStructuredBindings::test();
+  // TestIfAndSwitchInitStatements::test();
+  //  TestStopUsingSTDEndl::test();
+  //  TestVariadicExpansionWrapUp::test();
+  //  TestFoldExpression::test();
 }
