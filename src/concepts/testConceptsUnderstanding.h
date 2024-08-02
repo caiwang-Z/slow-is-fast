@@ -269,6 +269,35 @@ void test() {
 
 }  // namespace TestIfAndSwitchInitStatements
 
+namespace TestNestedNamespace {
+/*
+Before C++17, to define multiple nested namespaces, you had to define them layer by layer:
+*/
+namespace A {
+namespace B {
+namespace C {
+void foo() {}
+}  // namespace C
+}  // namespace B
+}  // namespace A
+
+/*
+C++17 introduced the nested namespace syntax, which allows you to define multiple nested namespaces on a single line:
+This makes namespace definitions more concise and clear, especially if the hierarchy is deeper
+
+*/
+
+namespace E::F::G {
+void foo() {}
+}  // namespace E::F::G
+
+void test() {
+  A::B::C::foo();
+  E::F::G::foo();
+}
+
+}  // namespace TestNestedNamespace
+
 void test() {
   TestIfAndSwitchInitStatements::test();
   // TestStopUsingSTDEndl::test();
