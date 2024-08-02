@@ -1,7 +1,8 @@
 #include <fstream>
 #include <iostream>
-#include "utility.h"
 #include <map>
+#include <vector>
+#include "utility.h"
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -123,7 +124,7 @@ namespace TestClangFormat {
 }
 
 namespace TestFoldExpression {
-namespace TestMonadicLeftFolding{
+namespace TestMonadicLeftFolding {
 // Monadic left folding
 // (... operation pack)
 
@@ -131,39 +132,39 @@ template <typename... Args>
 auto sum(Args... args) {
   return (... + args);  // Sum the argument packet args from left to right.
 }
-}
+}  // namespace TestMonadicLeftFolding
 
 namespace TestMondadicRightFolding {
-// Monadic right folding 
+// Monadic right folding
 // (pack operation ...)
 
-    template <typename... Args>
+template <typename... Args>
 auto sum(Args... args) {
-  return (args + ...); // sum the argument packet args from right to left.
+  return (args + ...);  // sum the argument packet args from right to left.
 }
 
-}
+}  // namespace TestMondadicRightFolding
 
 namespace TestBinaryLeftFolding {
-// Binary left folding 
-    // (initValue operation ... operation pack)
-    template<typename... Args>
+// Binary left folding
+// (initValue operation ... operation pack)
+template <typename... Args>
 auto sum(Args... args) {
   return (10 + ... + args);
 }
 
-}
+}  // namespace TestBinaryLeftFolding
 
 namespace TestBinaryRightFolding {
 // Binary right folding:
-    // (pack operation ... operation initValue)
+// (pack operation ... operation initValue)
 
-    template<typename... Args>
+template <typename... Args>
 auto sum(Args... args) {
   return (args + ... + 20);
 }
 
-}
+}  // namespace TestBinaryRightFolding
 
 void test() {
   const auto res1 = TestMonadicLeftFolding::sum(1, 2, 3, 4, 5);
@@ -173,8 +174,7 @@ void test() {
   int        a    = 1;
 }
 
-
-}
+}  // namespace TestFoldExpression
 
 namespace TestVariadicExpansionWrapUp {
 /*
@@ -182,17 +182,16 @@ In C++, variadic templates allow a function to take an arbitrary number of argum
 expanding these parameters and processing them.Varadic Expansion Wrap-Up usually involves expanding the varadic template
 parameters and performing some kind of processing.
 */
-template<typename T>
+template <typename T>
 void print(T t) {
   std::cout << t << "\n";
 }
 
-template<typename T, typename ... Args>
+template <typename T, typename... Args>
 void print(T t, Args... args) {
   std::cout << t << "\n";  // comment this line: try world; No comment: try 1 2.5 Hello world
   print(args...);
 }
-
 
 /*
 In some cases, you may want to process all the variables in a single operation, rather than one by one.In this case, you
@@ -204,7 +203,7 @@ template <typename... Args>
 void print_all(Args... args) {
   //((std::cout << args << std::endl), ...);
   //(..., (std::cout << args << "\n") );
-  ((std::cout << args << "\n"), ... );
+  ((std::cout << args << "\n"), ...);
 }
 
 void test() {
@@ -213,7 +212,7 @@ void test() {
   print_all("new", "world", 4, 8, 90);
 }
 
-}
+}  // namespace TestVariadicExpansionWrapUp
 
 namespace TestAssignmentInIfExpression {
 /*
@@ -225,19 +224,54 @@ void test() {
   const std::map<std::string, int> myMap{{"one", 1}, {"two", 2}};
   if (auto it = myMap.find("two"); it != myMap.end()) {
     std::cout << "Found element\n";
-  
+
   } else {
     std::cout << "Finding element failed\n";
-  
   }
-
 }
+}  // namespace TestAssignmentInIfExpression
+
+namespace TestIfAndSwitchInitStatements {
+/*
+C++17's if and switch Init Statements
+This allows you to define and initialize variables in the same scope and then immediately use them for conditional
+judgments.
+
+This approach avoids the need to define value variables outside of an if statement, and makes the code more compact and
+clearer
+*/
+void testIfInitStatement() {
+  const std::vector<int> vec{1, 2, 3, 4};
+  if (auto itr = std::find(vec.cbegin(), vec.cend(), 3); itr != vec.end()) {
+    std::cout << "Found value: " << *itr << "\n";  // 3
+  }  // cons: itr is not visible outside or inside this function. I do not allow it.
 }
 
-
+void testSwitchInitStatement() {
+  const std::string var{"example"};
+  switch (auto len = var.length(); len) {
+    case 0:
+      // do something
+      break;
+    case 1:
+      // do something
+      break;
+    case 7:
+      std::cout << "length is: " << len << std::endl;  // 7
+      break;
+  }
+}
 
 void test() {
-  //TestStopUsingSTDEndl::test();
-  TestVariadicExpansionWrapUp::test();
-  //TestFoldExpression::test();
+  testIfInitStatement();
+  testSwitchInitStatement();
+}
+
+}  // namespace TestIfAndSwitchInitStatements
+
+void test() {
+  TestIfAndSwitchInitStatements::test();
+  // TestStopUsingSTDEndl::test();
+  // TestVariadicExpansionWrapUp::test();
+  // TestFoldExpression::test();
 }
