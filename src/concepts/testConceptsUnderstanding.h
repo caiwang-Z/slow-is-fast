@@ -402,8 +402,80 @@ void test() {
 
 }  // namespace TestStructuredBindings
 
+namespace TestAggregateInitialization {
+/*
+C++ 17 Definition of an Aggregate:
+A type is an aggregate if it satisfies all of the following conditions: it is an array type
+or class (usually a structure) and has no user-supplied constructor.It has no private or protected non-static data
+members.It has no base classes.It has no virtual member functions.
+
+Initialization Syntax:
+An aggregation can be
+initialized using an initialization list surrounded by curly braces.The following are some examples to illustrate
+aggregate initialization:
+*/
+namespace TestInitlizationStruct {
+struct Point {
+  int x;
+  int y;
+};
+
 void test() {
-  TestStructuredBindings::test();
+  Point p1{1, 2};
+  Point p2{3, 4};
+}
+}  // namespace TestInitlizationStruct
+
+namespace TestNestedAggregation {
+struct Rectange {
+  TestInitlizationStruct::Point topLeft;
+  TestInitlizationStruct::Point bottomRight;
+};
+
+void test() {
+  Rectange rect{{1, 2}, {3, 4}};
+}
+}  // namespace TestNestedAggregation
+
+namespace TestAggregationWithDefaultMemberInitializer {
+struct Point {
+  float x = 1.1f;
+  float y = 2.2f;
+};
+
+void test() {
+  Point p1{8.9, 4.5};
+  Point p2;
+}
+
+}  // namespace TestAggregationWithDefaultMemberInitializer
+
+}  // namespace TestAggregateInitialization
+
+namespace TestFloatingLiteralsDefinition {
+/*
+Summary The f or F suffix is used to specify a floating-point literal as a float.By default, float literals are treated
+as double.Using the f suffix saves memory, improves performance, and avoids unnecessary implicit conversions.
+*/
+
+void test() {
+  float f1 = 3.14;   // Implicitly a double, then converted to float
+  float f2 = 3.14f;  // Explicitly a float
+
+  double      d1  = 3.14;   // Default to double
+  long double ld1 = 3.14L;  // Explicitly a long double
+
+  std::cout << "size of f1: " << sizeof(f1) << " bytes.\n";    // 4
+  std::cout << "size of f2: " << sizeof(f2) << " bytes.\n";    // 4
+  std::cout << "size of d1: " << sizeof(d1) << " bytes.\n";    // 8
+  std::cout << "size of ld1: " << sizeof(ld1) << " bytes.\n";  // 16 (depends on hardware architecture, platfform, win10 msvc 8 bytes)
+}
+
+}  // namespace TestFloatingLiteralsDefinition
+
+void test() {
+  TestFloatingLiteralsDefinition::test();
+  //TestStructuredBindings::test();
   // TestIfAndSwitchInitStatements::test();
   //  TestStopUsingSTDEndl::test();
   //  TestVariadicExpansionWrapUp::test();
