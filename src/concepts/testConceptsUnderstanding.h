@@ -576,7 +576,7 @@ void test() {
 
 namespace TestConstexprLambdaSupport {
 /*
-Benefits of constexpr Lambdas
+Benefits of constexpr Lambdas C++17
 Performance: By moving computations to compile time, constexpr lambdas can help improve runtime performance.
 Safety: Compile-time evaluation ensures that the results are correct before the program runs, catching potential errors
 early. Readability: constexpr lambdas can make code involving compile-time computations more readable and maintainable.
@@ -603,8 +603,48 @@ void test() {
 
 }  // namespace TestConstexprLambdaSupport
 
+namespace TestVariadicUsing {
+/*
+the variadic using declaration introduced in C++17. This feature simplifies the process of inheriting multiple
+constructors from base classes in template metaprogramming by allowing you to inherit constructors from multiple base
+classes more concisely.
+*/
+
+class Base1 {
+  public:
+  Base1(int x) { std::cout << "Base1 constructor called\n"; }
+};
+
+class Base2 {
+  public:
+  Base2(float x) { std::cout << "Base2 constructor called.\n"; }
+};
+
+class Base3 {
+  public:
+  Base3(const std::string& name) { std::cout << "Base3 constructor called.\n"; }
+};
+
+
+template<typename... Bases>
+class Derived3 : public Bases... {
+  public:
+  using Bases::Bases...;
+};
+
 void test() {
-  TestConstexprLambdaSupport::test();
+  Derived3<Base2> del4(6.7f);
+  Derived3<Base1> del5(4);
+  Derived3<Base3> del6("jacky");
+  int      a = 1;
+
+}
+
+}  // namespace TestVariadicUsing
+
+void test() {
+  TestVariadicUsing::test();
+  //TestConstexprLambdaSupport::test();
   // TestStartUsingDefaultMemberInitializer::test();
   // TestFloatingLiteralsDefinition::test();
   // TestStructuredBindings::test();
