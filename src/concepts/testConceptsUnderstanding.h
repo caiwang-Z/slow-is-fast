@@ -473,6 +473,38 @@ void test() {
 
 }  // namespace TestFloatingLiteralsDefinition
 
+namespace {
+/*
+Benefits
+Code Clarity: By explicitly indicating intentional fall-throughs, the [[fallthrough]] attribute makes the code easier to
+read and understand. Error Prevention: It helps prevent bugs that could arise from unintended fall-throughs by making
+the programmer's intent explicit. Suppressing Warnings: It suppresses compiler warnings about fall-through, which can
+otherwise clutter the output and obscure actual issues.
+
+Compiler Warnings
+Prior to C++17, compilers often issued warnings for fall-through cases in switch statements to avoid potential bugs. The
+[[fallthrough]] attribute can be used to suppress these warnings by explicitly stating the programmer's intention.
+
+*/
+void example(int n) {
+  switch (n) {
+    case 1:
+      std::cout << "Case 1" << std::endl;
+      [[fallthrough]];  // Indicate intentional fall-through
+    case 2:
+      std::cout << "Case 2" << std::endl;
+      break;
+    case 3:
+      std::cout << "Case 3" << std::endl;
+      break;
+    default:
+      std::cout << "Default case" << std::endl;
+      break;
+  }
+}
+
+}
+
 void test() {
   TestFloatingLiteralsDefinition::test();
   //TestStructuredBindings::test();
