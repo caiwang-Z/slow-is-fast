@@ -465,10 +465,11 @@ void test() {
   double      d1  = 3.14;   // Default to double
   long double ld1 = 3.14L;  // Explicitly a long double
 
-  std::cout << "size of f1: " << sizeof(f1) << " bytes.\n";    // 4
-  std::cout << "size of f2: " << sizeof(f2) << " bytes.\n";    // 4
-  std::cout << "size of d1: " << sizeof(d1) << " bytes.\n";    // 8
-  std::cout << "size of ld1: " << sizeof(ld1) << " bytes.\n";  // 16 (depends on hardware architecture, platfform, win10 msvc 8 bytes)
+  std::cout << "size of f1: " << sizeof(f1) << " bytes.\n";  // 4
+  std::cout << "size of f2: " << sizeof(f2) << " bytes.\n";  // 4
+  std::cout << "size of d1: " << sizeof(d1) << " bytes.\n";  // 8
+  std::cout << "size of ld1: " << sizeof(ld1)
+            << " bytes.\n";  // 16 (depends on hardware architecture, platfform, win10 msvc 8 bytes)
 }
 
 }  // namespace TestFloatingLiteralsDefinition
@@ -503,7 +504,7 @@ void example(int n) {
   }
 }
 
-}
+}  // namespace
 
 namespace TestStartUsingDefaultMemberInitializer {
 /*
@@ -547,7 +548,7 @@ void test() {
   Person p2{"lee", 12, 189};
   p2.print();
 }
-}
+}  // namespace WithoutMemberInitializer
 
 namespace WithMemberInitializer {
 class Person {
@@ -557,29 +558,58 @@ class Person {
   void print() const { std::cout << "Name: " << _name << ", age: " << _age << ", hegiht: " << _height << " cm \n"; }
 
   private:
-  std::string _name = "jacky";
-  int         _age = 78;
+  std::string _name   = "jacky";
+  int         _age    = 78;
   int         _height = 178;
 };
 
 void test() {
-   Person p1{}; // no compile error
+  Person p1{};  // no compile error
   p1.print();
 }
 }  // namespace WithMemberInitializer
 void test() {
   WithoutMemberInitializer::test();
   WithMemberInitializer::test();
+}
+}  // namespace TestStartUsingDefaultMemberInitializer
 
-}
-}
+namespace TestConstexprLambdaSupport {
+/*
+Benefits of constexpr Lambdas
+Performance: By moving computations to compile time, constexpr lambdas can help improve runtime performance.
+Safety: Compile-time evaluation ensures that the results are correct before the program runs, catching potential errors
+early. Readability: constexpr lambdas can make code involving compile-time computations more readable and maintainable.
+*/
+
+/*
+first constexpr (constexpr auto add = ...): This tells the compiler that add is a constexpr variable, meaning that add
+is evaluated and initialized at compile time.add holds a constexpr lambda expression that can be used in constant
+expressions.
+
+The second constexpr ([](int a, int b) constexpr {...}): This tells the compiler that the lambda expression
+itself is a constexpr, meaning that as long as the argument passed to the lambda is a constant expression, then the
+result of the lambda call is also a constant expression.This allows us to use add in constexpr int result = add(3, 4);
+because the result of a call to add can be computed at compile time.
+*/
+
+constexpr auto add = [](int a, int b) constexpr {
+  return a + b;
+};
 
 void test() {
-  TestStartUsingDefaultMemberInitializer::test();
-  //TestFloatingLiteralsDefinition::test();
-  //TestStructuredBindings::test();
-  // TestIfAndSwitchInitStatements::test();
-  //  TestStopUsingSTDEndl::test();
-  //  TestVariadicExpansionWrapUp::test();
-  //  TestFoldExpression::test();
+  constexpr int result = add(3, 4);  // get result during compiling
+}
+
+}  // namespace TestConstexprLambdaSupport
+
+void test() {
+  TestConstexprLambdaSupport::test();
+  // TestStartUsingDefaultMemberInitializer::test();
+  // TestFloatingLiteralsDefinition::test();
+  // TestStructuredBindings::test();
+  //  TestIfAndSwitchInitStatements::test();
+  //   TestStopUsingSTDEndl::test();
+  //   TestVariadicExpansionWrapUp::test();
+  //   TestFoldExpression::test();
 }
