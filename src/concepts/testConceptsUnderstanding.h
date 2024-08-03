@@ -505,8 +505,78 @@ void example(int n) {
 
 }
 
+namespace TestStartUsingDefaultMemberInitializer {
+/*
+Key Points
+What are Default Member Initializers?
+Default member initializers allow you to assign default values to class members at the point of their declaration within
+the class definition. This eliminates the need to repeatedly initialize these members in multiple constructors.
+
+Syntax
+The syntax for default member initializers is straightforward. You assign a default value directly in the member's
+declaration:
+
+Benefits
+Simplified Constructors:
+Default member initializers reduce the need to explicitly initialize members in every constructor, making the
+constructors cleaner and easier to read.
+
+Code Reuse and Maintenance:
+If a member's default value needs to change, you only need to update it in one place rather than in every constructor.
+
+Improved Readability:
+It is easier to see the default values of members directly in the class definition, improving code readability.
+
+Consistency:
+Ensures that all constructors, including the default constructor, initialize members consistently.
+*/
+namespace WithoutMemberInitializer {
+class Person {
+  public:
+  Person(const std::string& name, int age, int height) : _name(name), _age(age), _height(height) {}
+  void print() const { std::cout << "Name: " << _name << ", age: " << _age << ", hegiht: " << _height << " cm \n"; }
+
+  private:
+  std::string _name;
+  int         _age;
+  int         _height;
+};
+
 void test() {
-  TestFloatingLiteralsDefinition::test();
+  // Person p1{}; // compile error
+  Person p2{"lee", 12, 189};
+  p2.print();
+}
+}
+
+namespace WithMemberInitializer {
+class Person {
+  public:
+  Person() = default;
+  Person(const std::string& name, int age, int height) : _name(name), _age(age), _height(height) {}
+  void print() const { std::cout << "Name: " << _name << ", age: " << _age << ", hegiht: " << _height << " cm \n"; }
+
+  private:
+  std::string _name = "jacky";
+  int         _age = 78;
+  int         _height = 178;
+};
+
+void test() {
+   Person p1{}; // no compile error
+  p1.print();
+}
+}  // namespace WithMemberInitializer
+void test() {
+  WithoutMemberInitializer::test();
+  WithMemberInitializer::test();
+
+}
+}
+
+void test() {
+  TestStartUsingDefaultMemberInitializer::test();
+  //TestFloatingLiteralsDefinition::test();
   //TestStructuredBindings::test();
   // TestIfAndSwitchInitStatements::test();
   //  TestStopUsingSTDEndl::test();
