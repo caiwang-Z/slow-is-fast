@@ -625,8 +625,7 @@ class Base3 {
   Base3(const std::string& name) { std::cout << "Base3 constructor called.\n"; }
 };
 
-
-template<typename... Bases>
+template <typename... Bases>
 class Derived3 : public Bases... {
   public:
   using Bases::Bases...;
@@ -636,20 +635,75 @@ void test() {
   Derived3<Base2> del4(6.7f);
   Derived3<Base1> del5(4);
   Derived3<Base3> del6("jacky");
-  int      a = 1;
-
+  int             a = 1;
 }
 
 }  // namespace TestVariadicUsing
 
+namespace TestExternCandDLLExportImport {
+/*
+#ifndef MAVISION_COMMON_DEFINITIONS_H
+#define MAVISION_COMMON_DEFINITIONS_H
+
+// When building dynamic libraries, symbols need to be exported so that they are visible to the application that uses
+the dynamic library.When using a dynamic library, symbols need to be imported so that the application knows how to call
+these exported functions. 
+#ifdef _WIN32 
+#ifdef MAVISION_BUILD_DLL 
+#define MAVISION_DLL_EXPORT __declspec(dllexport)
+#else
+#define MAVISION_DLL_EXPORT __declspec(dllimport)
+#endif
+// On non-Windows platforms, all symbols are visible by default, which can lead to naming conflicts and larger library
+files.Using __attribute__((visibility("default"))) allows you to explicitly control which symbols are visible, which
+reduces naming conflicts, improves loading speed and reduces the size of library files. 
+#else 
+#ifdef MAVISION_BUILD_DLL
+#define MAVISION_DLL_EXPORT __attribute__((visibility("default")))
+#else
+#define MAVISION_DLL_EXPORT
+#endif
+#endif
+
+// Use the extern "C" block to ensure that the C++ compiler does not name-modify function names so that C++ code can
+call C functions. #ifdef __cplusplus extern "C" { #endif
+
+///
+enum maErr {
+  maErrOK,
+  maErrCamera,
+  maErrTimeout,
+  maErrAbort,
+  maErrFunctionDeactivated,
+  maErrFileIO,
+  maErrImageProcessing,
+  maErrUnknown
+
+};
+
+MAVISION_DLL_EXPORT maErr vscStart();
+
+MAVISION_DLL_EXPORT maErr vscStop();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+
+*/
+
+}
+
 void test() {
   TestVariadicUsing::test();
-  //TestConstexprLambdaSupport::test();
-  // TestStartUsingDefaultMemberInitializer::test();
-  // TestFloatingLiteralsDefinition::test();
-  // TestStructuredBindings::test();
-  //  TestIfAndSwitchInitStatements::test();
-  //   TestStopUsingSTDEndl::test();
-  //   TestVariadicExpansionWrapUp::test();
-  //   TestFoldExpression::test();
+  // TestConstexprLambdaSupport::test();
+  //  TestStartUsingDefaultMemberInitializer::test();
+  //  TestFloatingLiteralsDefinition::test();
+  //  TestStructuredBindings::test();
+  //   TestIfAndSwitchInitStatements::test();
+  //    TestStopUsingSTDEndl::test();
+  //    TestVariadicExpansionWrapUp::test();
+  //    TestFoldExpression::test();
 }

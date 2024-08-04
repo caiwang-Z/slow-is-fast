@@ -25,7 +25,8 @@ std::cin.get();\
 }  // namespace TestMacro
 
 namespace TestCPPPredefinedMacros {
-
+// The compiler automatically defines this macro when processing C++ code, so the programmer doesn't need to define it
+// manually
 #if __cplusplus == 202002L
 std::cout << "C++20" << std::endl;
 
