@@ -9,6 +9,7 @@
 #include <numeric>
 #include <random>
 #include <ranges>
+#include <regex>
 #include <sstream>
 #include <vector>
 #include "utility.h"
@@ -871,9 +872,9 @@ void testAdvancedUsage() {
   std::string s = "Hello, 'world'!";
   std::cout << std::quoted(s, '\'') << std::endl;  // Outputs: 'Hello, \'world\'!'
 
-  // In this string, double backslashes \\ are used to indicate escape characters.The first backslash in each backslash pair is used to escape the second backslash, making the actual backslash passed to the
-  // The string for std::istringstream is 'Hello, \'world\'!'
-  // The single quote \' here indicates an escaped single quote character.
+  // In this string, double backslashes \\ are used to indicate escape characters.The first backslash in each backslash
+  // pair is used to escape the second backslash, making the actual backslash passed to the The string for
+  // std::istringstream is 'Hello, \'world\'!' The single quote \' here indicates an escaped single quote character.
   std::istringstream input("'Hello, \\'world\\'!'");
   std::string        t;
   input >> std::quoted(t, '\'');
@@ -888,9 +889,82 @@ void test() {
 
 }  // namespace TestStdQuoted
 
+namespace TestStdRegex {
+/*
+introduced in C++11, provides powerful tools for working with regular expressions. Regular expressions (regex) are
+patterns used to match character combinations in strings, making them useful for tasks such as searching, matching, and
+replacing text.
+*/
+
+void testBasic() {
+  const std::string str = "hello world";
+  std::regex        pattern{"world"};
+  if (std::regex_search(str, pattern)) {
+    std::cout << "Pattern found\n";  // yes
+  }
+}
+
+void testStdRegexMatch() {
+  /*
+  Summary
+std::regex_match requires the entire string to match the pattern.
+std::regex_search finds a match for any part of the string.
+  */
+  const std::string str1 = "hello world cumbersome";
+  const std::string str2 = "hello w2orld cumbersome";
+  const std::string str3 = "hello world";
+  const std::regex  pattern{"^hello world$"};  // For std::regex_match to return true, the entire string must match the
+                                               // pattern from start (^) to end ($).
+  const auto res1 = std::regex_match(str1, pattern);   // false
+  const auto res2 = std::regex_match(str2, pattern);   // false
+  const auto res3 = std::regex_match(str3, pattern);   // true
+  const auto res5 = std::regex_search(str1, pattern);  // false
+
+  const std::regex pattern2{"hello world"};  // Pattern: "^hello world" removes the $ at the end, so it only checks if
+                                             // the string starts with "hello world".
+  const auto res4 = std::regex_search(str1, pattern2);  // true
+  const auto res6 = std::regex_search(str2, pattern2);  // false
+  int        a    = 1;
+}
+
+void testCapturingGroups() {
+  /*
+   \w: This matches any word character (equivalent to [a-zA-Z0-9_]).
+     +: This quantifier matches one or more of the preceding token, so \w+ matches one or more word characters.
+    The parentheses () create a capture group, which allows you to extract the matched portion of the string.
+
+    */
+  const std::string s{"my email is surname.zuo@gmail.com"};
+  std::regex        pattern{R"(\w+\.\w+@\w+\.\w+)"};
+  std::smatch       matches;
+  const auto        res   = std::regex_search(s, matches, pattern);
+  const auto        email = matches[0];  // surname.zuo@gmail.com
+  int               a     = 1;
+}
+
+void testReplacingSubstrings() {
+  const std::string s{"hello world"};
+  std::regex        pattern{"world"};
+  const std::string replacement{"C++"};
+
+  const auto res = std::regex_replace(s, pattern, replacement);
+  std::cout << res << std::endl; // hello C++
+
+}
+
 void test() {
-  TestStdQuoted::test();
-  // TestHandleDifferentContainersWithConstexprIf::test();
+  testBasic();
+  testStdRegexMatch();
+  testCapturingGroups();
+  testReplacingSubstrings();
+}
+
+}  // namespace TestStdRegex
+
+void test() {
+  TestStdRegex::test();
+  // TestStdQuoted::test();
+  //  TestHandleDifferentContainersWithConstexprIf::test();
 
   // TestStdInvoke::testInvokeBasic();
 
