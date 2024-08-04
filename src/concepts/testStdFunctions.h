@@ -948,8 +948,7 @@ void testReplacingSubstrings() {
   const std::string replacement{"C++"};
 
   const auto res = std::regex_replace(s, pattern, replacement);
-  std::cout << res << std::endl; // hello C++
-
+  std::cout << res << std::endl;  // hello C++
 }
 
 void test() {
@@ -961,8 +960,65 @@ void test() {
 
 }  // namespace TestStdRegex
 
+namespace TestStdGcdAndStdLCM {
+/*
+The std::gcd function computes the greatest common divisor of two integers using the Euclidean algorithm. It is a
+constexpr function, meaning it can be evaluated at compile time if the arguments are constexpr. std::lcm The std::lcm
+function computes the least common multiple of two integers. It leverages the relationship between GCD and LCM, where
+lcm(a, b) = abs(a * b) / gcd(a, b). This function is also a constexpr function.
+
+*/
+
 void test() {
-  TestStdRegex::test();
+  const int a = 56, b = 98;
+  const auto res = std::gcd(a, b); // 14
+
+  const int c = 21, d = 6;
+  const auto res1 = std::lcm(c, d); // 42
+}
+}  // namespace TestStdGcdAndStdLCM
+
+namespace TestStdSearcher {
+/*
+C++17 introduced searcher classes that provide more flexible and efficient searching capabilities. These include:
+
+std::boyer_moore_searcher
+std::boyer_moore_horspool_searcher
+These searcher classes can be used with the std::search algorithm to perform more efficient searches, especially for
+larger sequences.
+*/
+
+void testBasic() {
+  const std::vector<int> vec{1, 2, 3, 4, 5};
+  const std::vector<int> vecSub{4, 5};
+  auto                   it = std::search(vec.begin(), vec.end(), vecSub.begin(), vecSub.end());
+  if (it != vec.end()) {
+    std::cout << "Found subsequence at position: " << std::distance(vec.begin(), it) << "\n";  // 3
+  }
+}
+
+void testSearchLargeSubsequence() {
+  const std::string haystack = "fdsfsafsdvasdvsaababcababcabcdsfafsadfsadf";
+  const std::string needle   = "abc";
+  auto              searcher = std::boyer_moore_searcher(needle.begin(), needle.end());
+  //auto              searcher = std::boyer_moore_horspool_searcher(needle.begin(), needle.end());
+  auto              it       = std::search(haystack.begin(), haystack.end(), searcher);
+  if (it != haystack.end()) {
+    std::cout << "Found subsequence at position: " << std::distance(haystack.begin(), it) << "\n";  // 18
+  }
+
+}
+
+void test() {
+  testBasic();
+  testSearchLargeSubsequence();
+}
+
+}
+
+void test() {
+  TestStdSearcher::test();
+  //TestStdRegex::test();
   // TestStdQuoted::test();
   //  TestHandleDifferentContainersWithConstexprIf::test();
 

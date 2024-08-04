@@ -823,6 +823,7 @@ void test() {
 
 }  // namespace TestRawStringLiterals
 
+
 void test() {
   TestRawStringLiterals::test();
   // TestGotoStatement::test();
