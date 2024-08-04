@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -647,17 +648,17 @@ namespace TestExternCandDLLExportImport {
 
 // When building dynamic libraries, symbols need to be exported so that they are visible to the application that uses
 the dynamic library.When using a dynamic library, symbols need to be imported so that the application knows how to call
-these exported functions. 
-#ifdef _WIN32 
-#ifdef MAVISION_BUILD_DLL 
+these exported functions.
+#ifdef _WIN32
+#ifdef MAVISION_BUILD_DLL
 #define MAVISION_DLL_EXPORT __declspec(dllexport)
 #else
 #define MAVISION_DLL_EXPORT __declspec(dllimport)
 #endif
 // On non-Windows platforms, all symbols are visible by default, which can lead to naming conflicts and larger library
 files.Using __attribute__((visibility("default"))) allows you to explicitly control which symbols are visible, which
-reduces naming conflicts, improves loading speed and reduces the size of library files. 
-#else 
+reduces naming conflicts, improves loading speed and reduces the size of library files.
+#else
 #ifdef MAVISION_BUILD_DLL
 #define MAVISION_DLL_EXPORT __attribute__((visibility("default")))
 #else
@@ -743,8 +744,7 @@ cleanup:
   closeResource();
   return error;  // 1
 }
-}
-
+}  // namespace TestErrorHandlingAndCleanup
 
 void testBreakingOutOfNestedLoops() {
   bool found = false;
@@ -753,37 +753,86 @@ void testBreakingOutOfNestedLoops() {
       if (i * j == 42) {
         found = true;
         goto endLoops;
-      }    
+      }
     }
-  
   }
 
 endLoops:
   if (found) {
     std::cout << "Found\n";
-  
+
   } else {
     std::cout << "Not found\n";
   }
 }
-
 
 void test() {
   TestErrorHandlingAndCleanup::test();
   testBreakingOutOfNestedLoops();
 }
 
+}  // namespace TestGotoStatement
+
+namespace TestRawStringLiterals {
+/*
+In C++, R"()" is a syntax called "Raw String Literals".This syntax allows you to define strings without using
+backslashes (\) to escape special characters.Using raw string literals makes it easier to write strings that contain
+many special characters, such as regular expressions, file paths, or multi-line text.
+*/
+
+void testBasic() {
+  /*
+  R "delimiter(string content) delimiter" 
+  R indicates that this is a raw string.
+  delimiter is an optional delimiter, which can be any set of characters, used to define the beginning and end of the string.
+  Inside () is the actual string content.
+  */
+  const auto res1{"this is a normal line"};
+  const auto res11{R"(this is a normal line)"};
+  std::cout << res1 << "\n";  // this is a normal line
+  std::cout << res11 << "\n";  // this is a normal line
+
+  const auto res2{"this is a line with \"quotes\" and \(bracket\)"};
+  //const auto res4{"this is a line with "quotes" and bracket"};  // compile error, \" should be applied
+  const auto res5{"this is a line with quotes and (bracket)"};  // okay. 
+  const auto res22{R"(this is a line with "quotes" and (bracket))"};
+  const auto res23{R"delim(this is a line with "quotes" and (bracket))delim"};
+  std::cout << res2 << "\n";  // this is a line with "quotes" and (bracket)
+  std::cout << res22 << "\n";  // this is a line with "quotes" and (bracket)
+  std::cout << res23 << "\n";  // this is a line with "quotes" and (bracket)
+}
+
+void testRSLInFS() {
+  // most easy and straitforward way to handle file path copied from file explorer
+  const auto filePath{R"(C:\Users\Caiwang.Zuo\Desktop\life\slow-is-fast\.clang-format)"};
+  const auto res1 = std::filesystem::exists(filePath);  // true
+
+  const auto filePath1{"C:\\Users\\Caiwang.Zuo\\Desktop\\life\\slow-is-fast\\.clang-format"};
+  const auto res2 = std::filesystem::exists(filePath1);  // true
+
+  const auto filePath2{"C:/Users/Caiwang.Zuo/Desktop/life/slow-is-fast/.clang-format"};
+  const auto res3 = std::filesystem::exists(filePath1);  // true
+
+  int a = 1;
 }
 
 void test() {
-  TestGotoStatement::test();
-  //TestVariadicUsing::test();
-  // TestConstexprLambdaSupport::test();
-  //  TestStartUsingDefaultMemberInitializer::test();
-  //  TestFloatingLiteralsDefinition::test();
-  //  TestStructuredBindings::test();
-  //   TestIfAndSwitchInitStatements::test();
-  //    TestStopUsingSTDEndl::test();
-  //    TestVariadicExpansionWrapUp::test();
-  //    TestFoldExpression::test();
+  testBasic();
+  testRSLInFS();
+}
+
+}  // namespace TestRawStringLiterals
+
+void test() {
+  TestRawStringLiterals::test();
+  // TestGotoStatement::test();
+  // TestVariadicUsing::test();
+  //  TestConstexprLambdaSupport::test();
+  //   TestStartUsingDefaultMemberInitializer::test();
+  //   TestFloatingLiteralsDefinition::test();
+  //   TestStructuredBindings::test();
+  //    TestIfAndSwitchInitStatements::test();
+  //     TestStopUsingSTDEndl::test();
+  //     TestVariadicExpansionWrapUp::test();
+  //     TestFoldExpression::test();
 }
