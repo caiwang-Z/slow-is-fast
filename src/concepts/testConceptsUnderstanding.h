@@ -696,8 +696,88 @@ MAVISION_DLL_EXPORT maErr vscStop();
 
 }
 
+namespace TestGotoStatement {
+/*
+Common Uses of goto:
+Despite its bad reputation, goto can be useful in certain scenarios, such as:
+Error Handling and Cleanup: In low-level programming or resource management, goto can simplify error handling and
+cleanup code by providing a single exit point.
+
+Breaking Out of Multiple Loops: goto can be used to break out of nested loops when other control flow mechanisms are
+less clear or more cumbersome.
+
+Pitfalls of goto:
+While goto can be useful, it also has significant pitfalls:
+
+Spaghetti Code: Overuse of goto can lead to tangled, hard-to-follow code, commonly referred to as "spaghetti code."
+Maintenance Challenges: Code that relies heavily on goto can be difficult to maintain and debug.
+Readability: goto can obscure the logical flow of the program, making it harder for others (or yourself) to understand
+the code later.
+
+*/
+
+namespace TestErrorHandlingAndCleanup {
+int openSource() {
+  std::cout << "Resource opend.\n";
+  return 0;  // return 0 on success
+}
+
+void closeResource() {
+  std::cout << "Resource closing...\n";
+  std::cout << "Resource closed.\n";
+}
+
+int test() {
+  int error = 0;
+  error     = openSource();
+  if (error) {
+    goto cleanup;  // no
+  }
+
+  error = 1;
+  if (error) {
+    goto cleanup;  // yes
+  }
+
+cleanup:
+  closeResource();
+  return error;  // 1
+}
+}
+
+
+void testBreakingOutOfNestedLoops() {
+  bool found = false;
+  for (int i = 0; i <= 10; ++i) {
+    for (int j = 0; j < 100; ++j) {
+      if (i * j == 42) {
+        found = true;
+        goto endLoops;
+      }    
+    }
+  
+  }
+
+endLoops:
+  if (found) {
+    std::cout << "Found\n";
+  
+  } else {
+    std::cout << "Not found\n";
+  }
+}
+
+
 void test() {
-  TestVariadicUsing::test();
+  TestErrorHandlingAndCleanup::test();
+  testBreakingOutOfNestedLoops();
+}
+
+}
+
+void test() {
+  TestGotoStatement::test();
+  //TestVariadicUsing::test();
   // TestConstexprLambdaSupport::test();
   //  TestStartUsingDefaultMemberInitializer::test();
   //  TestFloatingLiteralsDefinition::test();
