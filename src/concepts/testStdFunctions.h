@@ -1,4 +1,5 @@
-﻿#include <algorithm>
+﻿#pragma
+#include <algorithm>
 #include <any>
 #include <cassert>
 #include <execution>
@@ -8,6 +9,7 @@
 #include <numeric>
 #include <random>
 #include <ranges>
+#include <sstream>
 #include <vector>
 #include "utility.h"
 
@@ -804,32 +806,93 @@ void printContainer(const T& t) {
     std::cout << "T is a list\n";
   } else if constexpr (std::is_same<T, std::queue<typename T::value_type>>::value) {
     std::cout << "T is a queue\n";
-  } 
-  
+  }
+
   else {
     std::cout << "Unknow type\n";
   }
 }
 
 void test() {
-  std::vector<int> vec{1, 2, 3};
+  std::vector<int>  vec{1, 2, 3};
   std::list<double> list{1.0, 2.0, 3.0};
   std::queue<float> queue;
   queue.push(9.0f);
   printContainer(vec);
   printContainer(list);
   printContainer(queue);
-
 }
 
 }  // namespace TestHandleDifferentContainersWithConstexprIf
 
+namespace TestStdQuoted {
+/*
+C++14. This feature is part of the C++ Standard Library and is used to handle quoted strings in input and output
+streams, making it easier to work with strings that contain spaces or special characters
+*/
 
+void testWritingQuotedStrings() {
+  /*
+  Output (Writing Quoted Strings): When outputting a string, std::quoted adds quotes around the string and escapes any
+  embedded quotes.
+  */
+  const std::string s = "Hello, \"world\"!";
+
+  std::cout << s << std::endl;  // Hello, "world"!
+  std::cout << "*******************************\n";
+  std::cout << std::quoted(s) << std::endl;  // "Hello, \"world\"!"
+  int a = 1;
+}
+
+void testReadingQuotedStrings() {
+  /*
+  Input (Reading Quoted Strings): When reading a string, std::quoted strips the surrounding quotes and unescapes any
+  escaped characters.
+  */
+  std::istringstream input1("Hello\"world\"!");
+  std::istringstream input2("Hello\"world\"!");
+  std::string        s1, s2;
+  input1 >> s1;
+  input2 >> std::quoted(s2);
+  std::cout << s1 << "\n";  // Hello"world"!
+  std::cout << "********************\n";
+  std::cout << s2 << "\n";  // Hello"world"!
+  int a = 1;
+}
+
+void testAdvancedUsage() {
+  /*
+  std::quoted can also take additional parameters for customizing the quoting and escaping behavior:
+
+  Delimiter: The character used for quoting.
+  Escape Character: The character used for escaping embedded quotes and the escape character itself.
+  */
+
+  std::string s = "Hello, 'world'!";
+  std::cout << std::quoted(s, '\'') << std::endl;  // Outputs: 'Hello, \'world\'!'
+
+  // In this string, double backslashes \\ are used to indicate escape characters.The first backslash in each backslash pair is used to escape the second backslash, making the actual backslash passed to the
+  // The string for std::istringstream is 'Hello, \'world\'!'
+  // The single quote \' here indicates an escaped single quote character.
+  std::istringstream input("'Hello, \\'world\\'!'");
+  std::string        t;
+  input >> std::quoted(t, '\'');
+  std::cout << t << std::endl;  // Outputs: Hello, 'world'!
+}
 
 void test() {
-  TestHandleDifferentContainersWithConstexprIf::test();
+  testWritingQuotedStrings();
+  testReadingQuotedStrings();
+  testAdvancedUsage();
+}
 
-  //TestStdInvoke::testInvokeBasic();
+}  // namespace TestStdQuoted
+
+void test() {
+  TestStdQuoted::test();
+  // TestHandleDifferentContainersWithConstexprIf::test();
+
+  // TestStdInvoke::testInvokeBasic();
 
   // TestStdAny::test();
   //  TestStdExchange::test();
