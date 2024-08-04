@@ -862,7 +862,7 @@ void testReadingQuotedStrings() {
 
 void testAdvancedUsage() {
   /*
-  std::quoted can also take additional parameters for customizing the quoting and escaping behavior:
+  C++ 14 std::quoted can also take additional parameters for customizing the quoting and escaping behavior:
 
   Delimiter: The character used for quoting.
   Escape Character: The character used for escaping embedded quotes and the escape character itself.
