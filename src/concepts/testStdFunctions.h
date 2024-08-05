@@ -970,11 +970,11 @@ lcm(a, b) = abs(a * b) / gcd(a, b). This function is also a constexpr function.
 */
 
 void test() {
-  const int a = 56, b = 98;
-  const auto res = std::gcd(a, b); // 14
+  const int  a = 56, b = 98;
+  const auto res = std::gcd(a, b);  // 14
 
-  const int c = 21, d = 6;
-  const auto res1 = std::lcm(c, d); // 42
+  const int  c = 21, d = 6;
+  const auto res1 = std::lcm(c, d);  // 42
 }
 }  // namespace TestStdGcdAndStdLCM
 
@@ -1001,12 +1001,11 @@ void testSearchLargeSubsequence() {
   const std::string haystack = "fdsfsafsdvasdvsaababcababcabcdsfafsadfsadf";
   const std::string needle   = "abc";
   auto              searcher = std::boyer_moore_searcher(needle.begin(), needle.end());
-  //auto              searcher = std::boyer_moore_horspool_searcher(needle.begin(), needle.end());
-  auto              it       = std::search(haystack.begin(), haystack.end(), searcher);
+  // auto              searcher = std::boyer_moore_horspool_searcher(needle.begin(), needle.end());
+  auto it = std::search(haystack.begin(), haystack.end(), searcher);
   if (it != haystack.end()) {
     std::cout << "Found subsequence at position: " << std::distance(haystack.begin(), it) << "\n";  // 18
   }
-
 }
 
 void test() {
@@ -1014,13 +1013,14 @@ void test() {
   testSearchLargeSubsequence();
 }
 
-}
+}  // namespace TestStdSearcher
 
 void test() {
-  TestStdSearcher::test();
-  //TestStdRegex::test();
-  // TestStdQuoted::test();
-  //  TestHandleDifferentContainersWithConstexprIf::test();
+  
+  //TestStdSearcher::test();
+  // TestStdRegex::test();
+  //  TestStdQuoted::test();
+  //   TestHandleDifferentContainersWithConstexprIf::test();
 
   // TestStdInvoke::testInvokeBasic();
 

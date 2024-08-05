@@ -823,9 +823,48 @@ void test() {
 
 }  // namespace TestRawStringLiterals
 
+namespace TestImediatelyInvokedFunctionExpression {
+/*
+
+Immediately Invoked Function Expressions (IIFE) in C++ and how they
+can be utilized for benchmarking purposes on quick-bench.com. An IIFE is a programming pattern that involves defining
+and immediately invoking a function, which can be useful for isolating scopes and initializing variables.
+
+Key Points
+What is an IIFE?
+An Immediately Invoked Function Expression (IIFE) is a function that is defined and immediately called. This pattern is
+commonly used in JavaScript, but it can also be applied in C++ for similar benefits, such as creating isolated scopes
+and initializing complex data.
+
+Syntax of IIFE in C++
+In C++, you can create an IIFE using a lambda expression or a function object. The syntax typically involves defining a
+lambda and immediately invoking it.
+*/
+void testIIFEWithLambda() {
+  auto data = []() {
+    std::vector<int> vec = {1, 2, 3, 4, 5};
+    for (auto& x : vec) {
+      x *= 2;
+    }
+    return vec;
+  }();
+
+  for (auto x : data) {
+    std::cout << x << " ";  // Outputs: 2 4 6 8 10
+  }
+  std::cout << std::endl;
+}
 
 void test() {
-  TestRawStringLiterals::test();
+  testIIFEWithLambda();
+}
+
+}  // namespace TestImediatelyInvokedFunctionExpression
+
+
+void test() {
+  TestImediatelyInvokedFunctionExpression::test();
+  //TestRawStringLiterals::test();
   // TestGotoStatement::test();
   // TestVariadicUsing::test();
   //  TestConstexprLambdaSupport::test();
