@@ -455,10 +455,10 @@ namespace TestStdStringView {
 void testStringViewBasic() {
   const char*      str = "this is a string";
   std::string_view sv1(str);
-  myLog(sv1);
+  myLog(sv1);  // this is a string
   splitLine();
   std::string_view sv2(str, 6);
-  myLog(sv2);
+  myLog(sv2);  // this i
 }
 }  // namespace TestStdStringView
 
@@ -951,11 +951,63 @@ void testReplacingSubstrings() {
   std::cout << res << std::endl;  // hello C++
 }
 
+namespace TestSTDRegexOptimization {
+/*
+Performance Considerations
+Regex Compilation: Using std::regex::optimize can make the regex compilation slightly slower, but it can significantly
+speed up the matching process, especially for complex patterns and large texts.
+Reuse Compiled Regex: If you need to use
+the same regex multiple times, compile it once and reuse it. This avoids the overhead of recompiling the regex pattern.
+
+Choosing the Right Engine: Understand the underlying regex engine and its strengths.
+Different engines have different
+performance characteristics. Practical Tips Precompiling Regex If you are using a regex pattern multiple times, it is
+beneficial to compile it once and reuse the compiled object:
+*/
+void testBasicOptimization() {
+  const std::string s = R"(some text with numbers 1234, KEPP7&8//DSJFO8974)";
+  const std::regex  pattern(R"(\d+)", std::regex::optimize);  // find a sequence of digits in the text.
+  std::smatch       matches;
+  const auto        res = std::regex_search(s, matches, pattern);
+  std::cout << matches[0] << " " << matches[1] << " " << matches[2] << " " << matches[3] << "\n";  // 1234, only extract one match, not all matches.
+}
+
+void findNumbers(const std::string& str, const std::regex& pattern) {
+  /*
+  For more advanced regex operations, such as extracting multiple matches, std::regex_token_iterator can be used:
+  */
+  std::sregex_token_iterator it(str.begin(), str.end(), pattern);
+  std::sregex_token_iterator end;
+
+  std::cout << "Found numbers: ";
+  while (it != end) {
+    std::cout << *it << " ";
+    ++it;
+  }
+  std::cout << "\n";
+}
+
+void howToUseOptimize() {
+  /*
+  The std::regex::optimize flag instructs the regex engine to spend more time optimizing the pattern at the cost of
+  slower construction, with the goal of faster matching.
+  */
+  const std::string text = "Sample 123 text 456 with 789 numbers.";
+  const std::string text2 = "Sample jfidsof 903422412 text 490876356 with 789 numbers.";
+  const std::regex  pattern(R"(\d+)", std::regex::optimize);
+  findNumbers(text, pattern);
+  findNumbers(text2, pattern);
+}
+
+}  // namespace TestSTDRegexOptimization
+
 void test() {
   testBasic();
   testStdRegexMatch();
   testCapturingGroups();
   testReplacingSubstrings();
+  TestSTDRegexOptimization::testBasicOptimization();
+  TestSTDRegexOptimization::howToUseOptimize();
 }
 
 }  // namespace TestStdRegex
@@ -1016,11 +1068,10 @@ void test() {
 }  // namespace TestStdSearcher
 
 void test() {
-  
-  //TestStdSearcher::test();
-  // TestStdRegex::test();
-  //  TestStdQuoted::test();
-  //   TestHandleDifferentContainersWithConstexprIf::test();
+  // TestStdSearcher::test();
+    TestStdRegex::test();
+  //   TestStdQuoted::test();
+  //    TestHandleDifferentContainersWithConstexprIf::test();
 
   // TestStdInvoke::testInvokeBasic();
 
@@ -1036,7 +1087,7 @@ void test() {
   // TestStdIota::test();
   // TestStdRefBasic::test();
   // TestSTDBindBasic::test();
-  // TestStdStringView::testStringViewBasic();
+  //TestStdStringView::testStringViewBasic();
   // TestSTDDistance::test();
   // TestSTDFindIf::test();
   // TestSTDForEach::test();
