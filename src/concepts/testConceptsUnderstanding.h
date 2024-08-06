@@ -782,22 +782,22 @@ many special characters, such as regular expressions, file paths, or multi-line 
 
 void testBasic() {
   /*
-  R "delimiter(string content) delimiter" 
+  R "delimiter(string content) delimiter"
   R indicates that this is a raw string.
-  delimiter is an optional delimiter, which can be any set of characters, used to define the beginning and end of the string.
-  Inside () is the actual string content.
+  delimiter is an optional delimiter, which can be any set of characters, used to define the beginning and end of the
+  string. Inside () is the actual string content.
   */
   const auto res1{"this is a normal line"};
   const auto res11{R"(this is a normal line)"};
-  std::cout << res1 << "\n";  // this is a normal line
+  std::cout << res1 << "\n";   // this is a normal line
   std::cout << res11 << "\n";  // this is a normal line
 
   const auto res2{"this is a line with \"quotes\" and \(bracket\)"};
-  //const auto res4{"this is a line with "quotes" and bracket"};  // compile error, \" should be applied
-  const auto res5{"this is a line with quotes and (bracket)"};  // okay. 
+  // const auto res4{"this is a line with "quotes" and bracket"};  // compile error, \" should be applied
+  const auto res5{"this is a line with quotes and (bracket)"};  // okay.
   const auto res22{R"(this is a line with "quotes" and (bracket))"};
   const auto res23{R"delim(this is a line with "quotes" and (bracket))delim"};
-  std::cout << res2 << "\n";  // this is a line with "quotes" and (bracket)
+  std::cout << res2 << "\n";   // this is a line with "quotes" and (bracket)
   std::cout << res22 << "\n";  // this is a line with "quotes" and (bracket)
   std::cout << res23 << "\n";  // this is a line with "quotes" and (bracket)
 }
@@ -861,18 +861,89 @@ void test() {
 
 }  // namespace TestImediatelyInvokedFunctionExpression
 
+namespace TestInheritance {
+/*
+Inheritance and Constructors
+Constructors in derived classes need to initialize base class members. C++11 introduced new syntax for delegating
+constructors and inheriting constructors.
+*/
+namespace TestInitializeBaseClass {
+class Base {
+  public:
+  Base(int value) : _value(value) { std::cout << "Base constructor called! \n"; }
+
+  public:
+  int _value;
+};
+
+class Derived : public Base {
+  public:
+  Derived(int value, const std::string& name) : Base(value), _extra(name) {
+    std::cout << "Derived constructor called! \n";
+  }
+
+  public:
+  std::string _extra;
+};
 
 void test() {
-  TestImediatelyInvokedFunctionExpression::test();
-  //TestRawStringLiterals::test();
-  // TestGotoStatement::test();
-  // TestVariadicUsing::test();
-  //  TestConstexprLambdaSupport::test();
-  //   TestStartUsingDefaultMemberInitializer::test();
-  //   TestFloatingLiteralsDefinition::test();
-  //   TestStructuredBindings::test();
-  //    TestIfAndSwitchInitStatements::test();
-  //     TestStopUsingSTDEndl::test();
-  //     TestVariadicExpansionWrapUp::test();
-  //     TestFoldExpression::test();
+  Base b(3);
+  Derived d(5, "lee");
+  std::cout << "value: " << d._value << " value: " << d._extra << "\n";  // 5 lee
+}
+
+}  // namespace TestInitializeBaseClass
+
+namespace TestInheritingConstructors {
+/*
+Inheriting constructors allow derived classes to inherit constructors from their base class, simplifying the constructor
+definitions.
+*/
+class Base {
+  public:
+  Base(int value) : _value(value) { std::cout << "Base class constructor called!\n"; }
+  
+  public:
+    int _value;
+
+};
+
+class Derived : public Base {
+  public:
+      using Base::Base; // inherit constructors from Base class
+      Derived() = delete;
+
+      public:
+      int _extra = 89;
+};
+
+void test() {
+  Base b(8);
+  Derived d2(765);
+  std::cout << ", val: " << d2._value << ", val: " << d2._extra << "\n";  // 765 89
+}
+
+}
+
+void test() {
+  TestInitializeBaseClass::test();
+  TestInheritingConstructors::test();
+}
+
+}  // namespace TestInheritance
+
+void test() {
+  TestInheritance::test();
+  //TestImediatelyInvokedFunctionExpression::test();
+  // TestRawStringLiterals::test();
+  //  TestGotoStatement::test();
+  //  TestVariadicUsing::test();
+  //   TestConstexprLambdaSupport::test();
+  //    TestStartUsingDefaultMemberInitializer::test();
+  //    TestFloatingLiteralsDefinition::test();
+  //    TestStructuredBindings::test();
+  //     TestIfAndSwitchInitStatements::test();
+  //      TestStopUsingSTDEndl::test();
+  //      TestVariadicExpansionWrapUp::test();
+  //      TestFoldExpression::test();
 }
