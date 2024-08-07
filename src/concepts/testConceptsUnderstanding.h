@@ -932,8 +932,88 @@ void test() {
 
 }  // namespace TestInheritance
 
+namespace TestNoexcept {
+/*
+Summary
+noexcept is used to declare that a function should not throw an exception, which if actually thrown would result
+in a call to std::terminate. 
+The use of noexcept can help the compiler with optimizations, especially in mobile
+semantics and standard library containers.Even in the absence of an explicit throw statement, some operations (such as
+memory allocation failures, calls to functions that may throw exceptions, etc.) may result in an exception being
+thrown.Understanding the usage and limitations of noexcept is important for writing efficient and robust modern C++
+code!
+
+The purpose of noexcept is to specify whether a function will throw an exception or not.It is primarily a compile-time
+feature that tells the compiler that a function will not throw an exception, thus allowing the compiler to make more
+optimizations.However, noexcept does not catch or prevent exceptions from being thrown at runtime.
+*/
+
+namespace TestNoexceptBasic {
+/*
+Basic Usage
+The noexcept specifier can be applied to both regular and member functions, including constructors and destructors.
+*/
+void f() noexcept {
+  // This function is declared as not throwing any exceptions.
+}
+
+class MyClass {
+  public:
+  void doSomething() noexcept {
+    // This member function is declared as not throwing any exceptions.
+  }
+  MyClass() noexcept {
+  // constructor declared as noexcept
+  }
+
+  ~MyClass() noexcept {
+  // destructor declared as noexcept
+  }
+};
+
+}
+
+namespace TestNoexceptOperator {
+void mightThrowFunc() {
+  throw std::runtime_error("A runtime error");
+}
+
+void noThrowFunc() noexcept {
+
+}
+
 void test() {
-  TestInheritance::test();
+  std::cout << "mightThrowFunc is noexcept: " << static_cast<bool>(noexcept(mightThrowFunc())) << "\n"; // false
+  std::cout << "noThrowFunc is noexcept: " << static_cast<bool>(noexcept(noThrowFunc())) << "\n";  // true
+}
+
+}
+
+namespace TestBehaviour {
+void func() noexcept {
+  throw std::runtime_error("Exception in noexcept function");  // This will call std::terminate
+}
+
+void test() {
+  try {
+    func();  // call std::terminate. The program crashes
+  } catch (const std::exception& e) {
+    std::cout << "Caught: " << e.what() << std::endl;  // would not be hit
+  }
+}
+
+}
+
+void test() {
+  TestNoexceptOperator::test();
+  TestBehaviour::test();
+}
+
+}
+
+void test() {
+  TestNoexcept::test();
+  //TestInheritance::test();
   //TestImediatelyInvokedFunctionExpression::test();
   // TestRawStringLiterals::test();
   //  TestGotoStatement::test();
