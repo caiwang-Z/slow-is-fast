@@ -887,7 +887,7 @@ class Derived : public Base {
 };
 
 void test() {
-  Base b(3);
+  Base    b(3);
   Derived d(5, "lee");
   std::cout << "value: " << d._value << " value: " << d._extra << "\n";  // 5 lee
 }
@@ -902,28 +902,27 @@ definitions.
 class Base {
   public:
   Base(int value) : _value(value) { std::cout << "Base class constructor called!\n"; }
-  
-  public:
-    int _value;
 
+  public:
+  int _value;
 };
 
 class Derived : public Base {
   public:
-      using Base::Base; // inherit constructors from Base class
-      Derived() = delete;
+  using Base::Base;  // inherit constructors from Base class
+  Derived() = delete;
 
-      public:
-      int _extra = 89;
+  public:
+  int _extra = 89;
 };
 
 void test() {
-  Base b(8);
+  Base    b(8);
   Derived d2(765);
   std::cout << ", val: " << d2._value << ", val: " << d2._extra << "\n";  // 765 89
 }
 
-}
+}  // namespace TestInheritingConstructors
 
 void test() {
   TestInitializeBaseClass::test();
@@ -936,7 +935,7 @@ namespace TestNoexcept {
 /*
 Summary
 noexcept is used to declare that a function should not throw an exception, which if actually thrown would result
-in a call to std::terminate. 
+in a call to std::terminate.
 The use of noexcept can help the compiler with optimizations, especially in mobile
 semantics and standard library containers.Even in the absence of an explicit throw statement, some operations (such as
 memory allocation failures, calls to functions that may throw exceptions, etc.) may result in an exception being
@@ -963,31 +962,29 @@ class MyClass {
     // This member function is declared as not throwing any exceptions.
   }
   MyClass() noexcept {
-  // constructor declared as noexcept
+    // constructor declared as noexcept
   }
 
   ~MyClass() noexcept {
-  // destructor declared as noexcept
+    // destructor declared as noexcept
   }
 };
 
-}
+}  // namespace TestNoexceptBasic
 
 namespace TestNoexceptOperator {
 void mightThrowFunc() {
   throw std::runtime_error("A runtime error");
 }
 
-void noThrowFunc() noexcept {
-
-}
+void noThrowFunc() noexcept {}
 
 void test() {
-  std::cout << "mightThrowFunc is noexcept: " << static_cast<bool>(noexcept(mightThrowFunc())) << "\n"; // false
-  std::cout << "noThrowFunc is noexcept: " << static_cast<bool>(noexcept(noThrowFunc())) << "\n";  // true
+  std::cout << "mightThrowFunc is noexcept: " << static_cast<bool>(noexcept(mightThrowFunc())) << "\n";  // false
+  std::cout << "noThrowFunc is noexcept: " << static_cast<bool>(noexcept(noThrowFunc())) << "\n";        // true
 }
 
-}
+}  // namespace TestNoexceptOperator
 
 namespace TestBehaviour {
 void func() noexcept {
@@ -1002,28 +999,200 @@ void test() {
   }
 }
 
-}
+}  // namespace TestBehaviour
 
 void test() {
   TestNoexceptOperator::test();
   TestBehaviour::test();
 }
 
+}  // namespace TestNoexcept
+
+namespace TestDisablingMoveFromConst {
+/*
+Moving from const objects can lead to subtle bugs and undefined behavior because moving typically modifies the source
+object. To enforce immutability and ensure code correctness, it's important to disable moves from const objects.
+
+Summary
+Copy constructor: use const MyClass& parameter, because copy operation does not need to modify the source object.
+So there is no difference between this two copy constructor versions: MyClass(MyClass&) and MyClass(const MyClass&)
+Move constructor: use MyClass&& parameter, because the move operation needs to modify the source object.To
+prevent moving const objects, a move constructor that accepts a const right-value reference can be deleted
+(MyClass(const MyClass&&) = delete).
+
+Why copy constructors don't need a const version?
+Copy constructors are designed to handle const and non-const objects.Since the copy constructor does not modify the
+source object, it can take a const reference argument.Therefore, the copy constructor works on both const and non-const
+objects:
+MyClass a; // non-const object const
+MyClass b; // const object
+MyClass a_copy = a; // Valid, uses copy constructorcopy constructor
+MyClass b_copy = b; // Valid, uses copy constructor
+
+*/
+
+class MyClass {
+  public:
+  int* data;
+
+  MyClass() : data(nullptr) {}
+
+  // Move constructor
+  MyClass(MyClass&& other) noexcept : data(other.data) { other.data = nullptr; }
+
+  // Delete move constructor for const objects
+  MyClass(const MyClass&&) = delete;
+
+  // Move assignment operator
+  MyClass& operator=(MyClass&& other) noexcept {
+    if (this != &other) {
+      delete data;
+      data       = other.data;
+      other.data = nullptr;
+    }
+    return *this;
+  }
+
+  // Delete move assignment operator for const objects
+  MyClass& operator=(const MyClass&&) = delete;
+
+  ~MyClass() { delete data; }
+};
+
+void test() {
+  MyClass a;
+  a.data = new int(42);
+
+  MyClass b(std::move(a));  // Valid move
+
+  const MyClass c;
+  // MyClass d(std::move(c)); // Error: move constructor is deleted for const objects
 }
+
+}  // namespace TestDisablingMoveFromConst
+
+namespace TestDelete {
+namespace PreventingCopyAndMoveOperation {
+class Noncopyable {
+  public:
+  Noncopyable()  = default;
+  ~Noncopyable() = default;
+
+  private:
+  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable& operator=(const Noncopyable&) = delete;
+};
+
+class Derived : public Noncopyable {
+  public:
+  Derived() = default;
+
+  private:
+  int _val = 10;
+};
+
+void test() {
+  Derived d;
+  // Derived       d1(d);  // compile error
+  // Derived d1 = d; // compile error
+}
+
+}  // namespace PreventingCopyAndMoveOperation
+
+namespace TestBasic {
+/*
+Preventing Unwanted Function Overloads
+When you want to disallow specific overloads of a function, you can use = delete.
+*/
+void func(int) {
+  std::cout << "int version" << std::endl;
+}
+
+void func(double) = delete;  // Disallow the double version
+
+void test() {
+  func(42);  // OK
+  // func(3.14); // Error: use of deleted function 'void func(double)'
+}
+
+}  // namespace TestBasic
+
+namespace TestDisablingImplicitConversion {
+class MyClass {
+  public:
+  MyClass(int) {}
+  MyClass(double) = delete;  // Disallow conversion from double to MyClass
+};
+
+void test() {
+  MyClass obj1(42);  // OK
+  // MyClass obj2(3.14); // Error: use of deleted function 'MyClass::MyClass(double)'
+}
+
+}  // namespace TestDisablingImplicitConversion
+
+namespace SpecialUse {
+/*
+Singleton Pattern
+Ensuring a class can only have one instance by deleting copy and move operations
+*/
+class Singleton {
+  public:
+  static Singleton& getInstance() {
+    static Singleton instance;
+    return instance;
+  }
+
+  private:
+  Singleton() {}
+  ~Singleton() {}
+
+  // Delete copy constructor and copy assignment operator
+  Singleton(const Singleton&) = delete;
+  Singleton& operator=(const Singleton&) = delete;
+
+  // Delete move constructor and move assignment operator
+  Singleton(Singleton&&) = delete;
+  Singleton& operator=(Singleton&&) = delete;
+};
+
+void test() {
+  Singleton& s1 = Singleton::getInstance();
+  // Singleton s2 = s1; // Error: use of deleted function 'Singleton::Singleton(const Singleton&)'
+}
+}  // namespace SpecialUse
+
+namespace DeletingSpecialMemberFunction {
+/*
+Deleting Special Member Functions
+You can delete special member functions such as the destructor if you want to prevent the object from being destroyed.
+*/
+class Immortal {
+  public:
+  Immortal() {}
+  ~Immortal() = delete;  // Prevent destruction of objects
+};
+
+void test() {
+  // Immortal obj; // Error: use of deleted function 'Immortal::~Immortal()'
+}
+}  // namespace DeletingSpecialMemberFunction
+
+}  // namespace TestDelete
 
 void test() {
   TestNoexcept::test();
-  //TestInheritance::test();
-  //TestImediatelyInvokedFunctionExpression::test();
-  // TestRawStringLiterals::test();
-  //  TestGotoStatement::test();
-  //  TestVariadicUsing::test();
-  //   TestConstexprLambdaSupport::test();
-  //    TestStartUsingDefaultMemberInitializer::test();
-  //    TestFloatingLiteralsDefinition::test();
-  //    TestStructuredBindings::test();
-  //     TestIfAndSwitchInitStatements::test();
-  //      TestStopUsingSTDEndl::test();
-  //      TestVariadicExpansionWrapUp::test();
-  //      TestFoldExpression::test();
+  // TestInheritance::test();
+  // TestImediatelyInvokedFunctionExpression::test();
+  //  TestRawStringLiterals::test();
+  //   TestGotoStatement::test();
+  //   TestVariadicUsing::test();
+  //    TestConstexprLambdaSupport::test();
+  //     TestStartUsingDefaultMemberInitializer::test();
+  //     TestFloatingLiteralsDefinition::test();
+  //     TestStructuredBindings::test();
+  //      TestIfAndSwitchInitStatements::test();
+  //       TestStopUsingSTDEndl::test();
+  //       TestVariadicExpansionWrapUp::test();
+  //       TestFoldExpression::test();
 }
