@@ -594,9 +594,7 @@ result of the lambda call is also a constant expression.This allows us to use ad
 because the result of a call to add can be computed at compile time.
 */
 
-constexpr auto add = [](int a, int b) constexpr {
-  return a + b;
-};
+constexpr auto add = [](int a, int b) constexpr { return a + b; };
 
 void test() {
   constexpr int result = add(3, 4);  // get result during compiling
@@ -1079,7 +1077,7 @@ class Noncopyable {
   ~Noncopyable() = default;
 
   private:
-  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(const Noncopyable&)            = delete;
   Noncopyable& operator=(const Noncopyable&) = delete;
 };
 
@@ -1148,11 +1146,11 @@ class Singleton {
   ~Singleton() {}
 
   // Delete copy constructor and copy assignment operator
-  Singleton(const Singleton&) = delete;
+  Singleton(const Singleton&)            = delete;
   Singleton& operator=(const Singleton&) = delete;
 
   // Delete move constructor and move assignment operator
-  Singleton(Singleton&&) = delete;
+  Singleton(Singleton&&)            = delete;
   Singleton& operator=(Singleton&&) = delete;
 };
 
@@ -1180,8 +1178,76 @@ void test() {
 
 }  // namespace TestDelete
 
+namespace TestEmplaceBack {
+/*
+In Episode 108 of C++ Weekly, Jason Turner discusses the emplace_back function in C++ and how it differs from the more
+commonly used push_back when adding elements to containers like std::vector. Understanding emplace_back is crucial for
+writing efficient and expressive C++ code, especially when dealing with complex objects.
+
+Key Points
+Overview of emplace_back
+emplace_back is a member function of C++ standard containers like std::vector, std::deque, and std::list. It was
+introduced in C++11 and allows for the direct construction of an object in place within the container, avoiding the need
+for a temporary object.
+
+Difference Between push_back and emplace_back
+push_back:
+
+push_back adds an existing object to the container.
+It usually requires creating a temporary object before it is copied or moved into the container.
+
+emplace_back:
+
+emplace_back constructs the object directly in the memory allocated by the container, avoiding the creation of a
+temporary object.
+
+Benefits of Using emplace_back
+Efficiency: emplace_back can be more efficient than push_back because it eliminates the need to create and potentially
+copy or move temporary objects. Convenience: When dealing with complex objects, emplace_back allows you to pass the
+constructor arguments directly, making the code cleaner and more readable. Direct Construction: Objects are constructed
+directly in the container’s memory, which is particularly useful for types that are expensive to copy or move.
+
+*/
+
+class MyClass {
+  public:
+  MyClass(const MyClass& cl) {
+    std::cout << "Copy constructor called!\n";
+    _age  = cl._age;
+    _name = cl._name;
+  }
+
+  MyClass(int age, const std::string& name) : _age(age), _name(name) { std::cout << "Default constructor called!\n"; };
+
+  MyClass(MyClass&& cl) {
+    std::cout << "Move constructor called!\n";
+    _age  = cl._age;
+    _name = std::move(cl._name);
+  }
+
+  private:
+  int         _age;
+  std::string _name;
+};
+
+void test(){
+  std::vector<MyClass> vec;
+  MyClass              mc(11, "jacky");
+  vec.push_back(mc);  // Default constructor called! Copy constructor     called !
+  std::cout << "line************************\n";
+  std::vector<MyClass> vec2;
+  vec2.emplace_back(MyClass(13, "lee"));  // Default constructor called! Copy constructor     called !
+  std::cout << "new line ********************\n";
+  std::vector<MyClass> vec1;
+  vec1.emplace_back(45, "lance");  // Default constructor called!
+
+}
+
+}  // namespace TestEmplaceBack
+
 void test() {
-  TestNoexcept::test();
+  TestEmplaceBack::test();
+  //TestNoexcept::test();
   // TestInheritance::test();
   // TestImediatelyInvokedFunctionExpression::test();
   //  TestRawStringLiterals::test();
