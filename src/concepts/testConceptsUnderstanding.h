@@ -1252,7 +1252,8 @@ constexpr std::optional<int> getOptionalValueInCompileTime(bool condition) {
   if (condition){
     return 42;
   }else{
-    return std::nullopt;
+    return std::nullopt;  // std::nullopt is a constant of type std::nullopt_t. Used to indicate that an std::optional does not contain a value.
+
   }
 
 }
@@ -1275,8 +1276,44 @@ void test() {
 
 }
 
+namespace TestReferenceToPointerAndDoublePointers {
+
+void testDoublePointer() {
+  int   x    = 10;
+  int*  ptr  = &x;
+  int** dptr = &ptr;
+
+  std::cout << "value of x: " << x << "\n";        // 10
+  std::cout << "value of ptr: " << ptr << "\n";    // 10 (memory address)
+  std::cout << "value of dptr: " << dptr << "\n";  // 10 (memory address)
+}
+
+namespace TestReferenceToPointer {
+void allocateMemory(int*& p) {
+  p = new int(100);  // dynamically allocate an int and assign to p
+}
+
 void test() {
-  TestConstexprSTDOptionalSTDVariant::test();
+  int* ptr = nullptr;
+  allocateMemory(ptr);
+
+  std::cout << *ptr << "\n";  // 100
+
+  delete ptr;
+}
+
+}  // namespace TestReferenceToPointer
+
+void test() {
+  testDoublePointer();
+  TestReferenceToPointer::test();
+}
+
+}  // namespace TestReferenceToPointerAndDoublePointers
+
+void test() {
+  TestReferenceToPointerAndDoublePointers::test();
+  //TestConstexprSTDOptionalSTDVariant::test();
   //TestEmplaceBack::test();
   //TestNoexcept::test();
   // TestInheritance::test();
