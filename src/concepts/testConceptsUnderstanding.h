@@ -1347,6 +1347,36 @@ void test() {
 
 }  // namespace TestSTDToAddress
 
+namespace TestInline{
+/*
+What is an inline Variable?
+Before C++17, defining a global or static variable in a header file could lead to multiple definition errors if the
+header was included in more than one translation unit. To avoid this, the variable would typically be declared extern in
+the header file and defined in a single source file.
+
+C++17 introduced inline variables, which allow you to define a variable in a header file without violating the One
+Definition Rule (ODR). This means that the variable can be defined in multiple translation units, and the linker will
+ensure that all these definitions refer to the same object.
+
+Example: Global Constants
+Before C++17, defining a global constant in a header file could lead to issues if not handled carefully:
+
+// global_definitions.h
+extern const int globalConst;
+
+// global_definitions.cpp
+#include "global_definitions.h"
+const int globalConst = 42;
+With C++17, you can define it directly in the header file using inline:
+
+// global_definitions.h
+inline const int globalConst = 42;
+Now, globalConst can be included in multiple translation units without causing linker errors.
+
+*/
+
+}
+
 void test() {
   TestSTDToAddress::test();
 
