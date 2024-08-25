@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "utility.h"
+#include <variant>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -1245,8 +1246,38 @@ void test(){
 
 }  // namespace TestEmplaceBack
 
+namespace TestConstexprSTDOptionalSTDVariant {
+
+constexpr std::optional<int> getOptionalValueInCompileTime(bool condition) {
+  if (condition){
+    return 42;
+  }else{
+    return std::nullopt;
+  }
+
+}
+
+constexpr std::variant<int, const char*> getVariantValueInCompileTime(bool condition) {
+  if (condition) {
+    return 42;
+  }else{
+    return "hello world";
+  }
+
+}
+
 void test() {
-  TestEmplaceBack::test();
+  constexpr auto res1 = getOptionalValueInCompileTime(true);  // 42
+  constexpr auto res2 = getVariantValueInCompileTime(false);  // hello world
+  int            a    = 1;
+}
+
+
+}
+
+void test() {
+  TestConstexprSTDOptionalSTDVariant::test();
+  //TestEmplaceBack::test();
   //TestNoexcept::test();
   // TestInheritance::test();
   // TestImediatelyInvokedFunctionExpression::test();
