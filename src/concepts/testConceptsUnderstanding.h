@@ -2,9 +2,9 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <variant>
 #include <vector>
 #include "utility.h"
-#include <variant>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -1231,7 +1231,7 @@ class MyClass {
   std::string _name;
 };
 
-void test(){
+void test() {
   std::vector<MyClass> vec;
   MyClass              mc(11, "jacky");
   vec.push_back(mc);  // Default constructor called! Copy constructor     called !
@@ -1241,7 +1241,6 @@ void test(){
   std::cout << "new line ********************\n";
   std::vector<MyClass> vec1;
   vec1.emplace_back(45, "lance");  // Default constructor called!
-
 }
 
 }  // namespace TestEmplaceBack
@@ -1249,22 +1248,20 @@ void test(){
 namespace TestConstexprSTDOptionalSTDVariant {
 
 constexpr std::optional<int> getOptionalValueInCompileTime(bool condition) {
-  if (condition){
+  if (condition) {
     return 42;
-  }else{
-    return std::nullopt;  // std::nullopt is a constant of type std::nullopt_t. Used to indicate that an std::optional does not contain a value.
-
+  } else {
+    return std::nullopt;  // std::nullopt is a constant of type std::nullopt_t. Used to indicate that an std::optional
+                          // does not contain a value.
   }
-
 }
 
 constexpr std::variant<int, const char*> getVariantValueInCompileTime(bool condition) {
   if (condition) {
     return 42;
-  }else{
+  } else {
     return "hello world";
   }
-
 }
 
 void test() {
@@ -1273,8 +1270,7 @@ void test() {
   int            a    = 1;
 }
 
-
-}
+}  // namespace TestConstexprSTDOptionalSTDVariant
 
 namespace TestReferenceToPointerAndDoublePointers {
 
@@ -1284,8 +1280,8 @@ void testDoublePointer() {
   int** dptr = &ptr;
 
   std::cout << "value of x: " << x << "\n";        // 10
-  std::cout << "value of ptr: " << ptr << "\n";    // 10 (memory address)
-  std::cout << "value of dptr: " << dptr << "\n";  // 10 (memory address)
+  std::cout << "value of ptr: " << ptr << "\n";    // 000000AA563BF814 (memory address)
+  std::cout << "value of dptr: " << dptr << "\n";  // 000000AA563BF838 (memory address)
 }
 
 namespace TestReferenceToPointer {
@@ -1311,22 +1307,64 @@ void test() {
 
 }  // namespace TestReferenceToPointerAndDoublePointers
 
+namespace TestSTDToAddress {
+/*
+Key Points
+What is std::to_address?
+std::to_address is a function template provided in C++20 that returns the raw pointer (T*) from a pointer-like object.
+It is especially useful in template programming, where you might be dealing with different types of pointers (raw
+pointers, smart pointers, or iterators) and need to extract the underlying raw pointer for operations that require
+direct pointer access.
+
+The basic idea is to provide a uniform way to get the address of an object, regardless of the type of pointer or
+iterator you're dealing with.
+
+For Raw Pointers: If you pass a raw pointer to std::to_address, it simply returns the pointer itself.
+
+For Smart Pointers: If you pass a smart pointer (e.g., std::unique_ptr, std::shared_ptr), std::to_address calls the
+smart pointer's get() member function to obtain the raw pointer.
+
+For Iterators: If you pass an iterator, std::to_address dereferences the iterator and takes the address of the
+dereferenced value.
+
+*/
+template <typename Ptr>
+void printAddress(const Ptr& ptr) {
+  std::cout << "Address: " << std::to_address(ptr) << "\n";
+}
+
 void test() {
-  TestReferenceToPointerAndDoublePointers::test();
-  //TestConstexprSTDOptionalSTDVariant::test();
-  //TestEmplaceBack::test();
-  //TestNoexcept::test();
-  // TestInheritance::test();
-  // TestImediatelyInvokedFunctionExpression::test();
-  //  TestRawStringLiterals::test();
-  //   TestGotoStatement::test();
-  //   TestVariadicUsing::test();
-  //    TestConstexprLambdaSupport::test();
-  //     TestStartUsingDefaultMemberInitializer::test();
-  //     TestFloatingLiteralsDefinition::test();
-  //     TestStructuredBindings::test();
-  //      TestIfAndSwitchInitStatements::test();
-  //       TestStopUsingSTDEndl::test();
-  //       TestVariadicExpansionWrapUp::test();
-  //       TestFoldExpression::test();
+  int                  x      = 10;
+  int*                 rawPtr = &x;
+  std::unique_ptr<int> uptr   = std::make_unique<int>(20);
+  std::vector<int>     vec{60, 20, 30};
+  auto                 it = vec.begin();
+
+  printAddress(rawPtr);  // 000000B9691BF774
+  printAddress(uptr);  // 0000027D737E5C70
+  printAddress(it);  // 0000027D737F1FE0
+}
+
+}  // namespace TestSTDToAddress
+
+void test() {
+  TestSTDToAddress::test();
+
+  // TestReferenceToPointerAndDoublePointers::test();
+  // TestConstexprSTDOptionalSTDVariant::test();
+  // TestEmplaceBack::test();
+  // TestNoexcept::test();
+  //  TestInheritance::test();
+  //  TestImediatelyInvokedFunctionExpression::test();
+  //   TestRawStringLiterals::test();
+  //    TestGotoStatement::test();
+  //    TestVariadicUsing::test();
+  //     TestConstexprLambdaSupport::test();
+  //      TestStartUsingDefaultMemberInitializer::test();
+  //      TestFloatingLiteralsDefinition::test();
+  //      TestStructuredBindings::test();
+  //       TestIfAndSwitchInitStatements::test();
+  //        TestStopUsingSTDEndl::test();
+  //        TestVariadicExpansionWrapUp::test();
+  //        TestFoldExpression::test();
 }
