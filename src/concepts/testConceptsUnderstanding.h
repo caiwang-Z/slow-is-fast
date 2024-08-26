@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -594,9 +595,7 @@ result of the lambda call is also a constant expression.This allows us to use ad
 because the result of a call to add can be computed at compile time.
 */
 
-constexpr auto add = [](int a, int b) constexpr {
-  return a + b;
-};
+constexpr auto add = [](int a, int b) constexpr { return a + b; };
 
 void test() {
   constexpr int result = add(3, 4);  // get result during compiling
@@ -1079,7 +1078,7 @@ class Noncopyable {
   ~Noncopyable() = default;
 
   private:
-  Noncopyable(const Noncopyable&) = delete;
+  Noncopyable(const Noncopyable&)            = delete;
   Noncopyable& operator=(const Noncopyable&) = delete;
 };
 
@@ -1148,11 +1147,11 @@ class Singleton {
   ~Singleton() {}
 
   // Delete copy constructor and copy assignment operator
-  Singleton(const Singleton&) = delete;
+  Singleton(const Singleton&)            = delete;
   Singleton& operator=(const Singleton&) = delete;
 
   // Delete move constructor and move assignment operator
-  Singleton(Singleton&&) = delete;
+  Singleton(Singleton&&)            = delete;
   Singleton& operator=(Singleton&&) = delete;
 };
 
@@ -1180,19 +1179,104 @@ void test() {
 
 }  // namespace TestDelete
 
+namespace TestHigherOderFunctions {
+/*
+Higher-Order Functions are functions that can take other functions as arguments or return them as results. This concept
+is a key feature in functional programming but is also very useful in C++ for creating more flexible and reusable code.
+
+Key Points
+What is a Higher-Order Function?
+A Higher-Order Function (HOF) is a function that:
+
+Takes one or more functions as parameters, or
+Returns a function as its result.
+This allows you to create functions that can be used as building blocks for more complex operations, similar to how you
+might compose objects in object-oriented programming.
+
+Practical Use Cases for Higher-Order Functions
+1.Callbacks: HOFs are commonly used in callback mechanisms where you pass a function to be called later, often in
+response to an event or completion of a task.
+
+2.Functional Composition: You can create HOFs that combine or modify other functions, such as chaining operations
+together or applying transformations to data.
+
+3.Lazy Evaluation: HOFs can be used to defer the execution of a function until its result is needed, allowing for more
+efficient and responsive programs.
+
+4.Decorators: You can create functions that wrap other functions to add additional behavior, such as logging or input
+validation.
+
+*/
+
+namespace TestFunctionTakesAnotherFunctionAsParameter {
+int square(int x) {
+  return x * x;
+}
+
+void foo(int x, const std::function<int(int)>& func) {
+  std::cout << "Result: " << func(x) << "\n";
+}
+
 void test() {
-  TestNoexcept::test();
-  // TestInheritance::test();
-  // TestImediatelyInvokedFunctionExpression::test();
-  //  TestRawStringLiterals::test();
-  //   TestGotoStatement::test();
-  //   TestVariadicUsing::test();
-  //    TestConstexprLambdaSupport::test();
-  //     TestStartUsingDefaultMemberInitializer::test();
-  //     TestFloatingLiteralsDefinition::test();
-  //     TestStructuredBindings::test();
-  //      TestIfAndSwitchInitStatements::test();
-  //       TestStopUsingSTDEndl::test();
-  //       TestVariadicExpansionWrapUp::test();
-  //       TestFoldExpression::test();
+  foo(3, square);  // 9
+}
+
+}  // namespace TestFunctionTakesAnotherFunctionAsParameter
+
+namespace TestReturnFunctionFromHOF {
+std::function<int(int)> createMultiplier(int factor) {
+  return [factor](int x) { return x * factor; };
+}
+
+void test() {
+  auto timesThree = createMultiplier(3);
+  std::cout << "3 times 4 equals: " << timesThree(4) << "\n";  // 12
+}
+
+}  // namespace TestReturnFunctionFromHOF
+
+namespace TestFunctionalComposition {
+int addOne(int x) {
+  return x + 1;
+}
+
+int multiplyByTwo(int x) {
+  return x * 2;
+}
+
+std::function<int(int)> composeFunction(const std::function<int(int)>& f, const std::function<int(int)>& g) {
+  return [f, g](int x) { return f(g(x)); };
+}
+
+void test() {
+  auto addThenMultiply = composeFunction(multiplyByTwo, addOne);
+  std::cout << "Result: " << addThenMultiply(5) << "\n";  // 12
+}
+
+}  // namespace TestFunctionalComposition
+
+void test() {
+  TestFunctionTakesAnotherFunctionAsParameter::test();
+  TestReturnFunctionFromHOF::test();
+  TestFunctionalComposition::test();
+}
+
+}  // namespace TestHigherOderFunctions
+
+void test() {
+  TestHigherOderFunctions::test();
+  // TestNoexcept::test();
+  //  TestInheritance::test();
+  //  TestImediatelyInvokedFunctionExpression::test();
+  //   TestRawStringLiterals::test();
+  //    TestGotoStatement::test();
+  //    TestVariadicUsing::test();
+  //     TestConstexprLambdaSupport::test();
+  //      TestStartUsingDefaultMemberInitializer::test();
+  //      TestFloatingLiteralsDefinition::test();
+  //      TestStructuredBindings::test();
+  //       TestIfAndSwitchInitStatements::test();
+  //        TestStopUsingSTDEndl::test();
+  //        TestVariadicExpansionWrapUp::test();
+  //        TestFoldExpression::test();
 }
