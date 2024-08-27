@@ -1263,8 +1263,104 @@ void test() {
 
 }  // namespace TestHigherOderFunctions
 
+namespace TestCallables {
+/*
+What Are Callables?
+In C++, a callable is any object or entity that you can invoke using the function call syntax, which typically looks
+like callable(). The callable entities in C++ include:
+
+Functions: Regular functions defined with void func() {} or similar signatures.
+Function Pointers: Pointers that point to functions.
+Lambdas: Anonymous functions or closures that capture variables from their enclosing scope.
+Functors (Function Objects): Instances of classes that overload the operator(), allowing the object to be used like a
+function. Member Function Pointers: Pointers to non-static member functions of a class. std::function: A general-purpose
+polymorphic wrapper for callable objects.
+*/
+namespace FunctionPointer {
+void foo() {
+  std::cout << "Hello world from function pointer\n";
+}
+
 void test() {
-  TestHigherOderFunctions::test();
+  void (*funcPtr)() = &foo;
+  funcPtr();
+}
+
+}  // namespace FunctionPointer
+
+namespace Lambda {
+auto myLambda = []() { std::cout << "Hello world from lambda\n"; };
+
+void test() {
+  myLambda();
+}
+
+}  // namespace Lambda
+
+namespace Functor {
+class MyFunctor {
+  public:
+  void operator()() { std::cout << "Hello world from functor \n"; }
+};
+
+void test() {
+  MyFunctor obj;
+  obj();
+}
+
+}  // namespace Functor
+
+namespace STDFunction {
+void myFunction() {
+  std::cout << "Hello world from std::function\n";
+}
+
+void test() {
+  std::function<void()> func = myFunction;
+  func();
+
+}
+}
+
+
+namespace UsingCallablesInFunctionTemplate {
+template <typename T, typename... Args>
+void execute(T callable,Args... args ) {
+  callable(std::forward<Args>(args)...);
+}
+
+void myFoo(int val) {
+  std::cout << "Hello world from function pointer and value: " << val << "\n";
+}
+
+auto customLambda = [](const std::string& name) { std::cout << "Hello world from lambda, name: " << name << "\n"; };
+
+void test() {
+  execute(FunctionPointer::foo);
+  execute(Lambda::myLambda);
+  execute(Functor::MyFunctor{});
+  execute(STDFunction::myFunction);
+  execute(myFoo, 99);
+  execute(customLambda, "jacky");
+}
+
+}
+
+void test() {
+  FunctionPointer::test();
+  Lambda::test();
+  Functor::test();
+  STDFunction::test();
+  std::cout << "split line***********************\n";
+  UsingCallablesInFunctionTemplate::test();
+
+}
+
+}  // namespace TestCallables
+
+void test() {
+TestCallables::test();
+  //TestHigherOderFunctions::test();
   // TestNoexcept::test();
   //  TestInheritance::test();
   //  TestImediatelyInvokedFunctionExpression::test();
