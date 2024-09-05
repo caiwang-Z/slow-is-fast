@@ -13,12 +13,13 @@
 #include <sstream>
 #include <vector>
 #include "utility.h"
+#include <iomanip>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
-//#define PARALLEL
+// #define PARALLEL
 
 namespace TestStaticAssert {
 
@@ -969,7 +970,8 @@ void testBasicOptimization() {
   const std::regex  pattern(R"(\d+)", std::regex::optimize);  // find a sequence of digits in the text.
   std::smatch       matches;
   const auto        res = std::regex_search(s, matches, pattern);
-  std::cout << matches[0] << " " << matches[1] << " " << matches[2] << " " << matches[3] << "\n";  // 1234, only extract one match, not all matches.
+  std::cout << matches[0] << " " << matches[1] << " " << matches[2] << " " << matches[3]
+            << "\n";  // 1234, only extract one match, not all matches.
 }
 
 void findNumbers(const std::string& str, const std::regex& pattern) {
@@ -992,7 +994,7 @@ void howToUseOptimize() {
   The std::regex::optimize flag instructs the regex engine to spend more time optimizing the pattern at the cost of
   slower construction, with the goal of faster matching.
   */
-  const std::string text = "Sample 123 text 456 with 789 numbers.";
+  const std::string text  = "Sample 123 text 456 with 789 numbers.";
   const std::string text2 = "Sample jfidsof 903422412 text 490876356 with 789 numbers.";
   const std::regex  pattern(R"(\d+)", std::regex::optimize);
   findNumbers(text, pattern);
@@ -1067,9 +1069,76 @@ void test() {
 
 }  // namespace TestStdSearcher
 
+namespace TestStdSpan {
+/*
+std::span is a lightweight container introduced by C++20 that provides a non-owned view of a contiguous region of
+memory.This means that std::span simply references an existing region of memory and is not responsible for managing the
+life cycle of that memory. std::span is similar to traditional pointers and arrays, but provides greater security and
+flexibility, especially when dealing with dynamically sized arrays or pointers.
+
+Characteristics of std::span:
+1. Non-owning type: std::span does not manage the memory it references, but only accesses part or all of some already
+existing array, pointer, or container.This makes std::span involve no memory allocation or freeing.
+2. Lightweight: Similar to pointers, std::span has very little overhead; it usually contains only two members: a pointer
+to the data and the size of the data.
+3. Generality: std::span can be used to represent slices of ordinary arrays, standard containers such as std::vector,
+or raw pointers and sizes.It works for any contiguous block of memory.
+4. Provides boundary safety: Unlike bare pointers, std::span knows the size of the data it references, so it can be
+boundary-checked to prevent out-of-bounds access.
+5. Supports range operations: std::span can be used with C++ range-related operations, such as range for loops.
+
+*/
+
+auto printSpan = [](const std::span<int>& sp) {
+  for (auto n : sp) {
+    std::cout << n << " ";
+  }
+  std::cout << std::endl;
+};
+
+void testBasic() {
+  int            arr[] = {1, 2, 3, 4, 5};
+  std::span<int> sp1(arr);     // the whole array
+  std::span<int> sp2(arr, 3);  // the first 3 elements
+
+  for (int n : sp1) {
+    std::cout << n << " ";  // 1 2 3 4 5
+  }
+  std::cout << std::endl;
+
+  for (int n : sp2) {
+    std::cout << n << " ";  // 1 2 3
+  }
+  std::cout << std::endl;
+}
+
+void testSpanWithVector() {
+  std::vector<int> vec{11, 22, 33, 44, 55};
+  std::span<int>   sp1(vec);
+  printSpan(sp1);  // 11 22 33 44 55
+}
+
+void testSpanWithRawPointer() {
+  int*           arr = new int[6]{100, 200, 300, 400, 500, 600};
+  std::span<int> span(arr, 4);
+  printSpan(span);  // 100 200 300 400
+  delete[] arr;
+}
+
 void test() {
+  testBasic();
+  testSpanWithVector();
+  testSpanWithRawPointer();
+}
+
+}  // namespace TestStdSpan
+
+// TODO std::bitset
+
+void test() {
+  TestStdSpan::test();
   // TestStdSearcher::test();
-    TestStdRegex::test();
+  //TestStdRegex::test();
   //   TestStdQuoted::test();
   //    TestHandleDifferentContainersWithConstexprIf::test();
 
@@ -1087,7 +1156,7 @@ void test() {
   // TestStdIota::test();
   // TestStdRefBasic::test();
   // TestSTDBindBasic::test();
-  //TestStdStringView::testStringViewBasic();
+  // TestStdStringView::testStringViewBasic();
   // TestSTDDistance::test();
   // TestSTDFindIf::test();
   // TestSTDForEach::test();
