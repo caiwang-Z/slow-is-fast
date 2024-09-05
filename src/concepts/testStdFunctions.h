@@ -1,10 +1,12 @@
 ﻿#pragma
 #include <algorithm>
 #include <any>
+#include <bitset>
 #include <cassert>
 #include <execution>
 #include <format>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <numeric>
 #include <random>
@@ -13,7 +15,6 @@
 #include <sstream>
 #include <vector>
 #include "utility.h"
-#include <iomanip>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -1134,13 +1135,54 @@ void test() {
 }  // namespace TestStdSpan
 
 // TODO std::bitset
+namespace TestStdBitset {
+/*
+std::bitset is a template class in the C++ standard library for working with fixed-size bit sequences (bit sequences).It
+provides a convenient way to store and manipulate binary data, allowing you to access and modify individual bits,
+perform bit operations, and convert bit sequences to and from other data types.
+Basic features of std::bitset Fixed size:
+1. std::bitset<N> is a template class where N is the number of bits.This size is determined at compile time and cannot
+be dynamically adjusted at runtime.
+2. Per-bit operations: std::bitset provides a rich set of per-bit operations, such as
+per-bit and, per-bit or, inverse, shift, and so on.
+3. Easy conversion: bitset can be easily converted to integer or string,
+or from integer and string to bitset.
+*/
+
+void testBasic() {
+  std::bitset<8> bits(16);                // 0001 0000
+  std::cout << bits[4] << "\n";           // 1
+  std::cout << bits[1] << "\n";           // 0
+  std::cout << bits.to_string() << "\n";  // 0001 0000
+
+  std::bitset<8> bits1("00001111");        // 15
+  std::cout << bits1.to_ulong() << "\n";   // 15
+  std::cout << bits1[3] << "\n";           // 1
+  std::cout << bits1[5] << "\n";           // 0
+  std::cout << bits1.to_string() << "\n";  // 00001111
+}
+
+void test2() {
+  std::bitset<8> bits("00001111");  // 15
+  bits[3] = 0;
+  std::cout << bits.to_ulong() << "\n"; // 7
+  std::cout << bits.to_string() << "\n"; // 00000111
+}
 
 void test() {
-  TestStdSpan::test();
-  // TestStdSearcher::test();
-  //TestStdRegex::test();
-  //   TestStdQuoted::test();
-  //    TestHandleDifferentContainersWithConstexprIf::test();
+  testBasic();
+  test2();
+}
+
+}  // namespace TestStdBitset
+
+void test() {
+  TestStdBitset::test();
+  // TestStdSpan::test();
+  //  TestStdSearcher::test();
+  // TestStdRegex::test();
+  //    TestStdQuoted::test();
+  //     TestHandleDifferentContainersWithConstexprIf::test();
 
   // TestStdInvoke::testInvokeBasic();
 
