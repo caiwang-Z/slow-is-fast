@@ -1165,8 +1165,8 @@ void testBasic() {
 void test2() {
   std::bitset<8> bits("00001111");  // 15
   bits[3] = 0;
-  std::cout << bits.to_ulong() << "\n"; // 7
-  std::cout << bits.to_string() << "\n"; // 00000111
+  std::cout << bits.to_ulong() << "\n";   // 7
+  std::cout << bits.to_string() << "\n";  // 00000111
 }
 
 void test() {
@@ -1176,8 +1176,41 @@ void test() {
 
 }  // namespace TestStdBitset
 
+namespace TestPolymorphic {
+class Base {
+  public:
+  Base() = default;
+      virtual void init() = 0;
+      virtual ~Base()     = default;
+};
+
+class Derived : public Base {
+  public:
+  void init() override { std::cout << "init called in Derived\n"; }
+};
+
+class Process {
+
+public:
+  Process(Base& b) {
+  b.init();
+  }
+
+
+};
+
 void test() {
-  TestStdBitset::test();
+  Derived d;
+  Process p(d);
+}
+
+}  // namespace TestPolymorphic
+
+// TODO stoi
+
+void test() {
+  TestPolymorphic::test();
+  //TestStdBitset::test();
   // TestStdSpan::test();
   //  TestStdSearcher::test();
   // TestStdRegex::test();
