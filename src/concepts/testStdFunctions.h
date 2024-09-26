@@ -46,7 +46,7 @@ namespace TestStdGet {
 void test() {}
 }  // namespace TestStdGet
 
-// TODO std::forward
+
 namespace TestSTDForward {
 void testLRvalueBasic() {
   {
@@ -1134,7 +1134,7 @@ void test() {
 
 }  // namespace TestStdSpan
 
-// TODO std::bitset
+
 namespace TestStdBitset {
 /*
 std::bitset is a template class in the C++ standard library for working with fixed-size bit sequences (bit sequences).It
@@ -1193,7 +1193,7 @@ class Process {
 
 public:
   Process(Base& b) {
-  b.init();
+  b.init(); //init called in Derived
   }
 
 
@@ -1206,7 +1206,7 @@ void test() {
 
 }  // namespace TestPolymorphic
 
-// TODO stoi
+
 
 void test() {
   TestPolymorphic::test();

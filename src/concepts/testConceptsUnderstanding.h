@@ -10,7 +10,6 @@ using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
-// TODO std::flush
 
 namespace TestStopUsingSTDEndl {
 
