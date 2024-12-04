@@ -9,3 +9,7 @@ endif()
 if(BUILD_ImageProcessSolution)
 	add_subdirectory(ImageProcessArchitect)
 endif()
+
+if(BUILD_CV_APP)
+	add_subdirectory(CVProject)
+endif()
