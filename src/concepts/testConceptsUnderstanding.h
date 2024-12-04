@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <variant>
@@ -10,7 +11,6 @@ using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
-// TODO std::flush
 
 namespace TestStopUsingSTDEndl {
 
@@ -1289,7 +1289,202 @@ void allocateMemory(int*& p) {
   p = new int(100);  // dynamically allocate an int and assign to p
 }
 
+namespace TestHigherOderFunctions {
+/*
+Higher-Order Functions are functions that can take other functions as arguments or return them as results. This concept
+is a key feature in functional programming but is also very useful in C++ for creating more flexible and reusable code.
+
+Key Points
+What is a Higher-Order Function?
+A Higher-Order Function (HOF) is a function that:
+
+Takes one or more functions as parameters, or
+Returns a function as its result.
+This allows you to create functions that can be used as building blocks for more complex operations, similar to how you
+might compose objects in object-oriented programming.
+
+Practical Use Cases for Higher-Order Functions
+1.Callbacks: HOFs are commonly used in callback mechanisms where you pass a function to be called later, often in
+response to an event or completion of a task.
+
+2.Functional Composition: You can create HOFs that combine or modify other functions, such as chaining operations
+together or applying transformations to data.
+
+3.Lazy Evaluation: HOFs can be used to defer the execution of a function until its result is needed, allowing for more
+efficient and responsive programs.
+
+4.Decorators: You can create functions that wrap other functions to add additional behavior, such as logging or input
+validation.
+
+*/
+
+namespace TestFunctionTakesAnotherFunctionAsParameter {
+int square(int x) {
+  return x * x;
+}
+
+void foo(int x, const std::function<int(int)>& func) {
+  std::cout << "Result: " << func(x) << "\n";
+}
+
 void test() {
+  foo(3, square);  // 9
+}
+
+}  // namespace TestFunctionTakesAnotherFunctionAsParameter
+
+namespace TestReturnFunctionFromHOF {
+std::function<int(int)> createMultiplier(int factor) {
+  return [factor](int x) { return x * factor; };
+}
+
+void test() {
+  auto timesThree = createMultiplier(3);
+  std::cout << "3 times 4 equals: " << timesThree(4) << "\n";  // 12
+}
+
+}  // namespace TestReturnFunctionFromHOF
+
+namespace TestFunctionalComposition {
+int addOne(int x) {
+  return x + 1;
+}
+
+int multiplyByTwo(int x) {
+  return x * 2;
+}
+
+std::function<int(int)> composeFunction(const std::function<int(int)>& f, const std::function<int(int)>& g) {
+  return [f, g](int x) { return f(g(x)); };
+}
+
+void test() {
+  auto addThenMultiply = composeFunction(multiplyByTwo, addOne);
+  std::cout << "Result: " << addThenMultiply(5) << "\n";  // 12
+}
+
+}  // namespace TestFunctionalComposition
+
+void test() {
+  TestFunctionTakesAnotherFunctionAsParameter::test();
+  TestReturnFunctionFromHOF::test();
+  TestFunctionalComposition::test();
+}
+
+}  // namespace TestHigherOderFunctions
+
+namespace TestCallables {
+/*
+What Are Callables?
+In C++, a callable is any object or entity that you can invoke using the function call syntax, which typically looks
+like callable(). The callable entities in C++ include:
+
+Functions: Regular functions defined with void func() {} or similar signatures.
+Function Pointers: Pointers that point to functions.
+Lambdas: Anonymous functions or closures that capture variables from their enclosing scope.
+Functors (Function Objects): Instances of classes that overload the operator(), allowing the object to be used like a
+function. Member Function Pointers: Pointers to non-static member functions of a class. std::function: A general-purpose
+polymorphic wrapper for callable objects.
+*/
+namespace FunctionPointer {
+void foo() {
+  std::cout << "Hello world from function pointer\n";
+}
+
+void test() {
+  void (*funcPtr)() = &foo;
+  funcPtr();
+}
+
+}  // namespace FunctionPointer
+
+namespace Lambda {
+auto myLambda = []() { std::cout << "Hello world from lambda\n"; };
+
+void test() {
+  myLambda();
+}
+
+}  // namespace Lambda
+
+namespace Functor {
+class MyFunctor {
+  public:
+  void operator()() { std::cout << "Hello world from functor \n"; }
+};
+
+void test() {
+  MyFunctor obj;
+  obj();
+}
+
+}  // namespace Functor
+
+namespace STDFunction {
+void myFunction() {
+  std::cout << "Hello world from std::function\n";
+}
+
+void test() {
+  std::function<void()> func = myFunction;
+  func();
+
+}
+}
+
+
+namespace UsingCallablesInFunctionTemplate {
+template <typename T, typename... Args>
+void execute(T callable,Args... args ) {
+  callable(std::forward<Args>(args)...);
+}
+
+void myFoo(int val) {
+  std::cout << "Hello world from function pointer and value: " << val << "\n";
+}
+
+auto customLambda = [](const std::string& name) { std::cout << "Hello world from lambda, name: " << name << "\n"; };
+
+void test() {
+  execute(FunctionPointer::foo);
+  execute(Lambda::myLambda);
+  execute(Functor::MyFunctor{});
+  execute(STDFunction::myFunction);
+  execute(myFoo, 99);
+  execute(customLambda, "jacky");
+}
+
+}
+
+void test() {
+  FunctionPointer::test();
+  Lambda::test();
+  Functor::test();
+  STDFunction::test();
+  std::cout << "split line***********************\n";
+  UsingCallablesInFunctionTemplate::test();
+
+}
+
+}  // namespace TestCallables
+
+void test() {
+TestCallables::test();
+  //TestHigherOderFunctions::test();
+  // TestNoexcept::test();
+  //  TestInheritance::test();
+  //  TestImediatelyInvokedFunctionExpression::test();
+  //   TestRawStringLiterals::test();
+  //    TestGotoStatement::test();
+  //    TestVariadicUsing::test();
+  //     TestConstexprLambdaSupport::test();
+  //      TestStartUsingDefaultMemberInitializer::test();
+  //      TestFloatingLiteralsDefinition::test();
+  //      TestStructuredBindings::test();
+  //       TestIfAndSwitchInitStatements::test();
+  //        TestStopUsingSTDEndl::test();
+  //        TestVariadicExpansionWrapUp::test();
+  //        TestFoldExpression::test();
   int* ptr = nullptr;
   allocateMemory(ptr);
 
