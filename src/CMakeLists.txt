@@ -13,3 +13,7 @@ endif()
 if(BUILD_CV_APP)
 	add_subdirectory(CVProject)
 endif()
+
+if(BUILD_GOOGLETEST)
+	add_subdirectory(test)
+endif()

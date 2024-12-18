@@ -3,3 +3,4 @@ option(PROJECT_HIDE_CONSOLE_WINDOW "Hide console window when running target trai
 option(BUILD_ImageProcessSolution "build image process solution - ON by default" OFF)
 option(BUILD_DUMMY_CMAKE_APP "build dummy cmake application" ON)
 option(BUILD_CV_APP "build target based on opencv, opencv submodule is required" OFF )
+option(BUILD_GOOGLETEST "include google test framework for unit test and integration test" OFF)
