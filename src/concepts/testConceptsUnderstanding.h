@@ -11,6 +11,70 @@ using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
+namespace TestPtrVariable {
+int width = 10, height = 2;
+
+void testAddressOfPointerVariable() {
+  unsigned char* raw            = new unsigned char[width * height];
+  auto           rawAdd         = &raw;  //
+  auto           rawAddValue    = *rawAdd;
+  auto           rawAddAdd      = &rawAdd;
+  auto           rawAddAddValue = *rawAddAdd;
+}
+
+void fill(unsigned char* ptr, int val) {
+  int count = width * height;
+  for (int i = 0; i < count; ++i) {
+    ptr[i] = val;
+  }
+}
+
+void read(unsigned char* ptr) {
+  std::cout << "Value:";
+  for (int i = 0; i < width * height; ++i) {
+    std::cout << static_cast<int>(ptr[i]) << ", ";
+  }
+  std::cout << std::endl;
+}
+
+void convertWithPassingValue(unsigned char* rawData) {
+  unsigned char* newData = new unsigned char[width * height];
+  fill(newData, 22);
+  delete rawData;     // resources of object in memory address rawData are released.
+  rawData = newData;  // rawData is only a copy of raw and it points the memory addresss of raw, after this line, it
+                      // points to the memory address of newData
+}
+
+void convertWithPassingReference(unsigned char*& rawData) {
+  unsigned char* newData = new unsigned char[width * height];
+  fill(newData, 22);
+  delete rawData;     // resources of object in memory address rawData are released.
+  rawData = newData;  // rawData is only a reference of raw and it points the memory addresss of raw, after this line,
+                      // both it and raw point to the same memory address of newData
+}
+void test1() {
+  unsigned char* raw = new unsigned char[width * height];
+  fill(raw, 11);  // 11 11 11 ...
+  read(raw);
+  convertWithPassingReference(raw);  // resources in raw are released, raw is invalid
+  read(raw);                         // random number like 221, 221, ...
+}
+
+void test2() {
+  unsigned char* raw = new unsigned char[width * height];
+  fill(raw, 11);  // 11 11 11 ...
+  read(raw);
+  convertWithPassingValue(raw);  // raw points to a valid memory address of newData;
+  read(raw);                     // 22 22 22 ...
+}
+
+void test() {
+  test1();
+  // test2();
+  // testAddressOfPointerVariable();
+}
+}  // namespace TestPtrVariable
+
 namespace TestBitShift {
 
 void checkEndianess() {
@@ -1633,7 +1697,9 @@ Now, globalConst can be included in multiple translation units without causing l
 }
 
 void test() {
-  TestBitShift::test();
+  TestPtrVariable::test();
+
+  //TestBitShift::test();
 
   // TestSTDToAddress::test();
 
