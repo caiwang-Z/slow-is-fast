@@ -11,6 +11,71 @@ using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
+namespace TestBitShift {
+
+void checkEndianess() {
+  uint32_t       value = 0x12345678;  // one 32bit value
+  unsigned char* ptr   = reinterpret_cast<unsigned char*>(&value);
+
+  std::cout << "Memory layout: ";
+  for (size_t i = 0; i < sizeof(value); ++i) {
+    printf("%02X ", ptr[i]);
+  }
+  std::cout << std::endl;
+
+  if (ptr[0] == 0x78) {
+    std::cout << "Little-endian" << std::endl;
+  } else if (ptr[0] == 0x12) {
+    std::cout << "Big-endian" << std::endl;
+  } else {
+    std::cout << "Unknown endianness!" << std::endl;
+  }
+}
+
+void processRawData(unsigned char* rawPtr, size_t pixelCount) {
+  uint16_t* pixelPtr = reinterpret_cast<uint16_t*>(rawPtr);
+
+  for (size_t i = 0; i < pixelCount; ++i) {
+    uint16_t pixelValue = pixelPtr[i];
+
+    uint16_t newPixelValue = pixelValue >> 6;
+
+    pixelPtr[i] = newPixelValue;
+  }
+}
+
+void readValue(unsigned char* rawPtr, size_t pixelCount) {
+  uint16_t* pixelPtr = reinterpret_cast<uint16_t*>(rawPtr);
+
+  std::cout << "Pixel value are: ";
+  for (size_t i = 0; i < pixelCount; ++i) {
+    uint16_t pixelValue = pixelPtr[i];
+
+    std::cout << pixelValue << ", ";
+  }
+  std::cout << std::endl;
+}
+
+void test1() {
+
+  // because win10 is little endian, so the first number would be 0x1234(hex) == 4660(decimal)
+  unsigned char rawData[] = {0x34, 0x12, 0xCD, 0xAB, 0xEE, 0xFF, 0x23, 0x01};
+
+
+  size_t pixelCount = sizeof(rawData) / 2;
+  readValue(rawData, pixelCount);
+
+  processRawData(rawData, pixelCount);
+
+  readValue(rawData, pixelCount);
+}
+
+void test() {
+  test1();
+  //checkEndianess();
+}
+
+}
 
 namespace TestStopUsingSTDEndl {
 
@@ -1428,14 +1493,12 @@ void myFunction() {
 void test() {
   std::function<void()> func = myFunction;
   func();
-
 }
-}
-
+}  // namespace STDFunction
 
 namespace UsingCallablesInFunctionTemplate {
 template <typename T, typename... Args>
-void execute(T callable,Args... args ) {
+void execute(T callable, Args... args) {
   callable(std::forward<Args>(args)...);
 }
 
@@ -1454,7 +1517,7 @@ void test() {
   execute(customLambda, "jacky");
 }
 
-}
+}  // namespace UsingCallablesInFunctionTemplate
 
 void test() {
   FunctionPointer::test();
@@ -1463,28 +1526,27 @@ void test() {
   STDFunction::test();
   std::cout << "split line***********************\n";
   UsingCallablesInFunctionTemplate::test();
-
 }
 
 }  // namespace TestCallables
 
 void test() {
-TestCallables::test();
-  //TestHigherOderFunctions::test();
-  // TestNoexcept::test();
-  //  TestInheritance::test();
-  //  TestImediatelyInvokedFunctionExpression::test();
-  //   TestRawStringLiterals::test();
-  //    TestGotoStatement::test();
-  //    TestVariadicUsing::test();
-  //     TestConstexprLambdaSupport::test();
-  //      TestStartUsingDefaultMemberInitializer::test();
-  //      TestFloatingLiteralsDefinition::test();
-  //      TestStructuredBindings::test();
-  //       TestIfAndSwitchInitStatements::test();
-  //        TestStopUsingSTDEndl::test();
-  //        TestVariadicExpansionWrapUp::test();
-  //        TestFoldExpression::test();
+  TestCallables::test();
+  // TestHigherOderFunctions::test();
+  //  TestNoexcept::test();
+  //   TestInheritance::test();
+  //   TestImediatelyInvokedFunctionExpression::test();
+  //    TestRawStringLiterals::test();
+  //     TestGotoStatement::test();
+  //     TestVariadicUsing::test();
+  //      TestConstexprLambdaSupport::test();
+  //       TestStartUsingDefaultMemberInitializer::test();
+  //       TestFloatingLiteralsDefinition::test();
+  //       TestStructuredBindings::test();
+  //        TestIfAndSwitchInitStatements::test();
+  //         TestStopUsingSTDEndl::test();
+  //         TestVariadicExpansionWrapUp::test();
+  //         TestFoldExpression::test();
   int* ptr = nullptr;
   allocateMemory(ptr);
 
@@ -1536,13 +1598,13 @@ void test() {
   auto                 it = vec.begin();
 
   printAddress(rawPtr);  // 000000B9691BF774
-  printAddress(uptr);  // 0000027D737E5C70
-  printAddress(it);  // 0000027D737F1FE0
+  printAddress(uptr);    // 0000027D737E5C70
+  printAddress(it);      // 0000027D737F1FE0
 }
 
 }  // namespace TestSTDToAddress
 
-namespace TestInline{
+namespace TestInline {
 /*
 What is an inline Variable?
 Before C++17, defining a global or static variable in a header file could lead to multiple definition errors if the
@@ -1573,7 +1635,12 @@ Now, globalConst can be included in multiple translation units without causing l
 }
 
 void test() {
-  TestSTDToAddress::test();
+
+TestBitShift::test();
+//TestPtrVariable::test();
+
+
+  //TestSTDToAddress::test();
 
   // TestReferenceToPointerAndDoublePointers::test();
   // TestConstexprSTDOptionalSTDVariant::test();
