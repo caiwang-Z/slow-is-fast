@@ -20,6 +20,28 @@ using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
+namespace TestSStream {
+void test1() {
+  char* desc = nullptr;
+
+  std::stringstream ss(desc);
+
+  int a = 1;
+}
+
+void test2() {
+  std::string       str;
+  std::stringstream ss(str);
+  int               a = 1;
+}
+
+void test() {
+  test2();
+  test1();
+}
+
+}  // namespace TestSStream
+
 // #define PARALLEL
 
 namespace TestStaticAssert {
@@ -45,7 +67,6 @@ namespace TestStdGet {
 
 void test() {}
 }  // namespace TestStdGet
-
 
 namespace TestSTDForward {
 void testLRvalueBasic() {
@@ -1134,7 +1155,6 @@ void test() {
 
 }  // namespace TestStdSpan
 
-
 namespace TestStdBitset {
 /*
 std::bitset is a template class in the C++ standard library for working with fixed-size bit sequences (bit sequences).It
@@ -1179,9 +1199,9 @@ void test() {
 namespace TestPolymorphic {
 class Base {
   public:
-  Base() = default;
-      virtual void init() = 0;
-      virtual ~Base()     = default;
+  Base()              = default;
+  virtual void init() = 0;
+  virtual ~Base()     = default;
 };
 
 class Derived : public Base {
@@ -1190,13 +1210,10 @@ class Derived : public Base {
 };
 
 class Process {
-
-public:
+  public:
   Process(Base& b) {
-  b.init(); //init called in Derived
+    b.init();  // init called in Derived
   }
-
-
 };
 
 void test() {
@@ -1206,16 +1223,15 @@ void test() {
 
 }  // namespace TestPolymorphic
 
-
-
 void test() {
-  TestPolymorphic::test();
-  //TestStdBitset::test();
-  // TestStdSpan::test();
-  //  TestStdSearcher::test();
-  // TestStdRegex::test();
-  //    TestStdQuoted::test();
-  //     TestHandleDifferentContainersWithConstexprIf::test();
+  TestSStream::test();
+  // TestPolymorphic::test();
+  // TestStdBitset::test();
+  //  TestStdSpan::test();
+  //   TestStdSearcher::test();
+  //  TestStdRegex::test();
+  //     TestStdQuoted::test();
+  //      TestHandleDifferentContainersWithConstexprIf::test();
 
   // TestStdInvoke::testInvokeBasic();
 
