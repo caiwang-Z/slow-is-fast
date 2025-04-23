@@ -109,16 +109,16 @@ void test() {
 
   AnotherClass* ac = dynamic_cast<AnotherClass*>(base);
   if (!ac) {
-    log("Not type of AnotherClass");
+    log("Not type of AnotherClass"); // yes
   }
   Derived* de = dynamic_cast<Derived*>(base);
   if (de) {
-    log("Is type of Derived");
+    log("Is type of Derived"); // yes
   }
 }
 }  // namespace TestDynamicCast
 
 void test() {
-  //TestDynamicCast::test();
-  TestPointerCast::test();
+  TestDynamicCast::test();
+  //TestPointerCast::test();
 }

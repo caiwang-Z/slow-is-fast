@@ -1,11 +1,11 @@
 #pragma once
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <optional>
 #include <variant>
-#include "utility.h"
 #include <vector>
-#include <algorithm>
+#include "utility.h"
 
 using namespace UtilityNameSpace;
 using UtilityNameSpace::Splitter;
@@ -237,7 +237,9 @@ void test() {
 }
 }  // namespace TestCplusPlusAttribute
 
+// 1. Enabling Dynamic Dispatch
 namespace TestVirtualInClass {
+// 1.1 Non-virtual member functions are bound at compile time (static binding):
 class Entity {
   public:
   std::string getName() { return "Entity"; }
@@ -265,6 +267,7 @@ void testPlayer() {
 }
 
 namespace NSwithOverride {
+// 1.2 Virtual member functions are bound at runtime (dynamic binding):
 class EntityNew {
   public:
   virtual std::string getName() { return "Entity"; }
@@ -301,7 +304,52 @@ void test() {
 
 }  // namespace TestVirtualInClass
 
+namespace AbstractBaseClassAndPureVirtualFunction {
+// 2. Abstract Base Classes and Pure Virtual Functions
+// A pure virtual function declares an interface without implementation:
+// Shape cannot be instantiated directly. It serves as an interface that derived classes must implement.
+class Shape {
+  public:
+  virtual double area() const = 0;  // pure virtual: no default implementation
+  virtual ~Shape(){};               // virtual destructor ensures proper cleanup
+};
+
+class Circle : public Shape {
+  public:
+  Circle(double r) : _radius(r){};
+  double area() const override { return 3.1415926 * _radius * _radius; }
+
+  private:
+  double _radius;
+};
+
+class Square : public Shape {
+  public:
+  Square(double length) : _length(length){};
+
+  double area() const override { return _length * _length; }
+
+  private:
+  double _length;
+};
+
+void test() {
+  Shape* circle = new Circle(1.0);
+  Shape* sq     = new Square(2.0);
+
+  circle->area();
+  sq->area();  // 4
+
+  delete circle;
+  delete sq;
+}
+
+}  // namespace AbstractBaseClassAndPureVirtualFunction
+
 namespace VirtualInClassDestructor {
+// 3. Virtual Destructors for Safe Cleanup
+// If you delete a derived object through a base-class pointer, the base’s destructor must be virtual, or the derived
+// destructor won’t run:
 class Entity {
   public:
   Entity() { std::cout << "Entity construcor called\n"; }
@@ -352,6 +400,55 @@ void testAll() {
 }
 
 }  // namespace VirtualInClassDestructor
+
+namespace OverrideAndNameHiding {
+// 4. Override vs. Name Hiding
+// 4.1 Override: A derived class method with the exact same signature replaces the base virtual:
+class Base1 {
+  public:
+  virtual void foo(int){};
+
+  virtual ~Base1(){};
+};
+
+class Derived1 : public Base1 {
+  public:
+  void foo(int) override{};  // Correctly overrides Base::f(int)
+  // void f(double) override {}  // Error: signature doesn’t match
+};
+
+// 4.2 Name Hiding: A derived method with the same name but different parameters hides all base overloads:
+class Base2 {
+  public:
+  virtual void f(int) {}
+  virtual ~Base2(){};
+};
+
+class Derived2 : public Base2 {
+  public:
+  void f(double) {}  // Hides Base::f(int), even though it’s virtual
+};
+
+/*
+5. Memory and Performance Overhead
+Using virtual functions adds:
+
+    1.One extra pointer per object (the vptr).
+    2. One indirection on each virtual call (lookup in vtable).
+
+In most cases, this overhead is tiny compared to the benefits of flexible, safe interfaces.
+
+Summary:
+
+    1.Mark a member virtual to enable dynamic binding at runtime.
+    2. Use pure virtuals (= 0) to define abstract interfaces.
+    3. Always declare a virtual destructor in polymorphic base classes.
+    4. Use override in derived classes to let the compiler check your intent.
+    5. Accept the small runtime and memory cost in exchange for powerful polymorphism.
+*/
+
+
+}  // namespace OverrideAndNameHiding
 
 namespace TestAlignasInStruct {
 /*
@@ -408,26 +505,25 @@ make code more concise and readable, especially when dealing with iterator opera
 */
 void test() {
   std::vector<int> vec{1, 3, 2, 9, 8, 7};
-  auto             it = vec.begin();
+  auto             it      = vec.begin();
   auto             next_it = std::next(it, 2);
   std::cout << "val: " << *next_it << "\n";  // 2
   std::cout << "Values before sorting: " << vec[0] << " " << vec[1] << " " << vec[2] << " " << vec[3] << " " << vec[4]
-            << " "
-            << vec[5] << "\n "; // 1 3 2 9 8 7
+            << " " << vec[5] << "\n ";  // 1 3 2 9 8 7
   std::sort(next_it, vec.end());
   std::cout << "Values after sorting: " << vec[0] << " " << vec[1] << " " << vec[2] << " " << vec[3] << " " << vec[4]
-            << " " << vec[5] << "\n "; // 1 3 2 7 8 9 
+            << " " << vec[5] << "\n ";  // 1 3 2 7 8 9
 
   // Offset (default is 1).Can be positive (move forward) or negative (move backward)
-  std::cout << *std::next(vec.end(), -2) << "\n"; // 8
+  std::cout << *std::next(vec.end(), -2) << "\n";  // 8
 }
 
-}
+}  // namespace TestStdNext
 
 void test() {
-  TestStdNext::test();
-  //VirtualInClassDestructor::testAll();
-  // TestVirtualInClass::test();
+  // TestStdNext::test();
+  // VirtualInClassDestructor::testAll();
+  TestVirtualInClass::test();
   // TestCplusPlusAttribute::test();
   // TestNullKeyWord::test();
   // TestDecltype::test();
