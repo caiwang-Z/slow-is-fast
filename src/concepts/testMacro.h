@@ -1,8 +1,47 @@
 #pragma once
 #include <iostream>
 #include "utility.h"
+#include <string>
+#include <source_location>
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
+
+
+namespace TestStdSourceLocation {
+/*
+std::source_location is a new lightweight type added to C++20, which is used to "capture" the location of the source
+code (filename, line number, column number, function name, etc.) at the point of call at compile time, and is commonly
+used in logging, assertion, and debugging tool scenarios.
+
+Summary:
+    1.std::source_location provides a uniform, automated way of obtaining information about the location of the source code at
+    the point of call.
+
+    2. The most common pattern is to use it as an argument to a function with a default value: =
+    std::source_location::current().
+
+    3. It can be used in logging, assertion, debugging tools, performance tracing, and other scenarios, saving you the trouble
+    of manually writing macros such as __FILE__ and __LINE__.
+*/
+
+void log_debug(const std::string& msg, const std::source_location& loc = std::source_location::current()) {
+  std::cout << "[" << loc.file_name() << ":" << loc.line() << "] " << loc.function_name() << "(): " << msg << "\n";
+}
+
+void foo(int x) {
+  log_debug("Entering foo, x = " + std::to_string(x));
+  // ...
+  log_debug("Leaving foo");
+}
+
+void test() {
+  log_debug("Program starts....");
+  foo(42);
+  log_debug("Program ends....");
+
+}
+
+}
 
 namespace TestMacro {
 // 1. defining func with macro
@@ -119,9 +158,10 @@ void test() {
 #elif LEVEL == 2
   int a = 2;
 #endif
-  TestCPPPredefinedMacros::test();
-  splitLine();
-  TestOneMacroMultipleItems::test();
-  splitLine();
-  TestMacroCreateComplexDataStructure::test();
+  //TestCPPPredefinedMacros::test();
+  //splitLine();
+  //TestOneMacroMultipleItems::test();
+  //splitLine();
+  //TestMacroCreateComplexDataStructure::test();
+  TestStdSourceLocation::test();
 }
