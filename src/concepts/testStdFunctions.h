@@ -1224,7 +1224,8 @@ void test() {
 }  // namespace TestPolymorphic
 
 void test() {
-  TestSStream::test();
+TestPointerCast::test();
+  //TestSStream::test();
   // TestPolymorphic::test();
   // TestStdBitset::test();
   //  TestStdSpan::test();
