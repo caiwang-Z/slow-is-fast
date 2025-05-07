@@ -1,7 +1,7 @@
 #include <iostream>
 //#include "headerTest.h"
 //#include "testReturnValues.h"
-#include "testMacro.h"
+//#include "testMacro.h"
 //#include "testStatic.h"
 //#include "testFunctionPointers.h"
 //#include "testTiming.h"
@@ -20,6 +20,7 @@
 //#include "designpatterns.h"
 //#include "testConceptsUnderstanding.h"
 //#include "testPrimitivDataType.h"
+#include "miscellaneous.h"
 
 
 int main() {

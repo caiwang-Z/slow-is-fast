@@ -1,6 +1,16 @@
+#pragma once
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include "testExtern.h"
+
+namespace TestExternInDifferentFiles {
+
+void test() {
+  std::cout << "extern value: " << g_configValue << std::endl;
+}
+
+}
 
 namespace TestNewFeatures {
 	void testStdClamp() {
@@ -61,5 +71,5 @@ namespace TestStdStringConst {
 }
 
 void test() {
-
+    TestExternInDifferentFiles::test();
 }
