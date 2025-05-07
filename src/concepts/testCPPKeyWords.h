@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -9,6 +9,230 @@
 
 using namespace UtilityNameSpace;
 using UtilityNameSpace::Splitter;
+
+namespace TestFriendKeyWord {
+/*
+1. Friend Functions
+A friend function is a non-member function that has been given access to a class’s private and protected members.
+
+Declaration
+Inside the class definition, you prefix the function prototype with the keyword friend:
+
+Where to put it: The friend declaration can appear under public, protected, or private sections, but it’s common to put
+it under public so it’s visible to users of the class.
+
+Access: Friend functions can read or modify private/protected data, just like member functions.
+
+Not inherited: Friendship is not inherited. If Box is a friend of Foo, subclasses of Box are not automatically friends
+of Foo.
+*/
+namespace TestFriendFunctions {
+class Box {
+  public:
+  Box(double width) : _width(width){};
+
+  friend void printBoxWidth(const Box& box);
+
+  private:
+  double _width;
+};
+
+void printBoxWidth(const Box& box) {
+  std::cout << "Box width: " << box._width << std::endl;
+}
+
+void test() {
+  Box b(99);
+  printBoxWidth(b);
+}
+
+}  // namespace TestFriendFunctions
+
+namespace TestfriendOperatorOverloading {
+class DummyNumber {
+  public:
+  DummyNumber(int a, int b) : _left(a), _right(b){};
+      void printValue() const {
+        std::cout << "Left: " << _left << ", Right: " << _right << std::endl;
+      }
+  friend DummyNumber operator+(const DummyNumber& a, const DummyNumber& b);
+
+  private:
+  int _left;
+  int _right;
+};
+
+DummyNumber operator+(const DummyNumber& a, const DummyNumber& b) {
+  return DummyNumber(a._left + b._left, a._right + b._right);
+}
+
+void test() {
+  DummyNumber n1(10, 100), n2(9, 99);
+  DummyNumber n3 = n1 + n2;
+  n3.printValue();
+}
+
+}  // namespace TestfriendOperatorOverloading
+
+/*
+2. Friend Classes
+A friend class is one whose member functions all have access to another class’s private and protected members.
+
+Declaration
+Inside the granting class:
+Granularity: Declaring a friend class grants access to all of its members. If you only want specific functions, prefer
+friend functions or friend member functions.
+
+Not reciprocal: If Car names Engine as friend, Engine can access Car’s internals, but Car does not gain any special
+access to Engine.
+
+Not transitive or inherited:
+
+If A is friend of B, and B is friend of C, A is not automatically friend of C.
+
+If Derived inherits from Base, and Base has made Friend a friend, Derived does not automatically grant friendship to
+Friend.
+
+*/
+
+namespace TestFriendClass {
+class Engine;
+
+class Car {
+  public:
+  Car(int horsePower) : _hp(horsePower){};
+
+  void showInfo() const { std::cout << "This car has " << _hp << " horse power" << std::endl; }
+
+  friend Engine;
+
+  private:
+  int _hp;
+};
+
+class Engine {
+  public:
+  Engine(){};
+
+  void tune(Car& car, int newHorsePower) { car._hp = newHorsePower; }
+  void showHorsePower(const Car& car) { std::cout << "This car has " << car._hp << " horse power." << std::endl; }
+};
+
+void test() {
+  Car car(100);
+  car.showInfo();
+  Engine e;
+  e.tune(car, 200);
+  car.showInfo();
+}
+
+}  // namespace TestFriendClass
+
+/*
+3. Friend Member Functions
+You can also grant friendship to a member of another class:
+
+*/
+namespace TestFriendMemberFunctions {
+// 1) Forward‐declare both the class and the member signature:
+class Car;  // so Engine can refer to Car
+class Engine {
+  public:
+  void tune(Car& car, int newHorsePower);  // <-- declare it here
+  void showHorsePower(const Car& car) const;
+};
+
+// 2) Now define Car and friend that member:
+class Car {
+  public:
+  Car(int horsePower) : _hp(horsePower){};
+
+  void        showInfo() const { std::cout << "This car has " << _hp << " horse power" << std::endl; }
+  friend void Engine::tune(Car&, int);
+  // …
+  private:
+  int _hp;
+};
+
+// 3) Finally, define Engine::tune:
+void Engine::tune(Car& car, int newHorsePower) {
+  car._hp = newHorsePower;  // now OK
+}
+
+void Engine::showHorsePower(const Car& car) const {
+  //std::cout << "This car has " << car._hp << " horse power." << std::endl; // compile error. Because this member function has no access to private member of Car class
+}
+
+void test() {
+  Car car(100);
+  car.showInfo();
+  Engine e;
+  e.tune(car, 200);
+  car.showInfo();
+}
+
+}  // namespace TestFriendMemberFunctions
+
+/*
+4. Key Characteristics of Friendship
+4.1 One-way
+If X is friend of Y, Y is not friend of X unless explicitly declared.
+
+4.2 Not inherited
+Subclasses do not inherit friends of their base classes.
+
+4.3 Not transitive
+Friendship does not chain through classes/functions.
+
+4.4 Declared in granting class
+A class grants friendship; it never “requests” it.
+
+5. When to Use (and When Not)
+Pros
+Tighter coupling for very close classes or helper functions.
+
+Cleaner interfaces for operators and non-member algorithms.
+
+Selective access without making everything public.
+
+Cons
+Breaks encapsulation — internal details leak.
+
+Harder to maintain — lots of friends can indicate poor design.
+
+Increases coupling — changes to private members may force updates in friends.
+
+Best Practices
+Minimize use: Only when there’s a strong rationale (e.g. symmetric operators, performance-critical code).
+
+Favor non-friend alternatives:
+
+Public getters/setters (when safe).
+
+Pimpl idiom or adapter patterns.
+
+Document why friendship exists and what can be safely assumed.
+
+6. Summary
+Friend functions let you give a standalone function special access to a class’s private/protected members.
+
+Friend classes let an entire class access another’s internals.
+
+Friendship should be used judiciously: it’s a powerful tool, but overuse leads to tangled, hard-to-maintain code.
+
+By understanding and controlling friendship in C++, you can strike the right balance between encapsulation and the
+practical need for tightly-coupled operations.
+
+*/
+
+void test() {
+  TestFriendFunctions::test();
+  TestfriendOperatorOverloading::test();
+  TestFriendClass::test();
+  TestFriendMemberFunctions::test();
+}
+
+}  // namespace TestFriendKeyWord
 
 namespace TestOptionalKeyWord {
 // std::optional to store data which may or may not be present
@@ -348,8 +572,8 @@ void test() {
 
 namespace VirtualInClassDestructor {
 // 3. Virtual Destructors for Safe Cleanup
-// If you delete a derived object through a base-class pointer, the base�s destructor must be virtual, or the derived
-// destructor won�t run:
+// If you delete a derived object through a base-class pointer, the base’s destructor must be virtual, or the derived
+// destructor won’t run:
 class Entity {
   public:
   Entity() { std::cout << "Entity construcor called\n"; }
@@ -414,7 +638,7 @@ class Base1 {
 class Derived1 : public Base1 {
   public:
   void foo(int) override{};  // Correctly overrides Base::f(int)
-  // void f(double) override {}  // Error: signature doesn�t match
+  // void f(double) override {}  // Error: signature doesn’t match
 };
 
 // 4.2 Name Hiding: A derived method with the same name but different parameters hides all base overloads:
@@ -426,7 +650,7 @@ class Base2 {
 
 class Derived2 : public Base2 {
   public:
-  void f(double) {}  // Hides Base::f(int), even though it�s virtual
+  void f(double) {}  // Hides Base::f(int), even though it’s virtual
 };
 
 /*
@@ -446,7 +670,6 @@ Summary:
     4. Use override in derived classes to let the compiler check your intent.
     5. Accept the small runtime and memory cost in exchange for powerful polymorphism.
 */
-
 
 }  // namespace OverrideAndNameHiding
 
@@ -523,8 +746,9 @@ void test() {
 void test() {
   // TestStdNext::test();
   // VirtualInClassDestructor::testAll();
-  TestVirtualInClass::test();
+  // TestVirtualInClass::test();
   // TestCplusPlusAttribute::test();
   // TestNullKeyWord::test();
   // TestDecltype::test();
+  TestFriendKeyWord::test();
 }
