@@ -10,6 +10,45 @@
 using namespace UtilityNameSpace;
 using UtilityNameSpace::Splitter;
 
+namespace TestFinalKeyword {
+/*
+1. On a class
+Marking an entire class final prevents any other class from inheriting from it.
+*/
+namespace PreventInherit {
+class Base final {
+  void foo(){};
+};
+
+// class Derived : public Base {};
+//
+// }
+//  Error: compile error. Base class could not be inherited.
+
+/*
+2.On a virtual member function
+Marking a virtual function final prevents any further overrides of that function in derived classes.
+*/
+namespace PreventOverrideMemberFunction {
+class Base {
+  public:
+  virtual void f();
+  virtual void g() final;
+};
+
+class Derived : public Base {
+  public:
+  void f() override { std::cout << "override base funciton"; }
+
+  // void g() override {
+  //// do something
+  //} // Compile Error!. Not allowed to override
+};
+
+}
+
+}
+
 namespace TestFriendKeyWord {
 /*
 1. Friend Functions
@@ -52,9 +91,7 @@ namespace TestfriendOperatorOverloading {
 class DummyNumber {
   public:
   DummyNumber(int a, int b) : _left(a), _right(b){};
-      void printValue() const {
-        std::cout << "Left: " << _left << ", Right: " << _right << std::endl;
-      }
+  void               printValue() const { std::cout << "Left: " << _left << ", Right: " << _right << std::endl; }
   friend DummyNumber operator+(const DummyNumber& a, const DummyNumber& b);
 
   private:
@@ -160,7 +197,8 @@ void Engine::tune(Car& car, int newHorsePower) {
 }
 
 void Engine::showHorsePower(const Car& car) const {
-  //std::cout << "This car has " << car._hp << " horse power." << std::endl; // compile error. Because this member function has no access to private member of Car class
+  // std::cout << "This car has " << car._hp << " horse power." << std::endl; // compile error. Because this member
+  // function has no access to private member of Car class
 }
 
 void test() {
