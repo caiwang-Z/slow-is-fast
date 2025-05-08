@@ -11,11 +11,11 @@ C++ states that operator new and operator delete must be defined in the global n
 static functions in classes or other namespaces.This is because these operators are part of the global operations that
 are responsible for allocating and freeing memory.
 */
-//void* operator new(size_t size) {
-//  s_AllocCount++;
-//  std::cout << "Allocating " << size << " bytes\n";
-//  return malloc(size);
-//} // compile error
+// void* operator new(size_t size) {
+//   s_AllocCount++;
+//   std::cout << "Allocating " << size << " bytes\n";
+//   return malloc(size);
+// } // compile error
 
 void printName(std::string_view name) {
   std::cout << name << std::endl;

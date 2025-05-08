@@ -372,14 +372,13 @@ support modifying elements.
 void print(std::initializer_list<int> vars) {
   for (const auto& var : vars) {
     std::cout << var << ", ";
-  
   }
   std::cout << "\n";
 }
 
 void printNegEff(std::initializer_list<int> vars) {
   for (auto& var : vars) {
-    //var += 1;  // Error: expression must be a modified lvalue. 
+    // var += 1;  // Error: expression must be a modified lvalue.
     std::cout << var << ", ";
   }
   std::cout << "\n";
@@ -389,9 +388,7 @@ void test() {
   print({1, 2, 3, 4, 5});
 }
 
-}
-
-
+}  // namespace TestStdInitializer_list
 
 void test() {
   // TestMyVector::test();
@@ -399,6 +396,6 @@ void test() {
   // TestMyVector::testMyIteratorString();
   // TestMyArray::test();
   // TestStdDequeUsage::test();
-  //TestStdVector::testErase();
+  // TestStdVector::testErase();
   TestStdInitializer_list::test();
 }

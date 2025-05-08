@@ -1224,15 +1224,15 @@ void test() {
 }  // namespace TestPolymorphic
 
 void test() {
-TestPointerCast::test();
-  //TestSStream::test();
-  // TestPolymorphic::test();
-  // TestStdBitset::test();
-  //  TestStdSpan::test();
-  //   TestStdSearcher::test();
-  //  TestStdRegex::test();
-  //     TestStdQuoted::test();
-  //      TestHandleDifferentContainersWithConstexprIf::test();
+  TestPointerCast::test();
+  // TestSStream::test();
+  //  TestPolymorphic::test();
+  //  TestStdBitset::test();
+  //   TestStdSpan::test();
+  //    TestStdSearcher::test();
+  //   TestStdRegex::test();
+  //      TestStdQuoted::test();
+  //       TestHandleDifferentContainersWithConstexprIf::test();
 
   // TestStdInvoke::testInvokeBasic();
 

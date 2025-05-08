@@ -60,7 +60,7 @@ namespace TestCastBasic {
 void test() {
   // C style cast
   double val = 5.25;
-  double a = (int)(val + 5.3);
+  double a   = (int)(val + 5.3);
 
   // C++ style cast
   double c = static_cast<int>(val + 5.3);
@@ -79,7 +79,7 @@ void test() {
 
 namespace TestDynamicCast {
 class Base {
- public:
+  public:
   Base(){};
   virtual ~Base(){};  // must be marked as virtual
                       /*
@@ -92,12 +92,12 @@ class Base {
                       */
 };
 class Derived : public Base {
- public:
+  public:
   Derived(){};
   ~Derived(){};
 };
 class AnotherClass : public Base {
- public:
+  public:
   AnotherClass(){};
   ~AnotherClass(){};
 };
@@ -109,16 +109,16 @@ void test() {
 
   AnotherClass* ac = dynamic_cast<AnotherClass*>(base);
   if (!ac) {
-    log("Not type of AnotherClass"); // yes
+    log("Not type of AnotherClass");  // yes
   }
   Derived* de = dynamic_cast<Derived*>(base);
   if (de) {
-    log("Is type of Derived"); // yes
+    log("Is type of Derived");  // yes
   }
 }
 }  // namespace TestDynamicCast
 
 void test() {
   TestDynamicCast::test();
-  //TestPointerCast::test();
+  // TestPointerCast::test();
 }
