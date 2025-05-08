@@ -177,6 +177,87 @@ void test() {
 }
 }  // namespace TestStaticCast
 
+namespace TestDynamicCastComplete {
+/*
+In C++, dynamic_cast is your tool of choice when you need a safe, runtime-checked conversion within an inheritance
+hierarchy. Unlike static_cast, which trusts you to know the true type, dynamic_cast will verify at runtime that the cast
+is valid (using RTTI), and will fail gracefully if it isn’t.
+
+1. When to use dynamic_cast
+Downcasting in polymorphic hierarchies
+When you have a pointer or reference to a base class but need to call a member that only exists on a derived class—and
+you can’t be 100% sure at compile time that the object really is that derived type.
+
+Cross-casting (sibling casts)
+If you have two classes A and B that both derive (directly or indirectly) from the same polymorphic base Base, you can
+safely cast between them via Base*:
+*/
+namespace Basic {
+class Base {
+  public:
+  Base(){};
+  virtual ~Base() = default;
+};
+class A : public Base {
+  public:
+  void fooA() { std::cout << "fooA" << std::endl; };
+};
+class B : public Base {
+  public:
+  B(){};
+      void fooB() { std::cout << "fooB" << std::endl;
+  }
+};
+
+void test() {
+  Base* bptr = new B(); /* actually points to a B */
+  // Want to treat it as an A if possible:
+  if (auto aptr = dynamic_cast<A*>(bptr)) {
+    aptr->fooA();  // no
+  } else if(auto aptr = dynamic_cast<B*>(bptr)){
+    aptr->fooB(); // yes
+  }
+  delete bptr;
+}
+}
+
+namespace Example {
+struct Animal {
+  virtual ~Animal() = default;
+};
+
+struct Cat : Animal {
+  void meow() { std::cout << "Meow!\n"; }
+};
+
+struct Dog : Animal {
+  void bark() { std::cout << "Woof!\n"; }
+};
+
+void interact(std::unique_ptr<Animal> pet) {
+  if (auto cat = dynamic_cast<Cat*>(pet.get())) {
+    cat->meow();  // safe: it was a Cat
+  } else if (auto dog = dynamic_cast<Dog*>(pet.get())) {
+    dog->bark();  // safe: it was a Dog
+  } else {
+    std::cout << "Unknown animal.\n";
+  }
+}
+
+void test() {
+  interact(std::make_unique<Cat>());  // prints Meow!
+  interact(std::make_unique<Dog>());  // prints Woof!
+}
+
+}
+
+void test() {
+  Basic::test();
+  Example::test();
+}
+
+}
+
 namespace TestCastBasic {
 void test() {
   // C style cast
@@ -240,7 +321,8 @@ void test() {
 }  // namespace TestDynamicCast
 
 void test() {
-  TestStaticCast::test();
+  TestDynamicCastComplete::test();
+  //TestStaticCast::test();
   // TestDynamicCast::test();
   //  TestPointerCast::test();
 }
