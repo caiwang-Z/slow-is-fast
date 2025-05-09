@@ -20,6 +20,9 @@ using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
 using UtilityNameSpace::Splitter;
 
+// features like std::format, std::ranges, std::view require latest cpp standard in IDE
+// #define USING_LATEST_CPP_STANDARD
+
 namespace TestSStream {
 void test1() {
   char* desc = nullptr;
@@ -319,6 +322,7 @@ void test() {
 
 }  // namespace TestSTDForEach
 
+#ifdef USING_LATEST_CPP_STANDARD
 namespace TestStdRanges {
 void testStdViewsFilter() {
   std::vector<int> numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -437,6 +441,82 @@ void test() {
 
 }  // namespace TestStdRanges
 
+namespace TestStdSpan {
+/*
+std::span is a lightweight container introduced by C++20 that provides a non-owned view of a contiguous region of
+memory.This means that std::span simply references an existing region of memory and is not responsible for managing the
+life cycle of that memory. std::span is similar to traditional pointers and arrays, but provides greater security and
+flexibility, especially when dealing with dynamically sized arrays or pointers.
+
+Characteristics of std::span:
+1. Non-owning type: std::span does not manage the memory it references, but only accesses part or all of some already
+existing array, pointer, or container.This makes std::span involve no memory allocation or freeing.
+2. Lightweight: Similar to pointers, std::span has very little overhead; it usually contains only two members: a pointer
+to the data and the size of the data.
+3. Generality: std::span can be used to represent slices of ordinary arrays, standard containers such as std::vector,
+or raw pointers and sizes.It works for any contiguous block of memory.
+4. Provides boundary safety: Unlike bare pointers, std::span knows the size of the data it references, so it can be
+boundary-checked to prevent out-of-bounds access.
+5. Supports range operations: std::span can be used with C++ range-related operations, such as range for loops.
+
+*/
+
+auto printSpan = [](const std::span<int>& sp) {
+  for (auto n : sp) {
+    std::cout << n << " ";
+  }
+  std::cout << std::endl;
+};
+
+void testBasic() {
+  int            arr[] = {1, 2, 3, 4, 5};
+  std::span<int> sp1(arr);     // the whole array
+  std::span<int> sp2(arr, 3);  // the first 3 elements
+
+  for (int n : sp1) {
+    std::cout << n << " ";  // 1 2 3 4 5
+  }
+  std::cout << std::endl;
+
+  for (int n : sp2) {
+    std::cout << n << " ";  // 1 2 3
+  }
+  std::cout << std::endl;
+}
+
+void testSpanWithVector() {
+  std::vector<int> vec{11, 22, 33, 44, 55};
+  std::span<int>   sp1(vec);
+  printSpan(sp1);  // 11 22 33 44 55
+}
+
+void testSpanWithRawPointer() {
+  int*           arr = new int[6]{100, 200, 300, 400, 500, 600};
+  std::span<int> span(arr, 4);
+  printSpan(span);  // 100 200 300 400
+  delete[] arr;
+}
+
+void test() {
+  testBasic();
+  testSpanWithVector();
+  testSpanWithRawPointer();
+}
+
+}  // namespace TestStdSpan
+
+namespace TestStdIota {
+// include <numberic>
+// Fills the range [first, last) with sequentially increasing values,
+// starting with value and repetitively evaluating ++value.
+void test() {
+  std::vector<int> vec(10);
+  std::iota(vec.begin(), vec.end(), 10);
+  std::for_each(vec.cbegin(), vec.cend(), [](int x) { myLog(std::format(" {}", x)); });  // 10 11 12 13 14 15 16 ... 19
+}
+
+}  // namespace TestStdIota
+#endif
 namespace TestSTDDistance {
 void test() {
   std::vector<int> vec{3, 1, 9, 8};
@@ -507,18 +587,6 @@ void test() {
 
 }  // namespace TestStdRefBasic
 
-namespace TestStdIota {
-// include <numberic>
-// Fills the range [first, last) with sequentially increasing values,
-// starting with value and repetitively evaluating ++value.
-void test() {
-  std::vector<int> vec(10);
-  std::iota(vec.begin(), vec.end(), 10);
-  std::for_each(vec.cbegin(), vec.cend(), [](int x) { myLog(std::format(" {}", x)); });  // 10 11 12 13 14 15 16 ... 19
-}
-
-}  // namespace TestStdIota
-
 namespace TestStdExecution {
 
 // include <execution>
@@ -580,6 +648,72 @@ void test() {
 }
 
 }  // namespace TestStdRemove
+
+namespace TestStdMove {
+/*
+In C++, std::move is a utility function that plays a central role in enabling move semantics—the mechanism by which
+resources (heap memory, file handles, sockets, etc.) can be transferred (“moved”) from one object to another without
+expensive deep copies. Here’s how it works and why it matters:
+1. What std::move Is (and Isn’t)
+What it is:
+A simple cast-like function template, defined in <utility>, whose sole job is to convert any expression into an xvalue
+(an expiring value), i.e. an rvalue reference of its original type:
+
+template <class T>
+constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
+    return static_cast<std::remove_reference_t<T>&&>(t);
+}
+What it isn’t:
+It does not actually move or copy any data by itself. It only enables overload resolution to pick a move constructor or
+move assignment operator instead of the copy version.
+*/
+namespace Basic {
+void        test() {
+  std::string s = "hello";
+  std::string t = s;             // calls copy constructor: allocates new buffer
+  std::string u = std::move(s);  // calls move constructor: steals s’s buffer
+  std::cout << "t: " << t << std::endl; // t: hello
+  std::cout << "s: " << s << std::endl; // s: 
+  std::cout << "u: " << u << std::endl; // u: hello
+
+}
+
+}
+
+namespace Advanced {
+void test() {
+  std::string s1{"hello"};
+  std::string s2;
+
+  // Just std::move, without assigning to a new object:
+  auto&& ref = std::move(s1);
+  std::cout << "Length: s1: " << s1 << ", ref: " << ref << std::endl; // Length: s1: hello, ref: hello
+  // At this point, s1 is neither destructed nor its contents transferred to a different string.
+  // It's just that ref has become a std::string&&, and s1 is still in place.
+}
+
+void test2() {
+  std::string s1{"hello"};
+  std::string s2;
+
+  // // Really move the call:
+  s2 = std::move(s1);
+  std::cout << "Length: s1: " << s1 << ", s2: " << s2; // Length: s1: , s2: hello
+  // std::string::operator=(string&&) is called here -- before transferring the pointer to the internal buffer from s1
+  // to s2.
+  // After that s1.clear() (or set to null)
+  // s2 holds the original character array.
+}
+
+}
+
+void test() {
+  Basic::test();
+  Advanced::test();
+  Advanced::test2();
+}
+
+}
 
 namespace TestStdMinElement {
 /*
@@ -1091,69 +1225,7 @@ void test() {
 
 }  // namespace TestStdSearcher
 
-namespace TestStdSpan {
-/*
-std::span is a lightweight container introduced by C++20 that provides a non-owned view of a contiguous region of
-memory.This means that std::span simply references an existing region of memory and is not responsible for managing the
-life cycle of that memory. std::span is similar to traditional pointers and arrays, but provides greater security and
-flexibility, especially when dealing with dynamically sized arrays or pointers.
 
-Characteristics of std::span:
-1. Non-owning type: std::span does not manage the memory it references, but only accesses part or all of some already
-existing array, pointer, or container.This makes std::span involve no memory allocation or freeing.
-2. Lightweight: Similar to pointers, std::span has very little overhead; it usually contains only two members: a pointer
-to the data and the size of the data.
-3. Generality: std::span can be used to represent slices of ordinary arrays, standard containers such as std::vector,
-or raw pointers and sizes.It works for any contiguous block of memory.
-4. Provides boundary safety: Unlike bare pointers, std::span knows the size of the data it references, so it can be
-boundary-checked to prevent out-of-bounds access.
-5. Supports range operations: std::span can be used with C++ range-related operations, such as range for loops.
-
-*/
-
-auto printSpan = [](const std::span<int>& sp) {
-  for (auto n : sp) {
-    std::cout << n << " ";
-  }
-  std::cout << std::endl;
-};
-
-void testBasic() {
-  int            arr[] = {1, 2, 3, 4, 5};
-  std::span<int> sp1(arr);     // the whole array
-  std::span<int> sp2(arr, 3);  // the first 3 elements
-
-  for (int n : sp1) {
-    std::cout << n << " ";  // 1 2 3 4 5
-  }
-  std::cout << std::endl;
-
-  for (int n : sp2) {
-    std::cout << n << " ";  // 1 2 3
-  }
-  std::cout << std::endl;
-}
-
-void testSpanWithVector() {
-  std::vector<int> vec{11, 22, 33, 44, 55};
-  std::span<int>   sp1(vec);
-  printSpan(sp1);  // 11 22 33 44 55
-}
-
-void testSpanWithRawPointer() {
-  int*           arr = new int[6]{100, 200, 300, 400, 500, 600};
-  std::span<int> span(arr, 4);
-  printSpan(span);  // 100 200 300 400
-  delete[] arr;
-}
-
-void test() {
-  testBasic();
-  testSpanWithVector();
-  testSpanWithRawPointer();
-}
-
-}  // namespace TestStdSpan
 
 namespace TestStdBitset {
 /*
@@ -1224,7 +1296,7 @@ void test() {
 }  // namespace TestPolymorphic
 
 void test() {
-TestPointerCast::test();
+  TestStdMove::test();
   //TestSStream::test();
   // TestPolymorphic::test();
   // TestStdBitset::test();
