@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "utility.h"
+#include <mutex>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -188,11 +189,107 @@ void testControBlockThreadSafe() {
   splitLine();
   std::shared_ptr<Foo> sp = std::make_shared<Foo>(100);
   std::jthread         t1(func, sp), t2(func, sp), t3(func, sp);
+  // Output of current count could be from 2 to 4. 
+  // shared_ptr::use_count() is atomic and thread-safe;
+  // It returns a "snapshot" of the moment it was called,
+  // and subsequent increments and decrements by other threads do not feed back to the value that was read;
+  // Therefore, it can only be used for debugging, not for synchronization or logical judgments in multithreaded threads.
+}
+
+namespace ControlBlockThreadSafe {
+void test() {
+  // Initial shared_ptr, use_count == 1
+  auto sp = std::make_shared<int>(42);
+
+  // Launch N threads, each repeatedly copies and immediately destroys a copy of sp
+  const int                N = 4, ITERS = 100000;
+  std::vector<std::thread> threads;
+  threads.reserve(N);
+
+  for (int t = 0; t < N; ++t) {
+    threads.emplace_back([sp]() mutable {
+      for (int i = 0; i < ITERS; ++i) {
+        std::shared_ptr<int> local = sp;  // atomic++ on use_count
+                                          // when local goes out of scope, its destructor does atomic-- on use_count
+      }
+    });
+  }
+
+  // Wait for all threads to finish
+  for (auto& th : threads)
+    th.join();
+
+  // At this point all locals have been destroyed; only the original sp remains
+  std::cout << "Final use_count = " << sp.use_count() << std::endl;  // Final use_count = 1
+
+}
+
+}
+
+namespace ObjectManagedBySharedPtrNotThreadSafe {
+struct Counter {
+  int  value = 0;
+  void increment() { ++value; }
+  int  get() const { return value; }
+};
+
+void worker(std::shared_ptr<Counter> sp) {
+  for (int i = 0; i < 100000; ++i) {
+    sp->increment();  // Here, write concurrently to Counter::value
+  }
 }
 
 void test() {
+  auto        sp = std::make_shared<Counter>();
+  std::thread t1(worker, sp);
+  std::thread t2(worker, sp);
+
+  t1.join();
+  t2.join();
+
+  std::cout << "Final count: " << sp->get(); // The output might be 156263, 130059 which are lower that 200000. Because of data race in concurrency.
+
+}
+
+}
+
+namespace ObjectManagedBySharedPtrThreadSafeWithMutex {
+struct Counter {
+  int  value = 0;
+  std::mutex mtx;
+  void increment() { 
+      std::lock_guard<std::mutex> lk(mtx);
+      ++value; 
+  }
+  int  get() const { return value; }
+};
+
+void worker(std::shared_ptr<Counter> sp) {
+  for (int i = 0; i < 100000; ++i) {
+    sp->increment();  // Here, write concurrently to Counter::value
+  }
+}
+
+void test() {
+  auto        sp = std::make_shared<Counter>();
+  std::thread t1(worker, sp);
+  std::thread t2(worker, sp);
+
+  t1.join();
+  t2.join();
+
+  std::cout << "Final count: " << sp->get();  // The output must be 200000. Because
+                                              // of mutex, the data race in concurrency has been fixed.
+}
+
+}  // namespace ObjectManagedBySharedPtrNotThreadSafe
+
+void test() {
   // testReferenceCount();
-  testControBlockThreadSafe();
+  //testControBlockThreadSafe();
+  //ControlBlockThreadSafe::test();
+  //ObjectManagedBySharedPtrNotThreadSafe::test();
+  ObjectManagedBySharedPtrThreadSafeWithMutex::test();
 }
 
 }  // namespace TestSharePointerBasic
