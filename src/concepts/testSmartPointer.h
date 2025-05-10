@@ -1,8 +1,8 @@
 #include <iostream>
-#include <thread>
-#include "utility.h"
 #include <mutex>
+#include <thread>
 #include <vector>
+#include "utility.h"
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -190,34 +190,35 @@ void testControBlockThreadSafe() {
   splitLine();
   std::shared_ptr<Foo> sp = std::make_shared<Foo>(100);
   std::jthread         t1(func, sp), t2(func, sp), t3(func, sp);
-  // Output of current count could be from 2 to 4. 
+  // Output of current count could be from 2 to 4.
   // shared_ptr::use_count() is atomic and thread-safe;
   // It returns a "snapshot" of the moment it was called,
   // and subsequent increments and decrements by other threads do not feed back to the value that was read;
-  // Therefore, it can only be used for debugging, not for synchronization or logical judgments in multithreaded threads.
+  // Therefore, it can only be used for debugging, not for synchronization or logical judgments in multithreaded
+  // threads.
 }
 
-namespace UsingMakeShared{
+namespace UsingMakeShared {
 /*
 Why use std::make_shared
 1. Exception safety
 2. Performance (fewer allocations)
 3. Cleaner, more concise code
 */
-class Foo{};
+class Foo {};
 
 void test() {
-// Verbose:
-// First allocation: new Foo allocates memory for the actual Foo object.
-// Second allocation: shared_ptr construct allocates memory for the control block.
-std::shared_ptr<Foo> f(new Foo());
+  // Verbose:
+  // First allocation: new Foo allocates memory for the actual Foo object.
+  // Second allocation: shared_ptr construct allocates memory for the control block.
+  std::shared_ptr<Foo> f(new Foo());
 
-// Concise:
-// only one heap allocation is required
-auto f2 = std::make_shared<Foo>();
+  // Concise:
+  // only one heap allocation is required
+  auto f2 = std::make_shared<Foo>();
 }
 
-}
+}  // namespace UsingMakeShared
 
 namespace ControlBlockThreadSafe {
 /*
@@ -229,10 +230,12 @@ Purpose: Maintains reference counts, deleters for type erasure, weak reference c
 or allocator information for managed objects.
 
 Contents:
-Strong reference count (use count): How many std::shared_ptr<T> instances currently "own" this object. Only when the strong 
-    reference count drops to 0 does the control block actually call delete to destroy the managed object T. In other words, the strong reference count manages the object's lifetime.
-weak count: How many instances of std::weak_ptr<T> currently point to this same control block. It does not affect the lifetime of the object T, but guarantees that the control block itself will not be released until all std::weak_ptr are destroyed.
-    deleter/allocator, or their type-erased storage(storage of pointers to managed objects (in non-make_shared scenarios)
+Strong reference count (use count): How many std::shared_ptr<T> instances currently "own" this object. Only when the
+strong reference count drops to 0 does the control block actually call delete to destroy the managed object T. In other
+words, the strong reference count manages the object's lifetime. weak count: How many instances of std::weak_ptr<T>
+currently point to this same control block. It does not affect the lifetime of the object T, but guarantees that the
+control block itself will not be released until all std::weak_ptr are destroyed. deleter/allocator, or their type-erased
+storage(storage of pointers to managed objects (in non-make_shared scenarios)
 
 2. Object Block
 Purpose: actually holds the instance of the T object you created.
@@ -264,10 +267,9 @@ void test() {
 
   // At this point all locals have been destroyed; only the original sp remains
   std::cout << "Final use_count = " << sp.use_count() << std::endl;  // Final use_count = 1
-
 }
 
-}
+}  // namespace ControlBlockThreadSafe
 
 namespace ObjectManagedBySharedPtrNotThreadSafe {
 struct Counter {
@@ -290,21 +292,21 @@ void test() {
   t1.join();
   t2.join();
 
-  std::cout << "Final count: " << sp->get(); // The output might be 156263, 130059 which are lower that 200000. Because of data race in concurrency.
-
+  std::cout << "Final count: " << sp->get();  // The output might be 156263, 130059 which are lower that 200000. Because
+                                              // of data race in concurrency.
 }
 
-}
+}  // namespace ObjectManagedBySharedPtrNotThreadSafe
 
 namespace ObjectManagedBySharedPtrThreadSafeWithMutex {
 struct Counter {
-  int  value = 0;
+  int        value = 0;
   std::mutex mtx;
-  void increment() { 
-      std::lock_guard<std::mutex> lk(mtx);
-      ++value; 
+  void       increment() {
+    std::lock_guard<std::mutex> lk(mtx);
+    ++value;
   }
-  int  get() const { return value; }
+  int get() const { return value; }
 };
 
 void worker(std::shared_ptr<Counter> sp) {
@@ -325,7 +327,7 @@ void test() {
                                               // of mutex, the data race in concurrency has been fixed.
 }
 
-}  // namespace ObjectManagedBySharedPtrNotThreadSafe
+}  // namespace ObjectManagedBySharedPtrThreadSafeWithMutex
 
 namespace SharedFromThis {
 /*
@@ -380,16 +382,15 @@ void test() {
   // Worker destroyed
 }
 
-}
-
+}  // namespace SharedFromThis
 
 void test() {
   SharedFromThis::test();
   // testReferenceCount();
-  //testControBlockThreadSafe();
-  //ControlBlockThreadSafe::test();
-  //ObjectManagedBySharedPtrNotThreadSafe::test();
-  //ObjectManagedBySharedPtrThreadSafeWithMutex::test();
+  // testControBlockThreadSafe();
+  // ControlBlockThreadSafe::test();
+  // ObjectManagedBySharedPtrNotThreadSafe::test();
+  // ObjectManagedBySharedPtrThreadSafeWithMutex::test();
 }
 
 }  // namespace TestSharePointerBasic
@@ -411,7 +412,8 @@ void testWeakPtrCount() {
   std::shared_ptr<Foo> sp1 = std::make_shared<Foo>(99);
   std::weak_ptr<Foo>   wp1(sp1);
 
-  std::cout << "Shared ptr count: " << sp1.use_count() << ", Weak ptr count: " << wp1.use_count() << "\n";
+  std::cout << "Shared ptr count: " << sp1.use_count() << ", Weak ptr count: " << wp1.use_count()
+            << "\n";  // Shared ptr count: 1, Weak ptr count: 1
 }
 
 void testExpire() {
@@ -431,23 +433,23 @@ void testLock() {
   std::shared_ptr<Foo> sp1 = std::make_shared<Foo>(99);
   std::weak_ptr<Foo>   wp1(sp1);
   if (std::shared_ptr<Foo> sp2 = wp1.lock()) {  // check if created shared_ptr object is valid(nullptr or non nullptr)
-    std::cout << "Value: " << sp2->getX() << "\n";
-    std::cout << "Shared ptr count: " << sp2.use_count() << "\n";
+    std::cout << "Value: " << sp2->getX() << "\n";                 // 99
+    std::cout << "Shared ptr count: " << sp2.use_count() << "\n";  // 2
   }
 
   myLog("Trying to reset weak pointer\n");
   wp1.reset();  // releases the ownership of the managed object, after releases, the shared_ptr object could not be
                 // created.
   if (std::shared_ptr<Foo> sp2 = wp1.lock()) {  // check if created shared_ptr object is valid(nullptr or non nullptr)
-    std::cout << "Value: " << sp2->getX() << "\n";
-    std::cout << "Shared ptr count: " << sp2.use_count() << "\n";
+    std::cout << "Value: " << sp2->getX() << "\n";                 // would not be hit
+    std::cout << "Shared ptr count: " << sp2.use_count() << "\n";  // would not be hit
   }
 
-  std::cout << "Shared ptr count: " << sp1.use_count() << "\n";
+  std::cout << "Shared ptr count: " << sp1.use_count() << "\n";  // 1
   sp1.reset();
   if (std::shared_ptr<Foo> sp2 = wp1.lock()) {
-    std::cout << "Value: " << sp2->getX() << "\n";
-    std::cout << "Shared ptr count: " << sp2.use_count() << "\n";
+    std::cout << "Value: " << sp2->getX() << "\n";                 // would not be hit
+    std::cout << "Shared ptr count: " << sp2.use_count() << "\n";  // would not be hit
   } else {
     myLog("Do not get the resource, maybe the managed object has been deleted.\n");
   }
@@ -573,8 +575,8 @@ void test() {
   // TestcyclicDependencyBetweenSharedptrSolve::test();
   // TestcyclicDependencyBetweenSharedptr::test();
 
-  // TestWeakPointerBasic::test();
+  TestWeakPointerBasic::test();
   // TestUniquePointerBasic::test();
-  TestSharePointerBasic::test();
+  // TestSharePointerBasic::test();
   // TestMySmartPointer::test();
 }
