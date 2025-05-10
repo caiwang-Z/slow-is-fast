@@ -351,6 +351,29 @@ void test() {
 
 }  // namespace TestConstCast
 
+namespace TestReinterpretCast {
+/*
+In C++, reinterpret_cast is the most “dangerous” of the built-in casts: it performs a purely bit-level reinterpretation
+of one type as another, with no safety checks, no conversions, and no guarantees of portability. You should reach for
+reinterpret_cast only when you really need to treat some chunk of memory as an entirely different type, and you fully
+understand the ABI and alignment requirements.
+*/
+
+void readValue(unsigned char* rawPtr, size_t pixelCount) {
+    // 10 or 12 bit image raw data is written in 2 bytes. How to read 10 and 12 bit pixel values by reinterpret_cast? check below 
+  uint16_t* pixelPtr = reinterpret_cast<uint16_t*>(rawPtr);
+
+  std::cout << "Pixel value are: ";
+  for (size_t i = 0; i < pixelCount; ++i) {
+    uint16_t pixelValue = pixelPtr[i];
+
+    std::cout << pixelValue << ", ";
+  }
+  std::cout << std::endl;
+}
+
+}
+
 namespace TestCastBasic {
 void test() {
   // C style cast
