@@ -384,8 +384,97 @@ void test() {
 
 }  // namespace SharedFromThis
 
+namespace MyOwnReferenceCount{
+template <class T>
+class Ref_count {
+  private:
+  T*   ptr;    // raw pointer to the managed object
+  int* count;  // pointer to the reference count
+  public:
+  /*
+  Construct a shared pointer from a raw pointer. Note: this has an issue because using this constructor
+  multiple times with the same raw pointer will create separate reference counts for the same object.
+
+  For example:
+    shared_ptr<int> s_ptr(p);      // s_ptr points to p, count = 1
+    shared_ptr<int> s_ptr1 = s_ptr; // s_ptr1 also points to p, count = 2
+    shared_ptr<int> s_ptr2(p);     // Donot use it like this! s_ptr2 also points to p, but creates a new count = 1, which is incorrect. To avoid this, do not use a raw pointer with this constructor more than once.
+  */
+  Ref_count(T* t) : ptr(t), count(new int(1)) {}
+
+  ~Ref_count() { decrease(); }
+
+  // Copy constructor: shares ownership by copying pointer and count, then incrementing
+  Ref_count(const Ref_count<T>& tmp) {
+    ptr   = tmp.ptr;
+    count = tmp.count;
+    increase();
+  }
+
+  // Assignment operator:
+  // "=" means the left-hand shared pointer will stop owning its old object (count - 1)
+  // and then start owning the right-hand object (count + 1)
+  Ref_count<T>& operator=(const Ref_count& tmp) {
+    if (this != &tmp) {
+      decrease();         // release old ownership
+      ptr   = tmp.ptr;    // copy pointer
+      count = tmp.count;  // copy count pointer
+      increase();         // acquire new ownership
+    }
+    return *this;
+  }
+
+  T* operator->() const { return ptr; }
+
+  T& operator*() const { return *ptr; }
+
+  // Increment the reference count
+  void increase() {
+    if (count) {
+      ++(*count);
+    }
+  }
+
+  // Decrement the reference count and delete when it reaches zero
+  void decrease() {
+    if (count) {
+      --(*count);
+      if (*count == 0) {
+        // When the reference count reaches zero, delete the managed object and the count
+        delete ptr;
+        ptr = nullptr;
+        delete count;
+        count = nullptr;
+      }
+    }
+  }
+
+  // Access the raw pointer
+  T* get() const { return ptr; }
+
+  // Get the current reference count (0 if uninitialized)
+  int get_count() const {
+    if (!count) {
+      return 0;
+    }
+    return *count;
+  }
+};
+
 void test() {
-  SharedFromThis::test();
+  int* rawPtr = new int(99);
+  Ref_count<int> rc(rawPtr);
+  std::cout << rc.get_count() << std::endl; // 1
+  auto rc2 = rc;
+  std::cout << rc.get_count() << " " << rc2.get_count(); // 2 2
+
+}
+
+}
+
+void test() {
+  MyOwnReferenceCount::test();
+  //SharedFromThis::test();
   // testReferenceCount();
   // testControBlockThreadSafe();
   // ControlBlockThreadSafe::test();
@@ -575,8 +664,8 @@ void test() {
   // TestcyclicDependencyBetweenSharedptrSolve::test();
   // TestcyclicDependencyBetweenSharedptr::test();
 
-  TestWeakPointerBasic::test();
+  //TestWeakPointerBasic::test();
   // TestUniquePointerBasic::test();
-  // TestSharePointerBasic::test();
+   TestSharePointerBasic::test();
   // TestMySmartPointer::test();
 }
