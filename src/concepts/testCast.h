@@ -205,8 +205,7 @@ class A : public Base {
 class B : public Base {
   public:
   B(){};
-      void fooB() { std::cout << "fooB" << std::endl;
-  }
+  void fooB() { std::cout << "fooB" << std::endl; }
 };
 
 void test() {
@@ -214,12 +213,12 @@ void test() {
   // Want to treat it as an A if possible:
   if (auto aptr = dynamic_cast<A*>(bptr)) {
     aptr->fooA();  // no
-  } else if(auto aptr = dynamic_cast<B*>(bptr)){
-    aptr->fooB(); // yes
+  } else if (auto aptr = dynamic_cast<B*>(bptr)) {
+    aptr->fooB();  // yes
   }
   delete bptr;
 }
-}
+}  // namespace Basic
 
 namespace Example {
 struct Animal {
@@ -249,14 +248,108 @@ void test() {
   interact(std::make_unique<Dog>());  // prints Woof!
 }
 
-}
+}  // namespace Example
 
 void test() {
   Basic::test();
   Example::test();
 }
 
+}  // namespace TestDynamicCastComplete
+
+namespace TestConstCast {
+/*
+In C++, const_cast is the only cast that can add or remove the const (and/or volatile) qualifier from a pointer or
+reference. It performs no run-time checks or conversions— it simply tells the compiler “treat this object as more or
+less const-qualified than it really is.” Use it sparingly and only when you know it’s safe.
+
+When to use const_cast
+1. Interfacing with legacy APIs
+Many older C APIs take non-const pointers (e.g. char*) even when they promise not to modify the data. If you have a
+const char* or std::string::c_str(), you can cast away const to call such functions.
+*/
+namespace InterfacingWithLegacyAPIs {
+void legacyFunc(char* buf) {
+  std::cout << "It works and buf won`t be modified.\n";
 }
+
+void test() {
+  const char* message{"Hello world"};
+  // legacyFunc(message); // Compile error! argument of type "const char *" is incompatible with parameter of type "char
+  // *"
+  legacyFunc(const_cast<char*>(message));  // It works and buf won`t be modified.
+}
+
+}  // namespace InterfacingWithLegacyAPIs
+
+/*
+2. Calling a member function marked const that conceptually mutates internal “mutable” state
+If you have a const–qualified member function that nonetheless needs to change some internal cache or bookkeeping field
+declared mutable, you might cast away the top-level const of this to call a non-const helper.
+*/
+namespace CallingnNonConstMemberFunctionInsideConstMemberFunction {
+class Image {
+  public:
+  void loadData() { std::cout << "load data...\n"; };
+
+  /*
+    This is a const method that logically shouldn't modify the state of the object - for rendering images.
+    However, on the first call, the image is not yet loaded and needs to be loaded first.
+
+    display() is const, so you can't call a non-const loadData() by default.
+    We call loadData() by temporarily removing the const const const from this via const_cast.
+    Since loadData() only modifies the cache members marked as mutable (_loaded and internal image data), it is still
+    semantically "const".
+  */
+  void display() const {
+    // loadData(); // Compile Error!
+    if (!_load) {
+      const_cast<Image*>(this)->loadData();
+    }
+    // ... render image ...
+  }
+
+  private:
+  mutable bool _load = false;
+};
+}  // namespace CallingnNonConstMemberFunctionInsideConstMemberFunction
+
+/*
+3. Reusing code that takes non-const references
+Sometimes a library function you want to call is declared to take Foo& but you have a const Foo. If you know it won’t
+modify the object’s observable state, you can cast away const.
+*/
+namespace ReusingCodeThatTakesNonConstRef {
+class Foo {};
+
+void printFoo(Foo& f){};
+
+void test() {
+  const Foo f_const = Foo();
+
+  // printFoo(f_const);// Compile Error!
+  printFoo(const_cast<Foo&>(f_const));  // safe if printFoo doesn’t modify f
+}
+
+}  // namespace ReusingCodeThatTakesNonConstRef
+
+/*
+4. Removing volatile or both qualifiers
+In extremely low-level or embedded code you might need to remove volatile (e.g. for atomic operations) or remove both:
+*/
+namespace RemovingVolatile {
+void test() {
+  volatile int x  = 0;
+  int&         xr = const_cast<int&>(x);
+  xr              = 42;  // still writes through the volatile-qualified object
+}
+}  // namespace RemovingVolatile
+
+void test() {
+  InterfacingWithLegacyAPIs::test();
+}
+
+}  // namespace TestConstCast
 
 namespace TestCastBasic {
 void test() {
@@ -322,7 +415,7 @@ void test() {
 
 void test() {
   TestDynamicCastComplete::test();
-  //TestStaticCast::test();
-  // TestDynamicCast::test();
-  //  TestPointerCast::test();
+  // TestStaticCast::test();
+  //  TestDynamicCast::test();
+  //   TestPointerCast::test();
 }

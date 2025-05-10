@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -254,6 +254,12 @@ void test() {
 
   for (int t = 0; t < N; ++t) {
     threads.emplace_back([sp]() mutable {
+      /*
+      What does mutable do here?
+        By default, a C++ lambda’s call‐operator (operator()) is const-qualified, which means any variables you captured 
+        by value are treated as if they were const inside the body. Marking the lambda mutable removes that const 
+        qualification, so you’re allowed to modify the copies of captured variables.
+      */
       for (int i = 0; i < ITERS; ++i) {
         std::shared_ptr<int> local = sp;  // atomic++ on use_count
                                           // when local goes out of scope, its destructor does atomic-- on use_count
