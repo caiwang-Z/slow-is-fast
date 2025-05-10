@@ -6,6 +6,7 @@
 #include <variant>
 #include <vector>
 #include "utility.h"
+#include <mutex>
 
 using namespace UtilityNameSpace;
 using UtilityNameSpace::Splitter;
@@ -871,6 +872,83 @@ volatile can sometimes be a lightweight fallback.
 */
 }
 
+}
+
+namespace TestMutable {
+/*
+In C++, the mutable keyword lets you mark specific non-static data members of a class as modifiable even when they’re
+part of an object that’s otherwise considered const. It’s most commonly used to enable “logically” const member
+functions to change a small piece of internal state—such as a cache, a counter, or bookkeeping flags—without breaking
+the promise of const-correctness.
+
+1. Lazy initialization or caching
+When a const member function needs to compute and store a value the first time it’s called (e.g. an expensive
+calculation or a parsed representation), you can keep the cached result in a mutable member:
+
+Here, expensiveComputation() is const from the caller’s perspective, but still able to populate _cache once.
+*/
+namespace ModifyMemberInConstMemberFunction {
+struct Data {
+  mutable bool _isCache = false; // compile error in foo function without mutable
+
+  int foo() const { _isCache = true; };
+};
+
+}
+
+/*
+2. Reference counting or bookkeeping
+If your object needs to track how many times it’s been read, or maintain statistics/logs, you can put those counters or
+log buffers in mutable members:
+*/
+namespace ReferenceCountingOrBookkeeping {
+struct Document {
+  std::string text;
+  mutable int readCount = 0;
+
+  const std::string& getText() const {
+    ++readCount;  // allowed, even though this is a const method
+    return text;
+  }
+};
+}
+
+/*
+3. Thread-safety and synchronization
+You might declare a std::mutex (or an atomic flag) as mutable so that const methods can still lock/unlock it when
+performing synchronized reads:
+*/
+namespace ThreadSafetyAndSync{
+class SharedResource {
+  int                data;
+  mutable std::mutex mtx;
+
+  public:
+  int get() const {
+    std::lock_guard<std::mutex> lock(mtx);
+    return data;
+  }
+};
+
+}  // namespace ThreadSafetyAndSync
+/*
+4. Debugging, logging, or tracing
+To add diagnostic logging in methods that shouldn’t modify the object’s logical state, you can stash log entries in a
+mutable log buffer:
+*/
+namespace DubuggingLoggingTracing {
+struct Sensor {
+  double                           value;
+  mutable std::vector<std::string> log;
+
+  double read() const {
+    double v = /* hardware read */;
+    log.push_back("read(): " + std::to_string(v));
+    return v;
+  }
+};
+
+}
 }
 
 void test() {
