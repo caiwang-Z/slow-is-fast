@@ -45,9 +45,10 @@ class Derived : public Base {
   //} // Compile Error!. Not allowed to override
 };
 
-}
+}  // namespace PreventOverrideMemberFunction
 
-}
+}  // namespace PreventInherit
+}  // namespace TestFinalKeyword
 
 namespace TestFriendKeyWord {
 /*

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "utility.h"
+#include <mutex>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -103,7 +104,7 @@ void testGetFunction() {
   Dummy* dy = intP1.get();
   myLog(dy->getValue());
   if (intP1) {
-    myLog(intP1->getValue());
+    myLog(intP1->getValue());  // will be hit. 100
   }
 }
 
@@ -118,15 +119,14 @@ void testReleaseFunction() {
   delete dy;  // intP1 becomes nullptr, manually manage the raw pointer
 }
 
-// void testGetDeleterFunction() {
-//	std::unique_ptr<Dummy> intP1 = std::make_unique<Dummy>(100);
+void testGetDeleterFunction() {
+  std::unique_ptr<Dummy> intP1 = std::make_unique<Dummy>(100);
 
-//	Dummy* dy = intP1.release();
-//	myLog(dy->getValue());
-//	auto func = intP1.get_deleter();
-//	func();
-//
-//}
+  Dummy* dy = intP1.release();
+  myLog(dy->getValue());
+  auto func = intP1.get_deleter();
+  func(dy);  // Current value: 100, destructor called.
+}
 
 void test() {
   // testConstructUniquePointer();
@@ -166,16 +166,19 @@ class Foo {
 void testReferenceCount() {
   splitLine();
   std::shared_ptr<Foo> sp1 = std::make_shared<Foo>(99);
-  myLog(sp1.use_count());
+  myLog(sp1.use_count());  // 1
 
   std::shared_ptr<Foo> sp2 = sp1;  // count increment by 1
-  std::cout << "sp1 count: " << sp1.use_count() << " , sp2 count: " << sp2.use_count() << "\n";
+  std::cout << "sp1 count: " << sp1.use_count() << " , sp2 count: " << sp2.use_count()
+            << "\n";  // sp1 count: 2 , sp2 count: 2
 
   std::shared_ptr<Foo>* sp3 = &sp1;  // no increment
-  std::cout << "sp1 count: " << sp1.use_count() << " , sp3 count: " << sp3->use_count() << "\n";
+  std::cout << "sp1 count: " << sp1.use_count() << " , sp3 count: " << sp3->use_count()
+            << "\n";  // sp1 count: 2 , sp2 count: 2
 
   std::shared_ptr<Foo>& sp4 = sp1;  // no increment
-  std::cout << "sp1 count: " << sp1.use_count() << " , sp3 count: " << sp4.use_count() << "\n";
+  std::cout << "sp1 count: " << sp1.use_count() << " , sp3 count: " << sp4.use_count()
+            << "\n";  // sp1 count: 2 , sp2 count: 2
 }
 
 void func(std::shared_ptr<Foo> sp) {
@@ -186,11 +189,107 @@ void testControBlockThreadSafe() {
   splitLine();
   std::shared_ptr<Foo> sp = std::make_shared<Foo>(100);
   std::jthread         t1(func, sp), t2(func, sp), t3(func, sp);
+  // Output of current count could be from 2 to 4. 
+  // shared_ptr::use_count() is atomic and thread-safe;
+  // It returns a "snapshot" of the moment it was called,
+  // and subsequent increments and decrements by other threads do not feed back to the value that was read;
+  // Therefore, it can only be used for debugging, not for synchronization or logical judgments in multithreaded threads.
+}
+
+namespace ControlBlockThreadSafe {
+void test() {
+  // Initial shared_ptr, use_count == 1
+  auto sp = std::make_shared<int>(42);
+
+  // Launch N threads, each repeatedly copies and immediately destroys a copy of sp
+  const int                N = 4, ITERS = 100000;
+  std::vector<std::thread> threads;
+  threads.reserve(N);
+
+  for (int t = 0; t < N; ++t) {
+    threads.emplace_back([sp]() mutable {
+      for (int i = 0; i < ITERS; ++i) {
+        std::shared_ptr<int> local = sp;  // atomic++ on use_count
+                                          // when local goes out of scope, its destructor does atomic-- on use_count
+      }
+    });
+  }
+
+  // Wait for all threads to finish
+  for (auto& th : threads)
+    th.join();
+
+  // At this point all locals have been destroyed; only the original sp remains
+  std::cout << "Final use_count = " << sp.use_count() << std::endl;  // Final use_count = 1
+
+}
+
+}
+
+namespace ObjectManagedBySharedPtrNotThreadSafe {
+struct Counter {
+  int  value = 0;
+  void increment() { ++value; }
+  int  get() const { return value; }
+};
+
+void worker(std::shared_ptr<Counter> sp) {
+  for (int i = 0; i < 100000; ++i) {
+    sp->increment();  // Here, write concurrently to Counter::value
+  }
 }
 
 void test() {
-  testReferenceCount();
-  testControBlockThreadSafe();
+  auto        sp = std::make_shared<Counter>();
+  std::thread t1(worker, sp);
+  std::thread t2(worker, sp);
+
+  t1.join();
+  t2.join();
+
+  std::cout << "Final count: " << sp->get(); // The output might be 156263, 130059 which are lower that 200000. Because of data race in concurrency.
+
+}
+
+}
+
+namespace ObjectManagedBySharedPtrThreadSafeWithMutex {
+struct Counter {
+  int  value = 0;
+  std::mutex mtx;
+  void increment() { 
+      std::lock_guard<std::mutex> lk(mtx);
+      ++value; 
+  }
+  int  get() const { return value; }
+};
+
+void worker(std::shared_ptr<Counter> sp) {
+  for (int i = 0; i < 100000; ++i) {
+    sp->increment();  // Here, write concurrently to Counter::value
+  }
+}
+
+void test() {
+  auto        sp = std::make_shared<Counter>();
+  std::thread t1(worker, sp);
+  std::thread t2(worker, sp);
+
+  t1.join();
+  t2.join();
+
+  std::cout << "Final count: " << sp->get();  // The output must be 200000. Because
+                                              // of mutex, the data race in concurrency has been fixed.
+}
+
+}  // namespace ObjectManagedBySharedPtrNotThreadSafe
+
+void test() {
+  // testReferenceCount();
+  //testControBlockThreadSafe();
+  //ControlBlockThreadSafe::test();
+  //ObjectManagedBySharedPtrNotThreadSafe::test();
+  ObjectManagedBySharedPtrThreadSafeWithMutex::test();
 }
 
 }  // namespace TestSharePointerBasic
@@ -371,11 +470,11 @@ void test() {
 }  // namespace TestcyclicDependencyBetweenSharedptrSolve
 
 void test() {
-  TestcyclicDependencyBetweenSharedptrSolve::test();
+  // TestcyclicDependencyBetweenSharedptrSolve::test();
   // TestcyclicDependencyBetweenSharedptr::test();
 
   // TestWeakPointerBasic::test();
   // TestUniquePointerBasic::test();
-  // TestSharePointerBasic::test();
+  TestSharePointerBasic::test();
   // TestMySmartPointer::test();
 }
