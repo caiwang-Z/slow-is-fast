@@ -214,7 +214,7 @@ std::shared_ptr<Foo> f(new Foo());
 
 // Concise:
 // only one heap allocation is required
-auto f = std::make_shared<Foo>();
+auto f2 = std::make_shared<Foo>();
 }
 
 }
@@ -327,12 +327,67 @@ void test() {
 
 }  // namespace ObjectManagedBySharedPtrNotThreadSafe
 
+namespace SharedFromThis {
+/*
+In C++, if you want an object to be able to "get" a std::shared_ptr "from itself" (instead of having the external
+manually save its shared_ptr), you can have the class inherit from std::enable_shared_from_this, and call the
+shared_from_this() method it provides. and then call the shared_from_this() method it provides.
+Suppose you have a scenario like this:
+
+struct Widget {
+ void do_something() {
+ // Here you want to get a shared_ptr<Widget> to hold itself
+ }
+};
+
+If the Widget internally needs to pass itself (this) to an asynchronous task or callback function, using this directly
+loses the reference counting management (which could eventually lead to a dangling pointers); and if you pass in an
+external shared_ptr manually, the interface is messy and unsafe.
+
+shared_from_this was created to allow an object to "safely" generate a new shared_ptr from itself, knowing that it is
+already managed by a shared_ptr.
+
+*/
+
+class Worker : public std::enable_shared_from_this<Worker> {
+  public:
+  void do_work() {
+    // Get shared_ptr<Worker> to ensure that the object is not destroyed during an asynchronous task.
+    auto self = shared_from_this();
+
+    std::thread([self]() {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::cout << "Work done\n";
+    }).detach();
+  }
+
+  ~Worker() { std::cout << "Worker destroyed\n"; }
+};
+
+void test() {
+  {
+    std::shared_ptr<Worker> w = std::make_shared<Worker>();
+    w->do_work();
+    // w When the scope ends, the reference count becomes 1 (there is still one in the thread lambda)
+  }
+
+  // The main thread waits two seconds to make sure the asynchronous task completes
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+  // After the lambda finishes executing, the reference count drops to 0 and the worker is destroyed.
+
+  // The complete output would be:
+  // Work done
+  // Worker destroyed
+}
+
+}
 
 
 void test() {
+  SharedFromThis::test();
   // testReferenceCount();
   //testControBlockThreadSafe();
-  ControlBlockThreadSafe::test();
+  //ControlBlockThreadSafe::test();
   //ObjectManagedBySharedPtrNotThreadSafe::test();
   //ObjectManagedBySharedPtrThreadSafeWithMutex::test();
 }
