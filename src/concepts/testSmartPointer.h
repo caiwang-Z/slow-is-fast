@@ -2,6 +2,7 @@
 #include <thread>
 #include "utility.h"
 #include <mutex>
+#include <vector>
 
 using UtilityNameSpace::myLog;
 using UtilityNameSpace::splitLine;
@@ -196,7 +197,49 @@ void testControBlockThreadSafe() {
   // Therefore, it can only be used for debugging, not for synchronization or logical judgments in multithreaded threads.
 }
 
+namespace UsingMakeShared{
+/*
+Why use std::make_shared
+1. Exception safety
+2. Performance (fewer allocations)
+3. Cleaner, more concise code
+*/
+class Foo{};
+
+void test() {
+// Verbose:
+// First allocation: new Foo allocates memory for the actual Foo object.
+// Second allocation: shared_ptr construct allocates memory for the control block.
+std::shared_ptr<Foo> f(new Foo());
+
+// Concise:
+// only one heap allocation is required
+auto f = std::make_shared<Foo>();
+}
+
+}
+
 namespace ControlBlockThreadSafe {
+/*
+In C++11's std::shared_ptr implementation, there are two memory blocks involved around a managed object, but technically
+there is only one "control block". The two memory blocks are:
+
+1.Control Block
+Purpose: Maintains reference counts, deleters for type erasure, weak reference counts, and (if not make_shared) pointer
+or allocator information for managed objects.
+
+Contents:
+Strong reference count (use count): How many std::shared_ptr<T> instances currently "own" this object. Only when the strong 
+    reference count drops to 0 does the control block actually call delete to destroy the managed object T. In other words, the strong reference count manages the object's lifetime.
+weak count: How many instances of std::weak_ptr<T> currently point to this same control block. It does not affect the lifetime of the object T, but guarantees that the control block itself will not be released until all std::weak_ptr are destroyed.
+    deleter/allocator, or their type-erased storage(storage of pointers to managed objects (in non-make_shared scenarios)
+
+2. Object Block
+Purpose: actually holds the instance of the T object you created.
+Note: this is not a "control block", it just holds the objects you want to manage.
+
+*/
+
 void test() {
   // Initial shared_ptr, use_count == 1
   auto sp = std::make_shared<int>(42);
@@ -284,12 +327,14 @@ void test() {
 
 }  // namespace ObjectManagedBySharedPtrNotThreadSafe
 
+
+
 void test() {
   // testReferenceCount();
   //testControBlockThreadSafe();
-  //ControlBlockThreadSafe::test();
+  ControlBlockThreadSafe::test();
   //ObjectManagedBySharedPtrNotThreadSafe::test();
-  ObjectManagedBySharedPtrThreadSafeWithMutex::test();
+  //ObjectManagedBySharedPtrThreadSafeWithMutex::test();
 }
 
 }  // namespace TestSharePointerBasic
