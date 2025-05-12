@@ -16,11 +16,12 @@
 //#include "testMultiThreading.h"
 //#include "testStdFunctions.h"
 //#include "testSTDException.h"
-#include "testSmartPointer.h"
+//#include "testSmartPointer.h"
 //#include "designpatterns.h"
 //#include "testConceptsUnderstanding.h"
 //#include "testPrimitivDataType.h"
 //#include "miscellaneous.h"
+#include "testAlgorithm.h"
 
 
 int main() {
