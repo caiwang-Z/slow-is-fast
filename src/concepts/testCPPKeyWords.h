@@ -7,9 +7,46 @@
 #include <vector>
 #include "utility.h"
 #include <mutex>
+#include <cstring>
+#include <string>
 
 using namespace UtilityNameSpace;
 using UtilityNameSpace::Splitter;
+
+namespace TestCharSlashZero {
+void test1() {
+  char headInfo[12] = { "hello world" }; // The compiler automatically adds '\0' (Null character) to the end of the array.If you declare the size as 11 (lower than 12), a compile error will be reported.
+  size_t strLen = std::strlen(headInfo); // 11, strlen will count from headShc[0] to the first '\0' it encounters, excluding '\0' itself.
+  size_t total = sizeof(headInfo) / sizeof(headInfo[0]); // 12, sizeof(headShc) gets the number of bytes occupied by the entire array (18), divided by the size of a single element (1 byte) to get the number of elements in the array.
+  int a = 1;
+}
+
+void test2() {
+  char s[] = { "abc\0def" };
+  size_t strLen = std::strlen(s); // 3, strlen stops at the first '\0', not including itself. happens in runtime
+  size_t total  = sizeof(s) / sizeof(s[0]); // 8, There are 7 visible characters in the literal + 1 manual '\0', plus the ending '\0' automatically added by the compiler, for a total of 8 bytes. happens in compile time
+  // sizeof(s) doesn't "find" the end of the string at all - it already knows the total number of bytes in the headInfo array at compile time.
+  int a = 1;
+}
+
+void test3() {
+  char s[10] = { "abc\0def" };
+  auto char3 = s[3]; // char3 == 0, This is identical to '\0' (the integer value of the NUL character is 0).
+  auto char4 = s[4]; // 'd'
+  auto char9 = s[9]; // char9 == 0, This is identical to '\0' (the integer value of the NUL character is 0).
+  auto char10 = s[10]; // undefined behaviour. The compiler and runtime have no guarantees for out-of-bounds accesses, so these values are neither reliable nor safe.
+  auto char11 = s[11]; // undefined behaviour. The compiler and runtime have no guarantees for out-of-bounds accesses, so these values are neither reliable nor safe.
+  int a = 1;
+
+}
+
+
+void test() {
+  test1();
+  test2();
+  test3();
+}
+}
 
 namespace TestFinalKeyword {
 /*
@@ -942,7 +979,7 @@ struct Sensor {
   mutable std::vector<std::string> log;
 
   double read() const {
-    double v = /* hardware read */;
+    double v = 12/* hardware read */;
     log.push_back("read(): " + std::to_string(v));
     return v;
   }
@@ -958,5 +995,6 @@ void test() {
   // TestCplusPlusAttribute::test();
   // TestNullKeyWord::test();
   // TestDecltype::test();
-  TestFriendKeyWord::test();
+  //TestFriendKeyWord::test();
+  TestCharSlashZero::test();
 }
